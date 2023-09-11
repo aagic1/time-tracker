@@ -6,7 +6,9 @@ import express, { Express, Request, Response, Application } from 'express';
 import activitiesRouter from './src/routes/activities';
 
 const app: Application = express();
-const port = process.env.PORT || 8000;
+
+// middleware
+app.use(express.json());
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Time Tracker app2');
@@ -14,6 +16,7 @@ app.get('/', (req: Request, res: Response) => {
 
 app.use('/api/v1/activities', activitiesRouter);
 
+const port = process.env.PORT || 8000;
 app.listen(port, () => {
   console.log(`Server is listening on http://localhost:${port}`);
 });
