@@ -20,8 +20,16 @@ async function findByAccountId(account_id: number) {
     .execute();
 }
 
-// async function
+async function findById(activityId: number, accountId: number) {
+  return db
+    .selectFrom('activity')
+    .selectAll()
+    .where('id', '=', activityId)
+    .where('account_id', '=', accountId)
+    .execute();
+}
 
 export default {
+  findById,
   findByAccountId,
 };

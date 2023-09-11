@@ -1,5 +1,5 @@
 import express, { Router, Request, Response } from 'express';
-import { getAllActivities } from '../controllers/activities';
+import { getAllActivities, getActivity } from '../controllers/activities';
 
 const activitiesRouter: Router = express.Router();
 
@@ -12,9 +12,7 @@ activitiesRouter
 
 activitiesRouter
   .route('/:activityId')
-  .get((req: Request, res: Response) => {
-    res.send('Get activity by id');
-  })
+  .get(getActivity)
   .patch((req: Request, res: Response) => {
     res.send('Update activity by id');
   })
