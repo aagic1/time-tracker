@@ -1,12 +1,11 @@
 import express, { Router, Request, Response } from 'express';
+import { getAllActivities } from '../controllers/activities';
 
 const activitiesRouter: Router = express.Router();
 
 activitiesRouter
   .route('/')
-  .get((req: Request, res: Response) => {
-    res.send('Get activites');
-  })
+  .get(getAllActivities)
   .post((req: Request, res: Response) => {
     res.send('Create activity');
   });
