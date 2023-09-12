@@ -1,5 +1,5 @@
-import { Activity } from 'kysely-codegen';
 import { db } from '../db';
+import { NewActivity } from '../db/types';
 
 async function findByAccountId(account_id: number) {
   return db
@@ -29,7 +29,27 @@ async function findById(activityId: number, accountId: number) {
     .execute();
 }
 
+async function create(activity: NewActivity) {
+  console.log('db', activity);
+  return db
+    .insertInto('activity')
+    .values(activity)
+    .returning([
+      'id',
+      'account_id as accountId',
+      'name',
+      'color',
+      'archived',
+      'session_goal as sessionGoal',
+      'day_goal as dayGoal',
+      'week_goal as weekGoal',
+      'month_goal as monthGoal',
+    ])
+    .executeTakeFirstOrThrow();
+}
+
 export default {
   findById,
   findByAccountId,
+  create,
 };

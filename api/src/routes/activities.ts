@@ -1,14 +1,13 @@
 import express, { Router, Request, Response } from 'express';
-import { getAllActivities, getActivity } from '../controllers/activities';
+import {
+  getAllActivities,
+  getActivity,
+  createActivity,
+} from '../controllers/activities';
 
 const activitiesRouter: Router = express.Router();
 
-activitiesRouter
-  .route('/')
-  .get(getAllActivities)
-  .post((req: Request, res: Response) => {
-    res.send('Create activity');
-  });
+activitiesRouter.route('/').get(getAllActivities).post(createActivity);
 
 activitiesRouter
   .route('/:activityId')
