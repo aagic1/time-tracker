@@ -23,7 +23,11 @@ export async function getAllActivities(req: Request, res: Response) {
 }
 
 export async function getActivity(req: Request, res: Response) {
-  const activity = await activityDAO.findById(1, 1);
+  if (!isIntegerStrict(req.params.activityId)) {
+    return res.status(400).json({ msg: 'Activity id must be number' });
+  }
+  const activityId = Number.parseInt(req.params.activityId, 10);
+  const activity = await activityDAO.findById(activityId, 1);
   res.status(200).json({ activity });
 }
 
@@ -117,4 +121,8 @@ function isValidCreateRequestBody(arg: any): arg is ICreateActivityRequestBody {
     isValidInterval(arg.weekGoal) &&
     isValidInterval(arg.monthGoal)
   );
+}
+
+function isIntegerStrict(arg: string) {
+  return !Number.isNaN(Number.parseInt(arg)) && !Number.isNaN(Number(arg));
 }
