@@ -55,6 +55,21 @@ export async function createActivity(req: Request, res: Response) {
   res.status(200).json(newActivity);
 }
 
+export async function deleteActivity(req: Request, res: Response) {
+  if (!isIntegerStrict(req.params.activityId)) {
+    return res.status(400).json({ msg: 'Activity id must be number' });
+  }
+  const activityId = Number.parseInt(req.params.activityId, 10);
+  try {
+    await activityDAO.remove(activityId, 1);
+  } catch (e) {
+    return res
+      .status(404)
+      .json({ msg: `Activity with id ${activityId} not found` });
+  }
+  res.sendStatus(200);
+}
+
 function toStringFromInterval(interval: GoalInterval | undefined) {
   if (!interval) {
     return null;

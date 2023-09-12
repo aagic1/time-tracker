@@ -48,8 +48,18 @@ async function create(activity: NewActivity) {
     .executeTakeFirstOrThrow();
 }
 
+function remove(activityId: number, accountId: number) {
+  return db
+    .deleteFrom('activity')
+    .where('id', '=', activityId)
+    .where('account_id', '=', accountId)
+    .returningAll()
+    .executeTakeFirstOrThrow();
+}
+
 export default {
   findById,
   findByAccountId,
   create,
+  remove,
 };

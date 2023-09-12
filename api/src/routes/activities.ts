@@ -3,6 +3,7 @@ import {
   getAllActivities,
   getActivity,
   createActivity,
+  deleteActivity,
 } from '../controllers/activities';
 
 const activitiesRouter: Router = express.Router();
@@ -15,8 +16,6 @@ activitiesRouter
   .patch((req: Request, res: Response) => {
     res.send('Update activity by id');
   })
-  .delete((req: Request, res: Response) => {
-    res.send('Delete activity by id');
-  });
+  .delete(deleteActivity);
 
 export default activitiesRouter;
