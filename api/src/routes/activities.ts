@@ -3,6 +3,7 @@ import {
   getAllActivities,
   getActivity,
   createActivity,
+  updateActivity,
   deleteActivity,
 } from '../controllers/activities';
 
@@ -13,9 +14,7 @@ activitiesRouter.route('/').get(getAllActivities).post(createActivity);
 activitiesRouter
   .route('/:activityId')
   .get(getActivity)
-  .patch((req: Request, res: Response) => {
-    res.send('Update activity by id');
-  })
+  .patch(updateActivity)
   .delete(deleteActivity);
 
 export default activitiesRouter;

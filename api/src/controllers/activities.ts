@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import parse, { IPostgresInterval } from 'postgres-interval';
 import activityDAO from '../data-access/activities';
+import { ActivityUpdate, NewActivity } from '../db/types';
 
 interface GoalInterval {
   hours?: number;
@@ -55,6 +56,21 @@ export async function createActivity(req: Request, res: Response) {
   res.status(200).json(newActivity);
 }
 
+export async function updateActivity(req: Request, res: Response) {
+  if (!isIntegerStrict(req.params.activityId)) {
+    return res.status(400).json({ msg: 'Activity id must be number' });
+  }
+  const activityId = Number.parseInt(req.params.activityId, 10);
+
+  try {
+    const activity = validateUpdateBodyAndReturn(req.body);
+    const newActivity = await activityDAO.update(activityId, 1, activity);
+    res.status(200).json({ activity: newActivity });
+  } catch (e) {
+    res.status(404).json({ msg: e });
+  }
+}
+
 export async function deleteActivity(req: Request, res: Response) {
   if (!isIntegerStrict(req.params.activityId)) {
     return res.status(400).json({ msg: 'Activity id must be number' });
@@ -72,7 +88,7 @@ export async function deleteActivity(req: Request, res: Response) {
 
 function toStringFromInterval(interval: GoalInterval | undefined) {
   if (!interval) {
-    return null;
+    return interval;
   }
   return `${interval.hours ?? '00'}:${interval.minutes ?? '00'}:${
     interval.seconds ?? '00'
@@ -136,6 +152,49 @@ function isValidCreateRequestBody(arg: any): arg is ICreateActivityRequestBody {
     isValidInterval(arg.weekGoal) &&
     isValidInterval(arg.monthGoal)
   );
+}
+
+function validateUpdateBodyAndReturn(
+  arg: any
+): Omit<ActivityUpdate, 'id' | 'account_id'> {
+  if (arg.color !== undefined && arg.color.length !== 6) {
+    throw 'Invalid color string';
+  }
+  if (arg.name !== undefined && arg.name.length === 0) {
+    throw 'Enter name';
+  }
+  if (arg.archived !== undefined && typeof arg.archived !== 'boolean') {
+    throw 'Archived must be either true or false';
+  }
+  if (
+    /*arg.day_goal !== undefined && */ arg.day_goal !== null &&
+    !isValidInterval(arg.day_goal)
+  ) {
+  }
+  if (
+    /*arg.session_goal !== undefined && */ arg.session_goal !== null &&
+    !isValidInterval(arg.session_goal)
+  ) {
+  }
+  if (
+    /*arg.week_goal !== undefined && */ arg.week_goal !== null &&
+    !isValidInterval(arg.week_goal)
+  ) {
+  }
+  if (
+    /*arg.month_goal !== undefined && */ arg.month_goal !== null &&
+    !isValidInterval(arg.month_goal)
+  ) {
+  }
+  return {
+    color: arg.color,
+    name: arg.name,
+    archived: arg.archived,
+    day_goal: toStringFromInterval(arg.day_goal),
+    month_goal: toStringFromInterval(arg.month_goal),
+    session_goal: toStringFromInterval(arg.session_goal),
+    week_goal: toStringFromInterval(arg.week_goal),
+  };
 }
 
 function isIntegerStrict(arg: string) {

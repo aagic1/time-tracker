@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { NewActivity } from '../db/types';
+import { NewActivity, ActivityUpdate } from '../db/types';
 
 async function findByAccountId(account_id: number) {
   return db
@@ -48,6 +48,20 @@ async function create(activity: NewActivity) {
     .executeTakeFirstOrThrow();
 }
 
+async function update(
+  activityId: number,
+  accountId: number,
+  activity: Omit<ActivityUpdate, 'id' | 'account_id'>
+) {
+  return db
+    .updateTable('activity')
+    .set(activity)
+    .where('id', '=', activityId)
+    .where('account_id', '=', accountId)
+    .returningAll()
+    .executeTakeFirstOrThrow();
+}
+
 function remove(activityId: number, accountId: number) {
   return db
     .deleteFrom('activity')
@@ -61,5 +75,6 @@ export default {
   findById,
   findByAccountId,
   create,
+  update,
   remove,
 };
