@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import parse, { IPostgresInterval } from 'postgres-interval';
 import activityDAO from '../data-access/activities';
 import { ActivityUpdate, NewActivity } from '../db/types';
+import { z } from 'zod';
 
 interface GoalInterval {
   hours?: number;
@@ -18,16 +19,21 @@ interface ICreateActivityRequestBody {
   monthGoal?: GoalInterval;
 }
 
+const ActivityIdParamSchema = z.coerce.number().min(1);
+
 export async function getAllActivities(req: Request, res: Response) {
   const activities = await activityDAO.findByAccountId(1);
   res.status(200).json({ activities });
 }
 
 export async function getActivity(req: Request, res: Response) {
-  if (!isIntegerStrict(req.params.activityId)) {
-    return res.status(400).json({ msg: 'Activity id must be number' });
+  const result = ActivityIdParamSchema.safeParse(req.params.activityId);
+  if (!result.success) {
+    return res
+      .status(404)
+      .json({ msg: `No activity with id ${req.params.activityId}` });
   }
-  const activityId = Number.parseInt(req.params.activityId, 10);
+  const activityId = result.data;
   const activity = await activityDAO.findByIdAndAccountId(activityId, 1);
   res.status(200).json({ activity });
 }
@@ -57,10 +63,13 @@ export async function createActivity(req: Request, res: Response) {
 }
 
 export async function updateActivity(req: Request, res: Response) {
-  if (!isIntegerStrict(req.params.activityId)) {
-    return res.status(400).json({ msg: 'Activity id must be number' });
+  const result = ActivityIdParamSchema.safeParse(req.params.activityId);
+  if (!result.success) {
+    return res
+      .status(404)
+      .json({ msg: `No activity with id ${req.params.activityId}` });
   }
-  const activityId = Number.parseInt(req.params.activityId, 10);
+  const activityId = result.data;
 
   try {
     const activity = validateUpdateBodyAndReturn(req.body);
@@ -72,10 +81,13 @@ export async function updateActivity(req: Request, res: Response) {
 }
 
 export async function deleteActivity(req: Request, res: Response) {
-  if (!isIntegerStrict(req.params.activityId)) {
-    return res.status(400).json({ msg: 'Activity id must be number' });
+  const result = ActivityIdParamSchema.safeParse(req.params.activityId);
+  if (!result.success) {
+    return res
+      .status(404)
+      .json({ msg: `No activity with id ${req.params.activityId}` });
   }
-  const activityId = Number.parseInt(req.params.activityId, 10);
+  const activityId = result.data;
   try {
     await activityDAO.remove(activityId, 1);
   } catch (e) {
