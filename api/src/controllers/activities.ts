@@ -19,7 +19,37 @@ interface ICreateActivityRequestBody {
   monthGoal?: GoalInterval;
 }
 
-const ActivityIdParamSchema = z.coerce.number().min(1);
+const activityIdParamSchema = z.coerce.number().min(1);
+
+const intervalSchema = z
+  .object({
+    hours: z.number().int().min(0),
+    minutes: z.number().int().min(0).max(59),
+    seconds: z.number().int().min(0).max(59),
+  })
+  .partial()
+  .refine(
+    ({ hours, minutes, seconds }) =>
+      hours != undefined || minutes != undefined || seconds != undefined,
+    { message: 'At least one field must be defined' }
+  );
+
+const createRequestPayloadSchema = z.object({
+  name: z.string().min(1),
+  color: z.string().length(6),
+  sessionGoal: intervalSchema
+    .optional()
+    .transform((val) => toStringFromInterval(val)),
+  dayGoal: intervalSchema
+    .optional()
+    .transform((val) => toStringFromInterval(val)),
+  weekGoal: intervalSchema
+    .optional()
+    .transform((val) => toStringFromInterval(val)),
+  monthGoal: intervalSchema
+    .optional()
+    .transform((val) => toStringFromInterval(val)),
+});
 
 export async function getAllActivities(req: Request, res: Response) {
   const activities = await activityDAO.findByAccountId(1);
@@ -27,7 +57,7 @@ export async function getAllActivities(req: Request, res: Response) {
 }
 
 export async function getActivity(req: Request, res: Response) {
-  const result = ActivityIdParamSchema.safeParse(req.params.activityId);
+  const result = activityIdParamSchema.safeParse(req.params.activityId);
   if (!result.success) {
     return res
       .status(404)
@@ -39,31 +69,26 @@ export async function getActivity(req: Request, res: Response) {
 }
 
 export async function createActivity(req: Request, res: Response) {
-  const activity: ICreateActivityRequestBody = req.body;
-  try {
-    if (!isValidCreateRequestBody(activity)) {
-      return res
-        .status(400)
-        .json({ msg: 'Name and color are required fields' });
-    }
-  } catch (e) {
-    return res.status(400).json({ msg: e });
+  const result = createRequestPayloadSchema.safeParse(req.body);
+  if (!result.success) {
+    return res.status(400).json({ msg: 'Invalid payload' });
   }
-  console.log('controller', activity);
+  const activity = result.data;
+
   const newActivity = await activityDAO.create({
     account_id: 1,
     color: activity.color,
     name: activity.name,
-    session_goal: toStringFromInterval(activity.sessionGoal),
-    day_goal: toStringFromInterval(activity.dayGoal),
-    week_goal: toStringFromInterval(activity.weekGoal),
-    month_goal: toStringFromInterval(activity.monthGoal),
+    session_goal: activity.sessionGoal,
+    day_goal: activity.dayGoal,
+    week_goal: activity.weekGoal,
+    month_goal: activity.monthGoal,
   });
   res.status(200).json(newActivity);
 }
 
 export async function updateActivity(req: Request, res: Response) {
-  const result = ActivityIdParamSchema.safeParse(req.params.activityId);
+  const result = activityIdParamSchema.safeParse(req.params.activityId);
   if (!result.success) {
     return res
       .status(404)
@@ -81,7 +106,7 @@ export async function updateActivity(req: Request, res: Response) {
 }
 
 export async function deleteActivity(req: Request, res: Response) {
-  const result = ActivityIdParamSchema.safeParse(req.params.activityId);
+  const result = activityIdParamSchema.safeParse(req.params.activityId);
   if (!result.success) {
     return res
       .status(404)
@@ -105,6 +130,49 @@ function toStringFromInterval(interval: GoalInterval | undefined) {
   return `${interval.hours ?? '00'}:${interval.minutes ?? '00'}:${
     interval.seconds ?? '00'
   }`;
+}
+
+function validateUpdateBodyAndReturn(
+  arg: any
+): Omit<ActivityUpdate, 'id' | 'account_id'> {
+  if (arg.color !== undefined && arg.color.length !== 6) {
+    throw 'Invalid color string';
+  }
+  if (arg.name !== undefined && arg.name.length === 0) {
+    throw 'Enter name';
+  }
+  if (arg.archived !== undefined && typeof arg.archived !== 'boolean') {
+    throw 'Archived must be either true or false';
+  }
+  if (
+    /*arg.day_goal !== undefined && */ arg.day_goal !== null &&
+    !isValidInterval(arg.day_goal)
+  ) {
+  }
+  if (
+    /*arg.session_goal !== undefined && */ arg.session_goal !== null &&
+    !isValidInterval(arg.session_goal)
+  ) {
+  }
+  if (
+    /*arg.week_goal !== undefined && */ arg.week_goal !== null &&
+    !isValidInterval(arg.week_goal)
+  ) {
+  }
+  if (
+    /*arg.month_goal !== undefined && */ arg.month_goal !== null &&
+    !isValidInterval(arg.month_goal)
+  ) {
+  }
+  return {
+    color: arg.color,
+    name: arg.name,
+    archived: arg.archived,
+    day_goal: toStringFromInterval(arg.day_goal),
+    month_goal: toStringFromInterval(arg.month_goal),
+    session_goal: toStringFromInterval(arg.session_goal),
+    week_goal: toStringFromInterval(arg.week_goal),
+  };
 }
 
 function areValidHours(hours: number): boolean {
@@ -153,62 +221,4 @@ function isValidInterval(interval?: GoalInterval): interval is GoalInterval {
   }
 
   return true;
-}
-
-function isValidCreateRequestBody(arg: any): arg is ICreateActivityRequestBody {
-  return (
-    typeof arg.name === 'string' &&
-    typeof arg.color === 'string' &&
-    isValidInterval(arg.sessionGoal) &&
-    isValidInterval(arg.dayGoal) &&
-    isValidInterval(arg.weekGoal) &&
-    isValidInterval(arg.monthGoal)
-  );
-}
-
-function validateUpdateBodyAndReturn(
-  arg: any
-): Omit<ActivityUpdate, 'id' | 'account_id'> {
-  if (arg.color !== undefined && arg.color.length !== 6) {
-    throw 'Invalid color string';
-  }
-  if (arg.name !== undefined && arg.name.length === 0) {
-    throw 'Enter name';
-  }
-  if (arg.archived !== undefined && typeof arg.archived !== 'boolean') {
-    throw 'Archived must be either true or false';
-  }
-  if (
-    /*arg.day_goal !== undefined && */ arg.day_goal !== null &&
-    !isValidInterval(arg.day_goal)
-  ) {
-  }
-  if (
-    /*arg.session_goal !== undefined && */ arg.session_goal !== null &&
-    !isValidInterval(arg.session_goal)
-  ) {
-  }
-  if (
-    /*arg.week_goal !== undefined && */ arg.week_goal !== null &&
-    !isValidInterval(arg.week_goal)
-  ) {
-  }
-  if (
-    /*arg.month_goal !== undefined && */ arg.month_goal !== null &&
-    !isValidInterval(arg.month_goal)
-  ) {
-  }
-  return {
-    color: arg.color,
-    name: arg.name,
-    archived: arg.archived,
-    day_goal: toStringFromInterval(arg.day_goal),
-    month_goal: toStringFromInterval(arg.month_goal),
-    session_goal: toStringFromInterval(arg.session_goal),
-    week_goal: toStringFromInterval(arg.week_goal),
-  };
-}
-
-function isIntegerStrict(arg: string) {
-  return !Number.isNaN(Number.parseInt(arg)) && !Number.isNaN(Number(arg));
 }
