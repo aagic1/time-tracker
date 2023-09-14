@@ -20,12 +20,12 @@ async function findByAccountId(account_id: number) {
     .execute();
 }
 
-async function findByIdAndAccountId(activityId: number, accountId: number) {
+async function findByIdAndAccountId(id: number, account_id: number) {
   return db
     .selectFrom('activity')
     .selectAll()
-    .where('id', '=', activityId)
-    .where('account_id', '=', accountId)
+    .where('id', '=', id)
+    .where('account_id', '=', account_id)
     .execute();
 }
 
@@ -49,24 +49,24 @@ async function create(activity: NewActivity) {
 }
 
 async function update(
-  activityId: number,
-  accountId: number,
+  id: number,
+  account_id: number,
   activity: Omit<ActivityUpdate, 'id' | 'account_id'>
 ) {
   return db
     .updateTable('activity')
     .set(activity)
-    .where('id', '=', activityId)
-    .where('account_id', '=', accountId)
+    .where('id', '=', id)
+    .where('account_id', '=', account_id)
     .returningAll()
     .executeTakeFirstOrThrow();
 }
 
-function remove(activityId: number, accountId: number) {
+function remove(id: number, account_id: number) {
   return db
     .deleteFrom('activity')
-    .where('id', '=', activityId)
-    .where('account_id', '=', accountId)
+    .where('id', '=', id)
+    .where('account_id', '=', account_id)
     .returningAll()
     .executeTakeFirstOrThrow();
 }
