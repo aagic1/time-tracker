@@ -28,7 +28,7 @@ export async function getActivity(req: Request, res: Response) {
     return res.status(400).json({ msg: 'Activity id must be number' });
   }
   const activityId = Number.parseInt(req.params.activityId, 10);
-  const activity = await activityDAO.findById(activityId, 1);
+  const activity = await activityDAO.findByIdAndAccountId(activityId, 1);
   res.status(200).json({ activity });
 }
 

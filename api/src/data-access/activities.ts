@@ -20,7 +20,7 @@ async function findByAccountId(account_id: number) {
     .execute();
 }
 
-async function findById(activityId: number, accountId: number) {
+async function findByIdAndAccountId(activityId: number, accountId: number) {
   return db
     .selectFrom('activity')
     .selectAll()
@@ -72,7 +72,7 @@ function remove(activityId: number, accountId: number) {
 }
 
 export default {
-  findById,
+  findByIdAndAccountId,
   findByAccountId,
   create,
   update,
