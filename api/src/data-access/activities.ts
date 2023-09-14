@@ -1,20 +1,21 @@
 import { db } from '../db';
 import { NewActivity, ActivityUpdate } from '../db/types';
 
+const columnsToReturn = [
+  'id',
+  'name',
+  'color',
+  'archived',
+  'session_goal as sessionGoal',
+  'day_goal as dayGoal',
+  'week_goal as weekGoal',
+  'month_goal as monthGoal',
+] as const;
+
 async function findByAccountId(account_id: number) {
   return db
     .selectFrom('activity')
-    .select([
-      'id',
-      'account_id',
-      'name',
-      'color',
-      'archived',
-      'session_goal',
-      'day_goal',
-      'week_goal',
-      'month_goal',
-    ])
+    .select(columnsToReturn)
     .where('account_id', '=', account_id)
     .orderBy('name')
     .execute();
@@ -23,28 +24,17 @@ async function findByAccountId(account_id: number) {
 async function findByIdAndAccountId(id: number, account_id: number) {
   return db
     .selectFrom('activity')
-    .selectAll()
+    .select(columnsToReturn)
     .where('id', '=', id)
     .where('account_id', '=', account_id)
     .execute();
 }
 
 async function create(activity: NewActivity) {
-  console.log('db', activity);
   return db
     .insertInto('activity')
     .values(activity)
-    .returning([
-      'id',
-      'account_id as accountId',
-      'name',
-      'color',
-      'archived',
-      'session_goal as sessionGoal',
-      'day_goal as dayGoal',
-      'week_goal as weekGoal',
-      'month_goal as monthGoal',
-    ])
+    .returning(columnsToReturn)
     .executeTakeFirstOrThrow();
 }
 
@@ -58,7 +48,7 @@ async function update(
     .set(activity)
     .where('id', '=', id)
     .where('account_id', '=', account_id)
-    .returningAll()
+    .returning(columnsToReturn)
     .executeTakeFirstOrThrow();
 }
 
@@ -67,7 +57,7 @@ function remove(id: number, account_id: number) {
     .deleteFrom('activity')
     .where('id', '=', id)
     .where('account_id', '=', account_id)
-    .returningAll()
+    .returning(columnsToReturn)
     .executeTakeFirstOrThrow();
 }
 
