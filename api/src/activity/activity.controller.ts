@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
+import { z } from 'zod';
+
 import activityDAO from './activity.dao';
 import { GoalInterval } from './activity.types';
-import { z } from 'zod';
+import { toStringFromInterval } from './activity.utils';
 
 const activityIdParamSchema = z.coerce.number().min(1);
 
@@ -118,14 +120,4 @@ export async function deleteActivity(req: Request, res: Response) {
       .json({ msg: `Activity with id ${activityId} not found` });
   }
   res.sendStatus(200);
-}
-
-// util -> should be moved to separate file
-function toStringFromInterval(interval: GoalInterval | undefined | null) {
-  if (!interval) {
-    return interval;
-  }
-  return `${interval.hours ?? '00'}:${interval.minutes ?? '00'}:${
-    interval.seconds ?? '00'
-  }`;
 }
