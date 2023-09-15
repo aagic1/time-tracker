@@ -5,7 +5,7 @@ import {
   createActivity,
   updateActivity,
   deleteActivity,
-} from '../controllers/activities';
+} from './activity.controller';
 
 const activitiesRouter: Router = express.Router();
 

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import parse, { IPostgresInterval } from 'postgres-interval';
-import activityDAO from '../data-access/activities';
+import activityDAO from './activity.dao';
 import { ActivityUpdate, NewActivity } from '../db/types';
 import { z } from 'zod';
 

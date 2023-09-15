@@ -3,7 +3,7 @@ dotenv.config();
 
 import express, { Express, Request, Response, Application } from 'express';
 
-import activitiesRouter from './src/routes/activities';
+import activitiesRouter from './src/activity/activity.router';
 
 const app: Application = express();
 
