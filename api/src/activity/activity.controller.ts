@@ -18,7 +18,11 @@ export async function getActivity(req: Request, res: Response) {
     const activity = await activityDAO.findByIdAndAccountId(activityId, 1);
     res.status(200).json({ activity });
   } catch (err) {
-    res.status(404).json({ msg: err });
+    if (err instanceof Error) {
+      res.status(404).json({ msg: err.message });
+    } else if (typeof err === 'string') {
+      res.status(404).json({ msg: err });
+    }
   }
 }
 
@@ -31,7 +35,11 @@ export async function createActivity(req: Request, res: Response) {
     });
     res.status(200).json({ activity: createdActivity });
   } catch (err) {
-    res.status(400).json({ msg: err });
+    if (err instanceof Error) {
+      res.status(404).json({ msg: err.message });
+    } else if (typeof err === 'string') {
+      res.status(400).json({ msg: err });
+    }
   }
 }
 
@@ -42,7 +50,11 @@ export async function updateActivity(req: Request, res: Response) {
     const updatedActivity = await activityDAO.update(activityId, 1, activity);
     res.status(200).json({ activity: updatedActivity });
   } catch (err) {
-    res.status(400).json({ msg: err });
+    if (err instanceof Error) {
+      res.status(404).json({ msg: err.message });
+    } else if (typeof err === 'string') {
+      res.status(404).json({ msg: err });
+    }
   }
 }
 
@@ -52,6 +64,10 @@ export async function deleteActivity(req: Request, res: Response) {
     await activityDAO.remove(activityId, 1);
     res.sendStatus(200);
   } catch (err) {
-    return res.status(404).json({ msg: err });
+    if (err instanceof Error) {
+      res.status(404).json({ msg: err.message });
+    } else if (typeof err === 'string') {
+      res.status(404).json({ msg: err });
+    }
   }
 }
