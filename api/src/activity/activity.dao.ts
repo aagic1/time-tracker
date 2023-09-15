@@ -27,7 +27,7 @@ async function findByIdAndAccountId(id: number, account_id: number) {
     .select(columnsToReturn)
     .where('id', '=', id)
     .where('account_id', '=', account_id)
-    .execute();
+    .executeTakeFirstOrThrow();
 }
 
 async function create(activity: NewActivity) {
