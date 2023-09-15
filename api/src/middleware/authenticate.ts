@@ -26,3 +26,14 @@ export function checkAuthenticated(
   }
   next();
 }
+
+export function checkNotAuthenticated(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  if (req.session && req.session.user) {
+    return res.json({ msg: 'Can not log in or register if already logged in' });
+  }
+  next();
+}
