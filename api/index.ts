@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import express, { Express, Request, Response, Application } from 'express';
+import helmet from 'helmet';
 
 import session from './src/middleware/session';
 import apiRouter from './src/routes';
@@ -11,6 +12,7 @@ const app: Application = express();
 // middleware
 app.use(express.json());
 app.use(session);
+app.use(helmet());
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Time Tracker app2');
