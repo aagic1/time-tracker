@@ -4,8 +4,7 @@ dotenv.config();
 import express, { Express, Request, Response, Application } from 'express';
 
 import session from './src/middleware/session';
-import activitiesRouter from './src/activity/activity.router';
-import userRouter from './src/user/user.router';
+import apiRouter from './src/routes';
 
 const app: Application = express();
 
@@ -22,8 +21,9 @@ declare module 'express-session' {
     user: { id: number };
   }
 }
-app.use('/api/v1/activities', activitiesRouter);
-app.use('/api/v1/user', userRouter);
+
+// routes
+app.use('/api/v1', apiRouter);
 
 const port = process.env.PORT || 8000;
 app.listen(port, () => {
