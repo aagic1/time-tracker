@@ -49,7 +49,7 @@ export type Account = Selectable<AccountTable>;
 export type Activity = Selectable<ActivityTable>;
 export type Record = Selectable<RecordTable>;
 
-export type NewAccount = Insertable<AccountTable>;
+export type NewAccount = Omit<Insertable<AccountTable>, 'id'>;
 export type NewActivity = Insertable<ActivityTable>;
 export type NewRecord = Insertable<RecordTable>;
 
