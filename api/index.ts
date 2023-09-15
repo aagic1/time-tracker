@@ -4,6 +4,7 @@ dotenv.config();
 import express, { Express, Request, Response, Application } from 'express';
 
 import activitiesRouter from './src/activity/activity.router';
+import userRouter from './src/user/user.router';
 
 const app: Application = express();
 
@@ -15,6 +16,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.use('/api/v1/activities', activitiesRouter);
+app.use('/api/v1/user', userRouter);
 
 const port = process.env.PORT || 8000;
 app.listen(port, () => {
