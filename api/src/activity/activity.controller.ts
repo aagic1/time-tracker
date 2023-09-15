@@ -1,15 +1,7 @@
 import { Request, Response } from 'express';
-import parse, { IPostgresInterval } from 'postgres-interval';
 import activityDAO from './activity.dao';
-import { ActivityUpdate, NewActivity } from '../db/types';
+import { GoalInterval } from './activity.types';
 import { z } from 'zod';
-
-// interfaces and validation schemas -> should be moved to separate file
-interface GoalInterval {
-  hours?: number;
-  minutes?: number;
-  seconds?: number;
-}
 
 const activityIdParamSchema = z.coerce.number().min(1);
 
