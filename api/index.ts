@@ -11,11 +11,17 @@ const app: Application = express();
 
 // middleware
 app.use(express.json());
+app.use(session);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Time Tracker app2');
 });
 
+declare module 'express-session' {
+  interface SessionData {
+    user: { id: number };
+  }
+}
 app.use('/api/v1/activities', activitiesRouter);
 app.use('/api/v1/user', userRouter);
 
