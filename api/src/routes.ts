@@ -3,15 +3,11 @@ import express from 'express';
 import authRouter from './user/auth/auth.router';
 import userRouter from './user/user.router';
 import activitiesRouter from './activity/activity.router';
-import {
-  checkAuthenticated,
-  checkNotAuthenticated,
-} from './middleware/authenticate';
+import { checkAuthenticated } from './middleware/authenticate';
 
 const apiRouter = express.Router();
 
-// public routes
-apiRouter.use('/auth', checkNotAuthenticated, authRouter);
+apiRouter.use('/auth', authRouter);
 
 apiRouter.use(checkAuthenticated);
 

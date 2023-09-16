@@ -7,7 +7,7 @@ export async function login(req: Request, res: Response) {
   try {
     const user = await authService.login(email, password);
     req.session.user = user;
-    res.sendStatus(204);
+    res.status(200).send('Logged in succesfully');
   } catch (err) {
     if (err instanceof Error) {
       res.status(404).json({ msg: err.message });
@@ -29,4 +29,18 @@ export async function register(req: Request, res: Response) {
       res.status(404).json({ msg: err });
     }
   }
+}
+
+export async function logout(req: Request, res: Response) {
+  if (!req.session.user) {
+    return res.status(204).end();
+  }
+
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(400).send('Unable to log out');
+    }
+    res.clearCookie('sessionId');
+    res.send('Logged out successfully');
+  });
 }
