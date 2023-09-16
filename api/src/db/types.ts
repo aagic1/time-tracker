@@ -7,20 +7,20 @@ import type {
 } from 'kysely';
 import type { IPostgresInterval } from 'postgres-interval';
 
+export type Int8 = ColumnType<bigint, bigint | string, bigint | string>;
 export type Interval = ColumnType<IPostgresInterval, string, string>;
-
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 export interface AccountTable {
-  id: Generated<number>;
+  id: Generated<bigint>;
   email: string;
   username: string;
   password: string;
 }
 
 export interface ActivityTable {
-  id: Generated<number>;
-  account_id: number;
+  id: Generated<bigint>;
+  account_id: Int8;
   name: string;
   color: string;
   session_goal: Interval | null;
@@ -31,8 +31,8 @@ export interface ActivityTable {
 }
 
 export interface RecordTable {
-  id: Generated<number>;
-  activity_id: number;
+  id: Generated<bigint>;
+  activity_id: Int8;
   comment: string | null;
   started_at: Timestamp;
   stopped_at: Timestamp | null;
@@ -50,9 +50,12 @@ export type Activity = Selectable<ActivityTable>;
 export type Record = Selectable<RecordTable>;
 
 export type NewAccount = Omit<Insertable<AccountTable>, 'id'>;
-export type NewActivity = Insertable<ActivityTable>;
-export type NewRecord = Insertable<RecordTable>;
+export type NewActivity = Omit<Insertable<ActivityTable>, 'id'>;
+export type NewRecord = Omit<Insertable<RecordTable>, 'id'>;
 
-export type AccounUpdate = Updateable<AccountTable>;
-export type ActivityUpdate = Updateable<ActivityTable>;
-export type RecordUpdate = Updateable<RecordTable>;
+export type AccounUpdate = Omit<Updateable<AccountTable>, 'id'>;
+export type ActivityUpdate = Omit<
+  Updateable<ActivityTable>,
+  'id' | 'account_id'
+>;
+export type RecordUpdate = Omit<Updateable<RecordTable>, 'id'>;

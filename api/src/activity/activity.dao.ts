@@ -12,7 +12,7 @@ const columnsToReturn = [
   'month_goal as monthGoal',
 ] as const;
 
-async function findByAccountId(account_id: number) {
+async function findByAccountId(account_id: bigint) {
   return db
     .selectFrom('activity')
     .select(columnsToReturn)
@@ -21,7 +21,7 @@ async function findByAccountId(account_id: number) {
     .execute();
 }
 
-async function findByIdAndAccountId(id: number, account_id: number) {
+async function findByIdAndAccountId(id: bigint, account_id: bigint) {
   return db
     .selectFrom('activity')
     .select(columnsToReturn)
@@ -39,8 +39,8 @@ async function create(activity: NewActivity) {
 }
 
 async function update(
-  id: number,
-  account_id: number,
+  id: bigint,
+  account_id: bigint,
   activity: Omit<ActivityUpdate, 'id' | 'account_id'>
 ) {
   return db
@@ -52,7 +52,7 @@ async function update(
     .executeTakeFirstOrThrow();
 }
 
-function remove(id: number, account_id: number) {
+function remove(id: bigint, account_id: bigint) {
   return db
     .deleteFrom('activity')
     .where('id', '=', id)

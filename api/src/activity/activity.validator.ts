@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { toStringFromInterval } from './activity.utils';
 import { ActivityUpdate } from '../db/types';
 
-const activityIdParamSchema = z.coerce.number().min(1);
+const activityIdParamSchema = z.coerce.bigint().min(1n);
 
 const intervalSchema = z
   .object({

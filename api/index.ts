@@ -20,7 +20,7 @@ app.get('/', (req: Request, res: Response) => {
 
 declare module 'express-session' {
   interface SessionData {
-    user: { id: number };
+    user: { id: bigint };
   }
 }
 
