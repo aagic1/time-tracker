@@ -16,16 +16,6 @@ app.use(express.json());
 app.use(session);
 app.use(helmet());
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Time Tracker app2');
-});
-
-declare module 'express-session' {
-  interface SessionData {
-    user: { id: bigint };
-  }
-}
-
 // routes
 app.use('/api/v1', apiRouter);
 
@@ -36,3 +26,9 @@ const port = process.env.PORT || 8000;
 app.listen(port, () => {
   console.log(`Server is listening on http://localhost:${port}`);
 });
+
+declare module 'express-session' {
+  interface SessionData {
+    user: { id: bigint };
+  }
+}
