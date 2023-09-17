@@ -1,10 +1,13 @@
 import { Request, Response } from 'express';
-import userDAO from '../user.dao';
 import authService from './auth.service';
+import {
+  validateLoginPayload,
+  validateRegisterPayload,
+} from './auth.validator';
 
 export async function login(req: Request, res: Response) {
-  const { email, password } = req.body;
   try {
+    const { email, password } = validateLoginPayload(req.body);
     const user = await authService.login(email, password);
     req.session.user = user;
     res.status(200).send('Logged in succesfully');
@@ -18,8 +21,8 @@ export async function login(req: Request, res: Response) {
 }
 
 export async function register(req: Request, res: Response) {
-  const { email, password, username } = req.body;
   try {
+    const { email, password, username } = validateRegisterPayload(req.body);
     const user = await authService.register({ email, username, password });
     res.status(201).send('User created successfully');
   } catch (err) {
