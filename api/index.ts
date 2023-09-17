@@ -2,10 +2,12 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import express, { Express, Request, Response, Application } from 'express';
+import 'express-async-errors';
 import helmet from 'helmet';
 
 import session from './src/middleware/session';
 import apiRouter from './src/routes';
+import { errorHandler } from './src/middleware/errorHandler';
 
 const app: Application = express();
 
@@ -26,6 +28,9 @@ declare module 'express-session' {
 
 // routes
 app.use('/api/v1', apiRouter);
+
+// error handling
+app.use(errorHandler);
 
 const port = process.env.PORT || 8000;
 app.listen(port, () => {
