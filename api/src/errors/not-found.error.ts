@@ -1,13 +1,8 @@
-import { IApiError, Issue } from './types';
+import { CustomApiError } from './custom-api-error';
+import { Issue } from './types';
 
-export class NotFoundError extends Error implements IApiError {
-  statusCode: number;
-  issues?: Issue[];
-
+export class NotFoundError extends CustomApiError {
   constructor(message: string, issues?: Issue[]) {
-    super(message);
-    this.statusCode = 404;
-    this.name = 'NotFoundError';
-    this.issues = issues;
+    super(message, 404, 'NotFoundError', issues);
   }
 }

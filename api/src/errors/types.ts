@@ -1,11 +1,4 @@
 export type Issue = {
-  path: string;
+  path: (string | number)[];
   message: string;
 };
-
-export interface IApiError {
-  message: string;
-  name: string;
-  statusCode: number;
-  issues?: Issue[];
-}

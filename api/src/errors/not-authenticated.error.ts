@@ -1,15 +1,8 @@
-import { IApiError, Issue } from './types';
+import { CustomApiError } from './custom-api-error';
+import { Issue } from './types';
 
-export class UnauthenticatedError extends Error implements IApiError {
-  statusCode: number;
-  issues?: Issue[];
-
+export class UnauthenticatedError extends CustomApiError {
   constructor(message: string, issues?: Issue[]) {
-    super(message);
-    this.statusCode = 401;
-    this.name = 'UnauthenticatedError';
-    this.issues = issues;
+    super(message, 401, 'UnauthenticatedError', issues);
   }
 }
-
-let a = new UnauthenticatedError('hi');

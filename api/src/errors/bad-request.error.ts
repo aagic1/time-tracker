@@ -1,13 +1,8 @@
-import { IApiError, Issue } from './types';
+import { CustomApiError } from './custom-api-error';
+import { Issue } from './types';
 
-class BadRequestError extends Error implements IApiError {
-  statusCode: number;
-  issues?: Issue[];
-
+export class BadRequestError extends CustomApiError {
   constructor(message: string, issues?: Issue[]) {
-    super(message);
-    this.statusCode = 400;
-    this.name = 'BadRequestError';
-    this.issues = issues;
+    super(message, 400, 'BadRequestError', issues);
   }
 }
