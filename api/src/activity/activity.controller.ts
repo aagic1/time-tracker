@@ -8,14 +8,17 @@ import {
 } from './activity.validator';
 
 export async function getAllActivities(req: Request, res: Response) {
-  const activities = await activityDAO.findByAccountId(1n);
+  const activities = await activityDAO.findByAccountId(req.session.user!.id);
   res.status(200).json({ activities });
 }
 
 export async function getActivity(req: Request, res: Response) {
   try {
     const activityId = validateUrlParam(req.params.activityId);
-    const activity = await activityDAO.findByIdAndAccountId(activityId, 1n);
+    const activity = await activityDAO.findByIdAndAccountId(
+      activityId,
+      req.session.user!.id
+    );
     res.status(200).json({ activity });
   } catch (err) {
     if (err instanceof Error) {
@@ -31,7 +34,7 @@ export async function createActivity(req: Request, res: Response) {
     const activity = validateCreatePayload(req.body);
     const createdActivity = await activityDAO.create({
       ...activity,
-      account_id: 1n,
+      account_id: req.session.user!.id,
     });
     res.status(200).json({ activity: createdActivity });
   } catch (err) {
@@ -47,7 +50,11 @@ export async function updateActivity(req: Request, res: Response) {
   try {
     const activityId = validateUrlParam(req.params.activityId);
     const activity = validateUpdatePayload(req.body);
-    const updatedActivity = await activityDAO.update(activityId, 1n, activity);
+    const updatedActivity = await activityDAO.update(
+      activityId,
+      req.session.user!.id,
+      activity
+    );
     res.status(200).json({ activity: updatedActivity });
   } catch (err) {
     if (err instanceof Error) {
@@ -61,7 +68,7 @@ export async function updateActivity(req: Request, res: Response) {
 export async function deleteActivity(req: Request, res: Response) {
   try {
     const activityId = validateUrlParam(req.params.activityId);
-    await activityDAO.remove(activityId, 1n);
+    console.log(await activityDAO.remove(activityId, req.session.user!.id));
     res.sendStatus(200);
   } catch (err) {
     if (err instanceof Error) {
