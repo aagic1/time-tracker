@@ -41,7 +41,7 @@ async function create(activity: NewActivity) {
 async function update(
   id: bigint,
   account_id: bigint,
-  activity: Omit<ActivityUpdate, 'id' | 'account_id'>
+  activity: ActivityUpdate
 ) {
   return db
     .updateTable('activity')
@@ -57,7 +57,6 @@ function remove(id: bigint, account_id: bigint) {
     .deleteFrom('activity')
     .where('id', '=', id)
     .where('account_id', '=', account_id)
-    .returning(columnsToReturn)
     .executeTakeFirstOrThrow();
 }
 
