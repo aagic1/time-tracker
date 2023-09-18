@@ -1,14 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-
-class UnauthenticatedError extends Error {
-  statusCode: number;
-
-  constructor(message: string) {
-    super(message);
-    this.name = 'UnauthenticatedError';
-    this.statusCode = 401;
-  }
-}
+import { UnauthenticatedError } from '../errors/not-authenticated.error';
 
 export function checkAuthenticated(
   req: Request,
@@ -17,12 +8,7 @@ export function checkAuthenticated(
 ) {
   console.log(req.session);
   if (!req.session || !req.session.user) {
-    // return next(
-    //   new UnauthenticatedError('Unauthenticated, please log in first')
-    // );
-    return res
-      .status(401)
-      .json({ msg: 'Unauthenticated, please log in first' });
+    throw new UnauthenticatedError('Not authenticated. Please log in first');
   }
   next();
 }
