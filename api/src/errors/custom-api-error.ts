@@ -1,21 +1,21 @@
-import { Issue } from './types';
+import { ValidationIssue, ResponseIssue } from './types';
 
 export abstract class CustomApiError extends Error {
   name: string;
   statusCode: number;
-  issues?: Issue[];
+  issues?: ResponseIssue[];
 
   constructor(
     message: string,
     statusCode: number,
     name: string,
-    issues?: Issue[]
+    issues?: ValidationIssue[]
   ) {
     super(message);
     this.name = name;
     this.statusCode = statusCode;
     this.issues = issues?.map((issue) => {
-      return { path: issue.path, message: issue.message };
+      return { source: issue.path.join('.'), reason: issue.message };
     });
   }
 }
