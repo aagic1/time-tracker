@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { CustomApiError } from '../errors/custom-api-error';
 
 export function errorHandler(
   error: Error | string,
@@ -6,10 +7,17 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ) {
-  console.log('My custom error handler');
-  if (error instanceof Error) {
-    res.status(400).json({ msg: error.message });
+  if (error instanceof CustomApiError) {
+    res.status(error.statusCode).json({
+      error: {
+        message: error.message,
+        type: error.name,
+        issues: error.issues,
+      },
+    });
+  } else if (error instanceof Error) {
+    res.json({ error });
   } else if (typeof error === 'string') {
-    res.status(400).json({ msg: error });
+    res.json(error);
   }
 }
