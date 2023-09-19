@@ -6,7 +6,6 @@ export function checkAuthenticated(
   res: Response,
   next: NextFunction
 ) {
-  console.log(req.session);
   if (!req.session || !req.session.user) {
     throw new UnauthenticatedError('Not authenticated. Please log in first');
   }

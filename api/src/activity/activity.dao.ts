@@ -30,6 +30,15 @@ async function findByIdAndAccountId(id: bigint, account_id: bigint) {
     .executeTakeFirst();
 }
 
+async function findByNameAndAccountId(name: string, account_id: bigint) {
+  return db
+    .selectFrom('activity')
+    .select(columnsToReturn)
+    .where('name', '=', name)
+    .where('account_id', '=', account_id)
+    .executeTakeFirst();
+}
+
 async function create(activity: NewActivity) {
   return db
     .insertInto('activity')
@@ -39,30 +48,31 @@ async function create(activity: NewActivity) {
 }
 
 async function update(
-  id: bigint,
+  name: string,
   account_id: bigint,
   activity: ActivityUpdate
 ) {
   return db
     .updateTable('activity')
     .set(activity)
-    .where('id', '=', id)
+    .where('name', '=', name)
     .where('account_id', '=', account_id)
     .returning(columnsToReturn)
     .executeTakeFirst();
 }
 
-function remove(id: bigint, account_id: bigint) {
+function remove(name: string, account_id: bigint) {
   return db
     .deleteFrom('activity')
-    .where('id', '=', id)
+    .where('name', '=', name)
     .where('account_id', '=', account_id)
     .executeTakeFirst();
 }
 
 export default {
-  findByIdAndAccountId,
   findByAccountId,
+  findByNameAndAccountId,
+  findByIdAndAccountId,
   create,
   update,
   remove,

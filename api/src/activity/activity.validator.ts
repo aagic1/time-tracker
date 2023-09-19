@@ -4,6 +4,7 @@ import { toStringFromInterval } from './activity.utils';
 import { BadRequestError } from '../errors/bad-request.error';
 
 const activityIdParamSchema = z.coerce.bigint().positive();
+const activityNameParamSchema = z.string().min(1);
 
 const intervalSchema = z
   .object({
@@ -37,7 +38,7 @@ const updateRequestPayloadSchema = createRequestPayloadSchema
   .merge(z.object({ archived: z.boolean().optional() }));
 
 export function validateUrlParam(param: string) {
-  const result = activityIdParamSchema.safeParse(param);
+  const result = activityNameParamSchema.safeParse(param);
   if (!result.success) {
     console.log(result.error);
     throw new BadRequestError('Invalid data', extractIssues(result.error));

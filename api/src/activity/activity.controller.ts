@@ -14,13 +14,13 @@ export async function getAllActivities(req: Request, res: Response) {
 }
 
 export async function getActivity(req: Request, res: Response) {
-  const activityId = validateUrlParam(req.params.activityId);
-  const activity = await activityDAO.findByIdAndAccountId(
-    activityId,
+  const activityName = validateUrlParam(req.params.activityName);
+  const activity = await activityDAO.findByNameAndAccountId(
+    activityName,
     req.session.user!.id
   );
   if (!activity) {
-    throw new NotFoundError(`Activity with id ${activityId} not found`);
+    throw new NotFoundError(`Activity with id ${activityName} not found`);
   }
   res.status(200).json({ activity });
 }
@@ -35,10 +35,10 @@ export async function createActivity(req: Request, res: Response) {
 }
 
 export async function updateActivity(req: Request, res: Response) {
-  const activityId = validateUrlParam(req.params.activityId);
+  const activityName = validateUrlParam(req.params.activityName);
   const activity = validateUpdatePayload(req.body);
   const updatedActivity = await activityDAO.update(
-    activityId,
+    activityName,
     req.session.user!.id,
     activity
   );
@@ -46,7 +46,7 @@ export async function updateActivity(req: Request, res: Response) {
 }
 
 export async function deleteActivity(req: Request, res: Response) {
-  const activityId = validateUrlParam(req.params.activityId);
-  console.log(await activityDAO.remove(activityId, req.session.user!.id));
+  const activityName = validateUrlParam(req.params.activityName);
+  console.log(await activityDAO.remove(activityName, req.session.user!.id));
   res.sendStatus(200);
 }

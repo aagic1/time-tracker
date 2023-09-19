@@ -12,7 +12,7 @@ const activitiesRouter: Router = express.Router();
 activitiesRouter.route('/').get(getAllActivities).post(createActivity);
 
 activitiesRouter
-  .route('/:activityId')
+  .route('/:activityName')
   .get(getActivity)
   .patch(updateActivity)
   .delete(deleteActivity);
