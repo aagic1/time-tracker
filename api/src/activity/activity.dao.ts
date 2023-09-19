@@ -27,7 +27,7 @@ async function findByIdAndAccountId(id: bigint, account_id: bigint) {
     .select(columnsToReturn)
     .where('id', '=', id)
     .where('account_id', '=', account_id)
-    .executeTakeFirstOrThrow();
+    .executeTakeFirst();
 }
 
 async function create(activity: NewActivity) {
@@ -35,7 +35,7 @@ async function create(activity: NewActivity) {
     .insertInto('activity')
     .values(activity)
     .returning(columnsToReturn)
-    .executeTakeFirstOrThrow();
+    .executeTakeFirst();
 }
 
 async function update(
@@ -49,7 +49,7 @@ async function update(
     .where('id', '=', id)
     .where('account_id', '=', account_id)
     .returning(columnsToReturn)
-    .executeTakeFirstOrThrow();
+    .executeTakeFirst();
 }
 
 function remove(id: bigint, account_id: bigint) {
@@ -57,7 +57,7 @@ function remove(id: bigint, account_id: bigint) {
     .deleteFrom('activity')
     .where('id', '=', id)
     .where('account_id', '=', account_id)
-    .executeTakeFirstOrThrow();
+    .executeTakeFirst();
 }
 
 export default {

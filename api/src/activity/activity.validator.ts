@@ -1,9 +1,9 @@
-import { z } from 'zod';
+import { ZodError, z } from 'zod';
 
 import { toStringFromInterval } from './activity.utils';
-import { ActivityUpdate } from '../db/types';
+import { BadRequestError } from '../errors/bad-request.error';
 
-const activityIdParamSchema = z.coerce.bigint().min(1n);
+const activityIdParamSchema = z.coerce.bigint().positive();
 
 const intervalSchema = z
   .object({
@@ -39,7 +39,8 @@ const updateRequestPayloadSchema = createRequestPayloadSchema
 export function validateUrlParam(param: string) {
   const result = activityIdParamSchema.safeParse(param);
   if (!result.success) {
-    throw `Activity with id ${param} not found`;
+    console.log(result.error);
+    throw new BadRequestError('Invalid data', extractIssues(result.error));
   }
   return result.data;
 }
@@ -47,7 +48,7 @@ export function validateUrlParam(param: string) {
 export function validateUpdatePayload(payload: any) {
   const result = updateRequestPayloadSchema.safeParse(payload);
   if (!result.success) {
-    throw 'Invalid payload';
+    throw new BadRequestError('Invalid data', extractIssues(result.error));
   }
 
   const activity = result.data;
@@ -65,7 +66,7 @@ export function validateUpdatePayload(payload: any) {
 export function validateCreatePayload(payload: any) {
   const result = createRequestPayloadSchema.safeParse(payload);
   if (!result.success) {
-    throw 'Invalid payload';
+    throw new BadRequestError('Invalid data', extractIssues(result.error));
   }
 
   const activity = result.data;
@@ -77,4 +78,10 @@ export function validateCreatePayload(payload: any) {
     week_goal: activity.weekGoal,
     month_goal: activity.monthGoal,
   };
+}
+
+function extractIssues(error: ZodError) {
+  return error.issues.map(({ message, path }) => {
+    return { message, path };
+  });
 }
