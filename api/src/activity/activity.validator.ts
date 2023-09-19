@@ -13,11 +13,9 @@ const intervalSchema = z
     seconds: z.number().int().min(0).max(59),
   })
   .partial()
-  .refine(
-    ({ hours, minutes, seconds }) =>
-      hours != undefined || minutes != undefined || seconds != undefined,
-    { message: 'At least one field must be defined' }
-  )
+  .refine(({ hours, minutes, seconds }) => hours || minutes || seconds, {
+    message: 'At least one field must be defined and greater than 0',
+  })
   .nullable()
   .optional();
 
