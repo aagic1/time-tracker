@@ -31,7 +31,7 @@ export async function createActivity(req: Request, res: Response) {
     ...activity,
     account_id: req.session.user!.id,
   });
-  res.status(200).json({ activity: createdActivity });
+  res.status(201).json({ activity: createdActivity });
 }
 
 export async function updateActivity(req: Request, res: Response) {
@@ -48,5 +48,5 @@ export async function updateActivity(req: Request, res: Response) {
 export async function deleteActivity(req: Request, res: Response) {
   const activityName = validateUrlParam(req.params.activityName);
   console.log(await activityDAO.remove(activityName, req.session.user!.id));
-  res.sendStatus(200);
+  res.sendStatus(204);
 }
