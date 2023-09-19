@@ -1,5 +1,6 @@
 import { db } from '../db';
 import { NewActivity, ActivityUpdate } from '../db/types';
+import { QueryString } from './activity.types';
 
 const columnsToReturn = [
   'id',
@@ -12,11 +13,12 @@ const columnsToReturn = [
   'month_goal as monthGoal',
 ] as const;
 
-async function findByAccountId(account_id: bigint) {
+async function findByAccountId(account_id: bigint, filters: QueryString) {
   return db
     .selectFrom('activity')
     .select(columnsToReturn)
     .where('account_id', '=', account_id)
+    .where((eb) => eb.and(filters))
     .orderBy('name')
     .execute();
 }

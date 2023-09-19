@@ -3,3 +3,7 @@ export type GoalInterval = {
   minutes?: number;
   seconds?: number;
 };
+
+export type QueryString = {
+  archived?: true | false;
+};

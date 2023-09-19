@@ -6,6 +6,18 @@ import { BadRequestError } from '../errors/bad-request.error';
 const activityIdParamSchema = z.coerce.bigint().positive();
 const activityNameParamSchema = z.string().min(1);
 
+const queryStringsSchema = z
+  .object({
+    archived: z
+      .enum(['true', 'false'], {
+        errorMap: () => ({
+          message: 'Archived has to be either true or false.',
+        }),
+      })
+      .transform((archived) => archived === 'true'),
+  })
+  .partial();
+
 const intervalSchema = z
   .object({
     hours: z.number().int().min(0),
@@ -77,6 +89,17 @@ export function validateCreatePayload(payload: any) {
     week_goal: activity.weekGoal,
     month_goal: activity.monthGoal,
   };
+}
+
+export function validateQueryStrings(query: unknown) {
+  const result = queryStringsSchema.safeParse(query);
+  if (!result.success) {
+    throw new BadRequestError(
+      'Invalid query string data',
+      extractIssues(result.error)
+    );
+  }
+  return result.data;
 }
 
 function extractIssues(error: ZodError) {

@@ -5,16 +5,22 @@ import {
   validateUrlParam,
   validateCreatePayload,
   validateUpdatePayload,
+  validateQueryStrings,
 } from './activity.validator';
 import { NotFoundError } from '../errors/not-found.error';
 
 export async function getAllActivities(req: Request, res: Response) {
-  const activities = await activityDAO.findByAccountId(req.session.user!.id);
+  const filters = validateQueryStrings(req.query);
+  const activities = await activityDAO.findByAccountId(
+    req.session.user!.id,
+    filters
+  );
   res.status(200).json({ activities });
 }
 
 export async function getActivity(req: Request, res: Response) {
   const activityName = validateUrlParam(req.params.activityName);
+
   const activity = await activityDAO.findByNameAndAccountId(
     activityName,
     req.session.user!.id
