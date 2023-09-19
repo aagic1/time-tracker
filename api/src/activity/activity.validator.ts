@@ -47,7 +47,7 @@ const updateRequestPayloadSchema = createRequestPayloadSchema
   })
   .merge(z.object({ archived: z.boolean().optional() }));
 
-export function validateUrlParam(param: string) {
+export function validatePathParam(param: string) {
   const result = activityNameParamSchema.safeParse(param);
   if (!result.success) {
     console.log(result.error);

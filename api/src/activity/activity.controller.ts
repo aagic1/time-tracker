@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 
 import activityDAO from './activity.dao';
 import {
-  validateUrlParam,
+  validatePathParam,
   validateCreatePayload,
   validateUpdatePayload,
   validateQueryStrings,
@@ -19,7 +19,7 @@ export async function getAllActivities(req: Request, res: Response) {
 }
 
 export async function getActivity(req: Request, res: Response) {
-  const activityName = validateUrlParam(req.params.activityName);
+  const activityName = validatePathParam(req.params.activityName);
 
   const activity = await activityDAO.findByNameAndAccountId(
     activityName,
@@ -41,7 +41,7 @@ export async function createActivity(req: Request, res: Response) {
 }
 
 export async function updateActivity(req: Request, res: Response) {
-  const activityName = validateUrlParam(req.params.activityName);
+  const activityName = validatePathParam(req.params.activityName);
   const activity = validateUpdatePayload(req.body);
   const updatedActivity = await activityDAO.update(
     activityName,
@@ -52,7 +52,7 @@ export async function updateActivity(req: Request, res: Response) {
 }
 
 export async function deleteActivity(req: Request, res: Response) {
-  const activityName = validateUrlParam(req.params.activityName);
+  const activityName = validatePathParam(req.params.activityName);
   console.log(await activityDAO.remove(activityName, req.session.user!.id));
   res.sendStatus(204);
 }
