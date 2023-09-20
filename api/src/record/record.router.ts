@@ -1,26 +1,21 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
+
+import {
+  createRecord,
+  deleteRecord,
+  getAllRecords,
+  getRecord,
+  updateRecord,
+} from './record.controller';
 
 const recordsRouter = express.Router();
 
-recordsRouter
-  .route('/')
-  .get((req: Request, res: Response) => {
-    res.send('Get all records');
-  })
-  .post((req: Request, res: Response) => {
-    res.json(req.body);
-  });
+recordsRouter.route('/').get(getAllRecords).post(createRecord);
 
 recordsRouter
   .route('/:recordId')
-  .get((req: Request, res: Response) => {
-    res.send('Get single record');
-  })
-  .patch((req: Request, res: Response) => {
-    res.json(req.body);
-  })
-  .delete((req: Request, res: Response) => {
-    res.send('Delete record');
-  });
+  .get(getRecord)
+  .patch(updateRecord)
+  .delete(deleteRecord);
 
 export default recordsRouter;
