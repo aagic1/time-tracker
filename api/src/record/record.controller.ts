@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import recordDAO from './record.dao';
 
 export async function getRecord(req: Request, res: Response) {
-  res.send(await recordDAO.findById());
+  res.send(await recordDAO.findById(BigInt(req.params.recordId)));
 }
 
 export async function getAllRecords(req: Request, res: Response) {

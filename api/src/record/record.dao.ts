@@ -3,8 +3,19 @@ import { db } from '../db';
 import { IPostgresInterval } from 'postgres-interval';
 import { NewRecord } from '../db/types';
 
-async function findById() {
-  return 'find record by id';
+async function findById(recordId: bigint) {
+  return db
+    .selectFrom('record')
+    .innerJoin('activity', 'record.activity_id', 'activity.id')
+    .selectAll('record')
+    .select([
+      'activity.name as activity_name',
+      'activity.color',
+      'activity.session_goal',
+      'activity.day_goal',
+    ])
+    .where('record.id', '=', recordId)
+    .executeTakeFirst();
 }
 
 async function find(accountId: bigint) {
