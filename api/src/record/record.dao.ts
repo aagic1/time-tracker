@@ -20,8 +20,8 @@ async function find(accountId: bigint) {
     .execute();
 }
 
-async function remove() {
-  return 'delete record';
+async function remove(recordId: bigint) {
+  return db.deleteFrom('record').where('id', '=', recordId).executeTakeFirst();
 }
 
 async function create() {

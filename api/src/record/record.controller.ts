@@ -12,7 +12,11 @@ export async function getAllRecords(req: Request, res: Response) {
 }
 
 export async function deleteRecord(req: Request, res: Response) {
-  res.send(await recordDAO.remove());
+  const result = await recordDAO.remove(BigInt(req.params.recordId));
+  if (result.numDeletedRows === 0n) {
+    res.status(404).send({ msg: 'Record not found' });
+  }
+  res.status(204).send({ msg: 'Record deleted successfully' });
 }
 
 export async function createRecord(req: Request, res: Response) {
