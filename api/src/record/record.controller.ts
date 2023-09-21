@@ -7,7 +7,8 @@ export async function getRecord(req: Request, res: Response) {
 }
 
 export async function getAllRecords(req: Request, res: Response) {
-  res.send(await recordDAO.find());
+  const records = await recordDAO.find(req.session.user!.id);
+  res.status(200).json({ records });
 }
 
 export async function deleteRecord(req: Request, res: Response) {
