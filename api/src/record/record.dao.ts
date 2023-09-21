@@ -1,6 +1,7 @@
 import { sql } from 'kysely';
 import { db } from '../db';
 import { IPostgresInterval } from 'postgres-interval';
+import { NewRecord } from '../db/types';
 
 async function findById() {
   return 'find record by id';
@@ -24,20 +25,22 @@ async function remove(recordId: bigint) {
   return db.deleteFrom('record').where('id', '=', recordId).executeTakeFirst();
 }
 
-async function create() {
-  return 'create record';
+async function create(record: NewRecord) {
+  return db
+    .with('inserted', (db) =>
+      db.insertInto('record').values(record).returningAll()
+    )
+    .selectFrom('inserted')
+    .innerJoin('activity', 'inserted.activity_id', 'activity.id')
+    .selectAll('inserted')
+    .select([
+      'activity.name as activity_name',
+      'activity.color',
+      'activity.session_goal',
+      'activity.day_goal',
+    ])
+    .executeTakeFirst();
 }
-
-type RecordEnriched = {
-  id: bigint;
-  comment: string | null;
-  active: boolean;
-  started_at: Date;
-  stopped_at: Date | null;
-  color: string;
-  activity_name: string;
-  goal: IPostgresInterval | null;
-};
 
 type UpdateFields = {
   activity_id?: bigint;

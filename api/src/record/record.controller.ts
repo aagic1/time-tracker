@@ -20,7 +20,9 @@ export async function deleteRecord(req: Request, res: Response) {
 }
 
 export async function createRecord(req: Request, res: Response) {
-  res.send(await recordDAO.create());
+  const record = await recordDAO.create(req.body);
+  console.log(record);
+  res.status(201).json(record);
 }
 
 export async function updateRecord(req: Request, res: Response) {
