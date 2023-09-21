@@ -20,5 +20,11 @@ export async function createRecord(req: Request, res: Response) {
 }
 
 export async function updateRecord(req: Request, res: Response) {
-  res.send(await recordDAO.update());
+  const record = await recordDAO.update(BigInt(req.params.recordId), {
+    ...req.body,
+    started_at: new Date(req.body.started_at),
+    stopped_at: new Date(req.body.stopped_at),
+  });
+  console.log(record);
+  res.json({ record });
 }

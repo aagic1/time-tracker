@@ -1,5 +1,6 @@
+import { sql } from 'kysely';
 import { db } from '../db';
-import { jsonObjectFrom } from 'kysely/helpers/postgres';
+import { IPostgresInterval } from 'postgres-interval';
 
 async function findById() {
   return 'find record by id';
@@ -27,8 +28,65 @@ async function create() {
   return 'create record';
 }
 
-async function update() {
-  return 'update record';
+type RecordEnriched = {
+  id: bigint;
+  comment: string | null;
+  active: boolean;
+  started_at: Date;
+  stopped_at: Date | null;
+  color: string;
+  activity_name: string;
+  goal: IPostgresInterval | null;
+};
+
+type UpdateFields = {
+  activity_id?: bigint;
+  comment?: string;
+  started_at?: Date;
+  stopped_at?: Date;
+  active?: boolean;
+};
+
+async function update(record_id: bigint, updateFields: UpdateFields) {
+  return db
+    .with('updated', (db) =>
+      db
+        .updateTable('record')
+        .set(updateFields)
+        .where('id', '=', record_id)
+        .returningAll()
+    )
+    .selectFrom('updated')
+    .innerJoin('activity', 'updated.activity_id', 'activity.id')
+    .selectAll('updated')
+    .select([
+      'activity.name as activity_name',
+      'activity.color',
+      'activity.session_goal',
+      'activity.day_goal',
+    ])
+    .executeTakeFirst();
+  // const result = await sql<RecordEnriched>`
+  //   WITH updated AS (
+  //     UPDATE record SET activity_id = ${activity_id}
+  //     WHERE record.id = ${record_id}
+  //     RETURNING *
+  //   )
+  //   SELECT
+  //     updated.id,
+  //     updated.comment,
+  //     updated.active,
+  //     updated.started_at,
+  //     updated.stopped_at,
+  //     activity.color,
+  //     activity.name as activity_name,
+  //     activity.session_goal as goal
+  //   FROM updated
+  //   INNER JOIN activity ON updated.activity_id = activity.id
+  //   WHERE updated.id = ${record_id}
+
+  // `.execute(db);
+  // return result.rows[0];
 }
 
 export default {
