@@ -27,6 +27,8 @@ const createRequestPayloadSchema = z.object({
   active: z.boolean().optional(),
 });
 
+const updateRequestPayloadSchema = createRequestPayloadSchema.partial();
+
 export function validatePathParam(param: string) {
   try {
     const result = recordIdParamSchema.safeParse(param);
@@ -46,6 +48,14 @@ export function validatePathParam(param: string) {
 
 export function validateCreatePaylaod(payload: unknown) {
   const result = createRequestPayloadSchema.safeParse(payload);
+  if (!result.success) {
+    throw new BadRequestError('Invalid data', extractIssues(result.error));
+  }
+  return result.data;
+}
+
+export function validateUpdatePayload(payload: unknown) {
+  const result = updateRequestPayloadSchema.safeParse(payload);
   if (!result.success) {
     throw new BadRequestError('Invalid data', extractIssues(result.error));
   }

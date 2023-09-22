@@ -1,7 +1,6 @@
 import { sql } from 'kysely';
 import { db } from '../db';
-import { IPostgresInterval } from 'postgres-interval';
-import { NewRecord } from '../db/types';
+import { NewRecord, RecordUpdate } from '../db/types';
 
 async function findById(recordId: bigint) {
   return db
@@ -53,20 +52,12 @@ async function create(record: NewRecord) {
     .executeTakeFirst();
 }
 
-type UpdateFields = {
-  activity_id?: bigint;
-  comment?: string;
-  started_at?: Date;
-  stopped_at?: Date;
-  active?: boolean;
-};
-
-async function update(record_id: bigint, updateFields: UpdateFields) {
+async function update(record_id: bigint, record: RecordUpdate) {
   return db
     .with('updated', (db) =>
       db
         .updateTable('record')
-        .set(updateFields)
+        .set(record)
         .where('id', '=', record_id)
         .returningAll()
     )

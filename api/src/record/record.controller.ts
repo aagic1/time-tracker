@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 
-import { validateCreatePaylaod, validatePathParam } from './record.validator';
+import {
+  validateCreatePaylaod,
+  validatePathParam,
+  validateUpdatePayload,
+} from './record.validator';
 import recordDAO from './record.dao';
 import { NotFoundError } from '../errors/not-found.error';
 
@@ -42,11 +46,14 @@ export async function createRecord(req: Request, res: Response) {
 
 export async function updateRecord(req: Request, res: Response) {
   const recordId = validatePathParam(req.params.recordId);
-  const record = await recordDAO.update(recordId, {
-    ...req.body,
-    started_at: new Date(req.body.started_at),
-    stopped_at: new Date(req.body.stopped_at),
+  const record = validateUpdatePayload(req.body);
+  const updatedRecord = await recordDAO.update(recordId, {
+    activity_id: record.activityId,
+    comment: record.comment,
+    started_at: record.startedAt,
+    stopped_at: record.stoppedAt,
+    active: record.active,
   });
-  console.log(record);
-  res.json({ record });
+  console.log(updatedRecord);
+  res.json({ updatedRecord });
 }
