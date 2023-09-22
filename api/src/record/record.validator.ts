@@ -56,7 +56,8 @@ const createRequestPayloadSchema = z
   })
   .refine(
     ({ stoppedAt, active }) =>
-      (!stoppedAt && active === true) || (stoppedAt && active === false),
+      (!stoppedAt && (active === true || active === undefined)) ||
+      (stoppedAt && active === false),
     'Active records must not specify time when they were stopped. Inactive records must specifiy time when they were stopped'
   );
 
