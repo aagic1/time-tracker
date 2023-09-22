@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { validatePathParam } from './record.validator';
+import { validateCreatePaylaod, validatePathParam } from './record.validator';
 import recordDAO from './record.dao';
 import { NotFoundError } from '../errors/not-found.error';
 
@@ -28,9 +28,16 @@ export async function deleteRecord(req: Request, res: Response) {
 }
 
 export async function createRecord(req: Request, res: Response) {
-  const record = await recordDAO.create(req.body);
-  console.log(record);
-  res.status(201).json(record);
+  const record = validateCreatePaylaod(req.body);
+  const newRecord = await recordDAO.create({
+    activity_id: record.activityId,
+    comment: record.comment,
+    started_at: record.startedAt,
+    stopped_at: record.stoppedAt,
+    active: record.active,
+  });
+  console.log(newRecord);
+  res.status(201).json(newRecord);
 }
 
 export async function updateRecord(req: Request, res: Response) {
