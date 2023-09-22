@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import {
   validateCreatePaylaod,
   validatePathParam,
+  validateQueryString,
   validateUpdatePayload,
 } from './record.validator';
 import recordDAO from './record.dao';
@@ -18,6 +19,9 @@ export async function getRecord(req: Request, res: Response) {
 }
 
 export async function getAllRecords(req: Request, res: Response) {
+  console.log(req.query);
+  const query = validateQueryString(req.query);
+  console.log(query);
   const records = await recordDAO.find(req.session.user!.id);
   res.status(200).json({ records });
 }
