@@ -3,6 +3,8 @@ import { BadRequestError } from '../errors/bad-request.error';
 
 const MAX_BIGINT_POSTGRES = 9223372036854775807n;
 
+const stringNonEmptySchema = z.string().trim().min(1);
+
 const dateWithoutTimeSchema = z
   .string()
   .regex(
@@ -21,7 +23,7 @@ const dateWithoutTimeSchema = z
     return date;
   });
 
-const bigintStringSchema = z.string().transform((val, ctx) => {
+const bigintStringSchema = stringNonEmptySchema.transform((val, ctx) => {
   try {
     const id = BigInt(val);
     if (id <= 0) {
@@ -49,7 +51,7 @@ const booleanStringSchema = z
 const createRequestPayloadSchema = z
   .object({
     activityId: bigintStringSchema,
-    comment: z.string().nullable().optional(),
+    comment: stringNonEmptySchema.nullable().optional(),
     startedAt: z.string().datetime(),
     stoppedAt: z.string().datetime().nullable().optional(),
     active: z.boolean().optional(),
@@ -64,7 +66,7 @@ const createRequestPayloadSchema = z
 const updateRequestPayloadSchema = z
   .object({
     activityId: bigintStringSchema,
-    comment: z.string().nullable().optional(),
+    comment: stringNonEmptySchema.nullable().optional(),
     startedAt: z.string().datetime(),
     stoppedAt: z.string().datetime().nullable().optional(),
     active: z.boolean().optional(),
@@ -79,7 +81,7 @@ const updateRequestPayloadSchema = z
 const queryStringSchema = z
   .object({
     active: booleanStringSchema,
-    comment: z.string(),
+    comment: stringNonEmptySchema,
     activityId: bigintStringSchema,
     date: dateWithoutTimeSchema,
     dateFrom: dateWithoutTimeSchema,
