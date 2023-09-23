@@ -1,5 +1,6 @@
 import { ZodError, date, z } from 'zod';
 import { BadRequestError } from '../errors/bad-request.error';
+import { start } from 'repl';
 
 const MAX_BIGINT_POSTGRES = 9223372036854775807n;
 
@@ -54,13 +55,23 @@ const createRequestPayloadSchema = z
     comment: stringNonEmptySchema.nullable().optional(),
     startedAt: z.string().datetime(),
     stoppedAt: z.string().datetime().nullable().optional(),
-    active: z.boolean().optional(),
+    active: z.boolean(),
   })
   .refine(
     ({ stoppedAt, active }) =>
-      (!stoppedAt && (active === true || active === undefined)) ||
-      (stoppedAt && active === false),
-    'Active records must not specify time when they were stopped. Inactive records must specifiy time when they were stopped'
+      (stoppedAt == null && active === true) || // isto za update
+      (stoppedAt != null && active === false),
+    ({ stoppedAt, active }) => ({
+      message: `Active records must not specify time when they were stopped. Inactive records must specifiy time when they were stopped ${stoppedAt} ${active}`,
+      path: ['active'],
+    })
+  )
+  .refine(
+    ({ stoppedAt, startedAt }) => (stoppedAt ? stoppedAt > startedAt : true),
+    ({ stoppedAt, active }) => ({
+      message: `Start time has to be before stop time`,
+      path: ['startedAt'],
+    })
   );
 
 const updateRequestPayloadSchema = z
@@ -74,8 +85,24 @@ const updateRequestPayloadSchema = z
   .partial()
   .refine(
     ({ stoppedAt, active }) =>
-      (!stoppedAt && active === true) || (stoppedAt && active === false),
-    'Active records must not specify time when they were stopped. Inactive records must specifiy time when they were stopped'
+      (stoppedAt === null && active === true) ||
+      (stoppedAt != null && active === false) ||
+      (stoppedAt === undefined && active === undefined),
+    ({ stoppedAt, active }) => ({
+      message: `Active records must not specify time when they were stopped. Inactive records must specifiy time when they were stopped ${stoppedAt} ${active}`,
+    })
+  )
+  .refine(
+    ({ stoppedAt, startedAt }) => {
+      if (!startedAt || !stoppedAt) {
+        return true;
+      }
+      return stoppedAt > startedAt;
+    },
+    ({ stoppedAt, active }) => ({
+      message: `Start time has to be before stop time`,
+      path: ['startedAt'],
+    })
   );
 
 const queryStringSchema = z
