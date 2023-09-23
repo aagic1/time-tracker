@@ -28,9 +28,9 @@ export async function getAllRecords(req: Request, res: Response) {
 
 export async function deleteRecord(req: Request, res: Response) {
   const recordId = validatePathParam(req.params.recordId);
-  const result = await recordDAO.remove(recordId);
+  const result = await recordDAO.remove(req.session.user!.id, recordId);
   if (result.numDeletedRows === 0n) {
-    res.status(404).send({ msg: 'Record not found' });
+    throw new NotFoundError(`Record with id=${recordId} not found`);
   }
   res.status(204).send({ msg: 'Record deleted successfully' });
 }

@@ -31,8 +31,23 @@ async function find(accountId: bigint) {
     .execute();
 }
 
-async function remove(recordId: bigint) {
-  return db.deleteFrom('record').where('id', '=', recordId).executeTakeFirst();
+async function remove(accountId: bigint, recordId: bigint) {
+  return db
+    .deleteFrom('record')
+    .where(({ eb }) =>
+      eb.and([
+        eb('id', '=', recordId),
+        eb(
+          'record.activity_id',
+          'in',
+          eb
+            .selectFrom('activity')
+            .where('account_id', '=', accountId)
+            .select('activity.id')
+        ),
+      ])
+    )
+    .executeTakeFirst();
 }
 
 async function create(record: NewRecord) {
