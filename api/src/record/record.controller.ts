@@ -33,9 +33,11 @@ export async function deleteRecord(req: Request, res: Response) {
   const recordId = validatePathParam(req.params.recordId);
   const result = await recordDAO.remove(req.session.user!.id, recordId);
   if (result.numDeletedRows === 0n) {
-    throw new NotFoundError(`Record with id=${recordId} not found`);
+    throw new NotFoundError(
+      `Failed to delete record. Record with id=${recordId} not found.`
+    );
   }
-  res.status(204).send({ msg: 'Record deleted successfully' });
+  res.status(204);
 }
 
 export async function createRecord(req: Request, res: Response) {
@@ -48,7 +50,9 @@ export async function createRecord(req: Request, res: Response) {
     active: record.active,
   });
   if (!newRecord) {
-    throw new NotFoundError(`Activity doesn't exist`);
+    throw new NotFoundError(
+      `Failed to create record for specified activity. Activity with id=${record.activityId} not found.`
+    );
   }
   res.status(201).json(newRecord);
 }
