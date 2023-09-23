@@ -40,14 +40,16 @@ export async function deleteRecord(req: Request, res: Response) {
 
 export async function createRecord(req: Request, res: Response) {
   const record = validateCreatePaylaod(req.body);
-  const newRecord = await recordDAO.create({
+  const newRecord = await recordDAO.create(req.session.user!.id, {
     activity_id: record.activityId,
     comment: record.comment,
     started_at: record.startedAt,
     stopped_at: record.stoppedAt,
     active: record.active,
   });
-  console.log(newRecord);
+  if (!newRecord) {
+    throw new NotFoundError(`Activity doesn't exist`);
+  }
   res.status(201).json(newRecord);
 }
 

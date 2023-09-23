@@ -7,7 +7,7 @@ import type {
 } from 'kysely';
 import type { IPostgresInterval } from 'postgres-interval';
 
-export type Int8 = ColumnType<bigint, bigint | string, bigint | string>;
+export type Int8 = ColumnType<bigint, bigint, bigint | string>;
 export type Interval = ColumnType<IPostgresInterval, string, string>;
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
@@ -36,7 +36,7 @@ export interface RecordTable {
   comment: string | null;
   started_at: Timestamp;
   stopped_at: Timestamp | null;
-  active: Generated<boolean>;
+  active: boolean;
 }
 
 export interface DB {

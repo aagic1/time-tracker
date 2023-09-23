@@ -51,20 +51,36 @@ async function remove(accountId: bigint, recordId: bigint) {
     .executeTakeFirst();
 }
 
-async function create(record: NewRecord) {
+async function create(accountId: bigint, record: NewRecord) {
   return db
-    .with('inserted', (db) =>
-      db.insertInto('record').values(record).returningAll()
+    .insertInto('record')
+    .columns(['activity_id', 'active', 'comment', 'started_at', 'stopped_at'])
+    .expression(
+      db
+        .selectFrom('activity')
+        .select([
+          sql`${record.activity_id}`.as('acid'),
+          sql`${record.active}`.as('act'),
+          sql`${record.comment}`.as('commt'),
+          sql`${record.started_at}`.as('startedat'),
+          sql`${record.stopped_at}`.as('stoppedat'),
+        ])
+        .where((eb) =>
+          eb.and([
+            eb(
+              'activity.id',
+              'in',
+              eb
+                .selectFrom('activity')
+                .select('id')
+                .where('activity.account_id', '=', accountId)
+                .where('activity.id', '=', record.activity_id)
+            ),
+          ])
+        )
+        .limit(1)
     )
-    .selectFrom('inserted')
-    .innerJoin('activity', 'inserted.activity_id', 'activity.id')
-    .selectAll('inserted')
-    .select([
-      'activity.name as activity_name',
-      'activity.color',
-      'activity.session_goal',
-      'activity.day_goal',
-    ])
+    .returningAll()
     .executeTakeFirst();
 }
 
