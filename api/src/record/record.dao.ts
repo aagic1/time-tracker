@@ -1,4 +1,4 @@
-import { sql } from 'kysely';
+import { sql, Expression, SqlBool } from 'kysely';
 import { db } from '../db';
 import { NewRecord, RecordUpdate } from '../db/types';
 
@@ -84,13 +84,33 @@ async function create(accountId: bigint, record: NewRecord) {
     .executeTakeFirst();
 }
 
-async function update(record_id: bigint, record: RecordUpdate) {
+async function update(
+  accountId: bigint,
+  record_id: bigint,
+  record: RecordUpdate
+) {
   return db
     .with('updated', (db) =>
       db
         .updateTable('record')
         .set(record)
         .where('id', '=', record_id)
+        .where((eb) => {
+          const filters: Expression<SqlBool>[] = [];
+          if (record.activity_id) {
+            filters.push(
+              eb.exists(
+                eb
+                  .selectFrom('activity')
+                  .select(eb.lit(1).as('1'))
+                  .where('activity.account_id', '=', accountId)
+                  .where('activity.id', '=', record.activity_id)
+              )
+            );
+          }
+
+          return eb.and(filters);
+        })
         .returningAll()
     )
     .selectFrom('updated')
@@ -103,27 +123,6 @@ async function update(record_id: bigint, record: RecordUpdate) {
       'activity.day_goal',
     ])
     .executeTakeFirst();
-  // const result = await sql<RecordEnriched>`
-  //   WITH updated AS (
-  //     UPDATE record SET activity_id = ${activity_id}
-  //     WHERE record.id = ${record_id}
-  //     RETURNING *
-  //   )
-  //   SELECT
-  //     updated.id,
-  //     updated.comment,
-  //     updated.active,
-  //     updated.started_at,
-  //     updated.stopped_at,
-  //     activity.color,
-  //     activity.name as activity_name,
-  //     activity.session_goal as goal
-  //   FROM updated
-  //   INNER JOIN activity ON updated.activity_id = activity.id
-  //   WHERE updated.id = ${record_id}
-
-  // `.execute(db);
-  // return result.rows[0];
 }
 
 export default {

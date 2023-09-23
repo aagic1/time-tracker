@@ -7,7 +7,7 @@ import type {
 } from 'kysely';
 import type { IPostgresInterval } from 'postgres-interval';
 
-export type Int8 = ColumnType<bigint, bigint, bigint | string>;
+export type Int8 = ColumnType<bigint, bigint, bigint>;
 export type Interval = ColumnType<IPostgresInterval, string, string>;
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 

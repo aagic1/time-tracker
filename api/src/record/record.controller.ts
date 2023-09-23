@@ -60,7 +60,7 @@ export async function createRecord(req: Request, res: Response) {
 export async function updateRecord(req: Request, res: Response) {
   const recordId = validatePathParam(req.params.recordId);
   const record = validateUpdatePayload(req.body);
-  const updatedRecord = await recordDAO.update(recordId, {
+  const updatedRecord = await recordDAO.update(req.session.user!.id, recordId, {
     activity_id: record.activityId,
     comment: record.comment,
     started_at: record.startedAt,
@@ -68,5 +68,8 @@ export async function updateRecord(req: Request, res: Response) {
     active: record.active,
   });
   console.log(updatedRecord);
+  if (!updatedRecord) {
+    throw new NotFoundError(`Failed to update - some reason`);
+  }
   res.json({ updatedRecord });
 }
