@@ -11,7 +11,10 @@ import { NotFoundError } from '../errors/not-found.error';
 
 export async function getRecord(req: Request, res: Response) {
   const recordId = validatePathParam(req.params.recordId);
-  const record = await recordDAO.findById(BigInt(req.params.recordId));
+  const record = await recordDAO.findById(
+    req.session.user!.id,
+    BigInt(req.params.recordId)
+  );
   if (!record) {
     throw new NotFoundError(`Record with id=${recordId} not found`);
   }

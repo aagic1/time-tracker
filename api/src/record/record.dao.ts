@@ -2,7 +2,7 @@ import { sql } from 'kysely';
 import { db } from '../db';
 import { NewRecord, RecordUpdate } from '../db/types';
 
-async function findById(recordId: bigint) {
+async function findById(accountId: bigint, recordId: bigint) {
   return db
     .selectFrom('record')
     .innerJoin('activity', 'record.activity_id', 'activity.id')
@@ -14,6 +14,7 @@ async function findById(recordId: bigint) {
       'activity.day_goal',
     ])
     .where('record.id', '=', recordId)
+    .where('activity.account_id', '=', accountId)
     .executeTakeFirst();
 }
 
