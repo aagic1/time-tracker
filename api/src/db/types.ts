@@ -36,7 +36,6 @@ export interface RecordTable {
   comment: string | null;
   started_at: Timestamp;
   stopped_at: Timestamp | null;
-  active: boolean;
 }
 
 export interface DB {

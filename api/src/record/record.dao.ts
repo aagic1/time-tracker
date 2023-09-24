@@ -54,13 +54,12 @@ async function remove(accountId: bigint, recordId: bigint) {
 async function create(accountId: bigint, record: NewRecord) {
   return db
     .insertInto('record')
-    .columns(['activity_id', 'active', 'comment', 'started_at', 'stopped_at'])
+    .columns(['activity_id', 'comment', 'started_at', 'stopped_at'])
     .expression(
       db
         .selectFrom('activity')
         .select([
           sql`${record.activity_id}`.as('acid'),
-          sql`${record.active}`.as('act'),
           sql`${record.comment}`.as('commt'),
           sql`${record.started_at}`.as('startedat'),
           sql`${record.stopped_at}`.as('stoppedat'),

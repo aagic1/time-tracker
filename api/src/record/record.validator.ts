@@ -55,20 +55,12 @@ const createRequestPayloadSchema = z
     comment: stringNonEmptySchema.nullable().optional(),
     startedAt: z.string().datetime(),
     stoppedAt: z.string().datetime().nullable().optional(),
-    active: z.boolean(),
   })
   .refine(
-    ({ stoppedAt, active }) =>
-      (stoppedAt == null && active === true) || // isto za update
-      (stoppedAt != null && active === false),
-    ({ stoppedAt, active }) => ({
-      message: `Active records must not specify time when they were stopped. Inactive records must specifiy time when they were stopped ${stoppedAt} ${active}`,
-      path: ['active'],
-    })
-  )
-  .refine(
-    ({ stoppedAt, startedAt }) => (stoppedAt ? stoppedAt > startedAt : true),
-    ({ stoppedAt, active }) => ({
+    ({ stoppedAt, startedAt }) => {
+      return !stoppedAt || new Date(stoppedAt) > new Date(startedAt);
+    },
+    () => ({
       message: `Start time has to be before stop time`,
       path: ['startedAt'],
     })
@@ -80,26 +72,12 @@ const updateRequestPayloadSchema = z
     comment: stringNonEmptySchema.nullable().optional(),
     startedAt: z.string().datetime(),
     stoppedAt: z.string().datetime().nullable().optional(),
-    active: z.boolean().optional(),
   })
   .partial()
   .refine(
-    ({ stoppedAt, active }) =>
-      (stoppedAt === null && active === true) ||
-      (stoppedAt != null && active === false) ||
-      (stoppedAt === undefined && active === undefined),
-    ({ stoppedAt, active }) => ({
-      message: `Active records must not specify time when they were stopped. Inactive records must specifiy time when they were stopped ${stoppedAt} ${active}`,
-    })
-  )
-  .refine(
-    ({ stoppedAt, startedAt }) => {
-      if (!startedAt || !stoppedAt) {
-        return true;
-      }
-      return stoppedAt > startedAt;
-    },
-    ({ stoppedAt, active }) => ({
+    ({ stoppedAt, startedAt }) =>
+      !startedAt || !stoppedAt || new Date(stoppedAt) > new Date(startedAt),
+    () => ({
       message: `Start time has to be before stop time`,
       path: ['startedAt'],
     })

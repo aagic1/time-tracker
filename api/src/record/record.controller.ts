@@ -47,7 +47,6 @@ export async function createRecord(req: Request, res: Response) {
     comment: record.comment,
     started_at: record.startedAt,
     stopped_at: record.stoppedAt,
-    active: record.active,
   });
   if (!newRecord) {
     throw new NotFoundError(
@@ -65,7 +64,6 @@ export async function updateRecord(req: Request, res: Response) {
     comment: record.comment,
     started_at: record.startedAt,
     stopped_at: record.stoppedAt,
-    active: record.active,
   });
   console.log(updatedRecord);
   if (!updatedRecord) {
