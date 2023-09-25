@@ -135,19 +135,7 @@ async function create(accountId: bigint, record: NewRecord) {
           sql`${record.started_at}`.as('startedat'),
           sql`${record.stopped_at}`.as('stoppedat'),
         ])
-        .where((eb) =>
-          eb.and([
-            eb(
-              'activity.id',
-              'in',
-              eb
-                .selectFrom('activity')
-                .select('id')
-                .where('activity.account_id', '=', accountId)
-                .where('activity.id', '=', record.activity_id)
-            ),
-          ])
-        )
+        .where(belongsActivityToAccount(accountId, record.activity_id))
         .limit(1)
     )
     .returningAll()
@@ -169,16 +157,9 @@ async function update(
           const filters: Expression<SqlBool>[] = [];
           if (record.activity_id) {
             filters.push(
-              eb.exists(
-                eb
-                  .selectFrom('activity')
-                  .select(eb.lit(1).as('1'))
-                  .where('activity.account_id', '=', accountId)
-                  .where('activity.id', '=', record.activity_id)
-              )
+              belongsActivityToAccount(accountId, record.activity_id)
             );
           }
-
           return eb.and(filters);
         })
         .returningAll()
@@ -202,6 +183,16 @@ export default {
   create,
   update,
 };
+
+function belongsActivityToAccount(accountId: bigint, activityId: bigint) {
+  const eb = expressionBuilder<DB, 'activity'>();
+  return eb.exists((eb) =>
+    eb
+      .selectFrom('activity')
+      .where('account_id', '=', accountId)
+      .where('id', '=', activityId)
+  );
+}
 
 // add validation, should be int, maybe only positive, or also negative?
 function addDaysToDate(date: Date, days: number) {
