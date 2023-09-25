@@ -3,17 +3,23 @@ import { db } from '../db';
 import { DB, NewRecord, RecordUpdate } from '../db/types';
 import { QueryParams } from './record.validator';
 
+const recordColumnsToSelect = [
+  'record.id as recordId',
+  'record.comment as comment',
+  'record.started_at as startedAt',
+  'record.stopped_at as stoppedAt',
+  'record.activity_id as activityId',
+  'activity.name as activityName',
+  'activity.color as color',
+  'activity.day_goal as dayGoal',
+  'activity.session_goal as sessionGoal',
+] as const;
+
 async function findById(accountId: bigint, recordId: bigint) {
   return db
     .selectFrom('record')
     .innerJoin('activity', 'record.activity_id', 'activity.id')
-    .selectAll('record')
-    .select([
-      'activity.name as activity_name',
-      'activity.color',
-      'activity.session_goal',
-      'activity.day_goal',
-    ])
+    .select(recordColumnsToSelect)
     .where('record.id', '=', recordId)
     .where('activity.account_id', '=', accountId)
     .executeTakeFirst();
@@ -22,13 +28,8 @@ async function findById(accountId: bigint, recordId: bigint) {
 async function find(accountId: bigint, queryParams?: QueryParams) {
   return db
     .selectFrom('record')
-    .selectAll('record')
     .innerJoin('activity', 'activity.id', 'record.activity_id')
-    .select([
-      'activity.name as activity_name',
-      'activity.color as color',
-      'activity.session_goal as goal',
-    ])
+    .select(recordColumnsToSelect)
     .where('activity.account_id', '=', accountId)
     .where((eb) => {
       if (!queryParams) {
@@ -77,32 +78,6 @@ async function find(accountId: bigint, queryParams?: QueryParams) {
     .execute();
 }
 
-function filterRecordsBetweenDates(startDate: Date, stopDate: Date) {
-  const eb = expressionBuilder<DB, 'record'>();
-
-  return eb.or([
-    eb.and([
-      eb('started_at', '<=', startDate),
-      eb.or([
-        eb('stopped_at', '>=', startDate),
-        eb('stopped_at', 'is', null).and(
-          sql`${startDate}`,
-          '<',
-          addDaysToDate(new Date(), 1)
-        ),
-      ]),
-    ]),
-    eb.and([
-      eb('started_at', '>=', startDate),
-      eb('started_at', '<', addDaysToDate(stopDate, 1)),
-      eb.or([
-        eb('stopped_at', 'is not', null),
-        eb(sql`${startDate}`, '<', addDaysToDate(new Date(), 1)),
-      ]),
-    ]),
-  ]);
-}
-
 async function remove(accountId: bigint, recordId: bigint) {
   return db
     .deleteFrom('record')
@@ -148,7 +123,7 @@ async function update(
   record: RecordUpdate
 ) {
   return db
-    .with('updated', (db) =>
+    .with('record', (db) =>
       db
         .updateTable('record')
         .set(record)
@@ -164,15 +139,9 @@ async function update(
         })
         .returningAll()
     )
-    .selectFrom('updated')
-    .innerJoin('activity', 'updated.activity_id', 'activity.id')
-    .selectAll('updated')
-    .select([
-      'activity.name as activity_name',
-      'activity.color',
-      'activity.session_goal',
-      'activity.day_goal',
-    ])
+    .selectFrom('record')
+    .innerJoin('activity', 'record.activity_id', 'activity.id')
+    .select(recordColumnsToSelect)
     .executeTakeFirst();
 }
 
@@ -183,6 +152,32 @@ export default {
   create,
   update,
 };
+
+function filterRecordsBetweenDates(startDate: Date, stopDate: Date) {
+  const eb = expressionBuilder<DB, 'record'>();
+
+  return eb.or([
+    eb.and([
+      eb('started_at', '<=', startDate),
+      eb.or([
+        eb('stopped_at', '>=', startDate),
+        eb('stopped_at', 'is', null).and(
+          sql`${startDate}`,
+          '<',
+          addDaysToDate(new Date(), 1)
+        ),
+      ]),
+    ]),
+    eb.and([
+      eb('started_at', '>=', startDate),
+      eb('started_at', '<', addDaysToDate(stopDate, 1)),
+      eb.or([
+        eb('stopped_at', 'is not', null),
+        eb(sql`${startDate}`, '<', addDaysToDate(new Date(), 1)),
+      ]),
+    ]),
+  ]);
+}
 
 function belongsActivityToAccount(accountId: bigint, activityId: bigint) {
   const eb = expressionBuilder<DB, 'activity'>();
