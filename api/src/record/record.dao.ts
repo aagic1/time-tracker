@@ -1,6 +1,7 @@
-import { sql, Expression, SqlBool } from 'kysely';
+import { sql, Expression, SqlBool, expressionBuilder } from 'kysely';
 import { db } from '../db';
-import { NewRecord, RecordUpdate } from '../db/types';
+import { DB, NewRecord, RecordUpdate } from '../db/types';
+import { QueryParams } from './record.validator';
 
 async function findById(accountId: bigint, recordId: bigint) {
   return db
@@ -18,7 +19,7 @@ async function findById(accountId: bigint, recordId: bigint) {
     .executeTakeFirst();
 }
 
-async function find(accountId: bigint) {
+async function find(accountId: bigint, queryParams?: QueryParams) {
   return db
     .selectFrom('record')
     .selectAll('record')
@@ -29,7 +30,77 @@ async function find(accountId: bigint) {
       'activity.session_goal as goal',
     ])
     .where('activity.account_id', '=', accountId)
+    .where((eb) => {
+      if (!queryParams) {
+        return eb.and([]);
+      }
+
+      const filters: Expression<SqlBool>[] = [];
+      const { active, activityId, comment, date, dateFrom, dateTo } =
+        queryParams;
+
+      if (active === true) {
+        filters.push(eb('record.stopped_at', 'is', null));
+      } else if (active === false) {
+        filters.push(eb('record.stopped_at', 'is not', null));
+      }
+
+      if (activityId) {
+        filters.push(eb('activity.id', '=', activityId));
+      }
+
+      if (comment) {
+        filters.push(eb('record.comment', 'ilike', `%${comment}%`));
+      }
+
+      if (date && !dateFrom && !dateTo) {
+        filters.push(filterRecordsBetweenDates(date, date));
+      }
+
+      // ugly nesting
+      if (dateFrom) {
+        if (!dateTo || dateTo >= addDaysToDate(new Date(), 1)) {
+          filters.push(filterRecordsBetweenDates(dateFrom, new Date()));
+        } else {
+          filters.push(filterRecordsBetweenDates(dateFrom, dateTo));
+        }
+      } else if (dateTo) {
+        if (dateTo >= addDaysToDate(new Date(), 1)) {
+          filters.push(eb('started_at', '<', addDaysToDate(dateTo, 1)));
+        } else {
+          filters.push(eb('started_at', '<', dateTo));
+        }
+      }
+
+      return eb.and(filters);
+    })
     .execute();
+}
+
+function filterRecordsBetweenDates(startDate: Date, stopDate: Date) {
+  const eb = expressionBuilder<DB, 'record'>();
+
+  return eb.or([
+    eb.and([
+      eb('started_at', '<=', startDate),
+      eb.or([
+        eb('stopped_at', '>=', startDate),
+        eb('stopped_at', 'is', null).and(
+          sql`${startDate}`,
+          '<',
+          addDaysToDate(new Date(), 1)
+        ),
+      ]),
+    ]),
+    eb.and([
+      eb('started_at', '>=', startDate),
+      eb('started_at', '<', addDaysToDate(stopDate, 1)),
+      eb.or([
+        eb('stopped_at', 'is not', null),
+        eb(sql`${startDate}`, '<', addDaysToDate(new Date(), 1)),
+      ]),
+    ]),
+  ]);
 }
 
 async function remove(accountId: bigint, recordId: bigint) {
@@ -131,3 +202,9 @@ export default {
   create,
   update,
 };
+
+// add validation, should be int, maybe only positive, or also negative?
+function addDaysToDate(date: Date, days: number) {
+  const newDate = new Date(date);
+  return new Date(newDate.setDate(newDate.getDate() + days));
+}

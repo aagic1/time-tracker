@@ -83,7 +83,7 @@ const updateRequestPayloadSchema = z
     })
   );
 
-const queryStringSchema = z
+const queryParamsSchema = z
   .object({
     active: booleanStringSchema,
     comment: stringNonEmptySchema,
@@ -99,6 +99,8 @@ const queryStringSchema = z
     }
     return true;
   });
+
+export type QueryParams = z.infer<typeof queryParamsSchema>;
 
 export function validatePathParam(param: string) {
   const result = bigintStringSchema.safeParse(param);
@@ -126,8 +128,8 @@ export function validateUpdatePayload(payload: unknown) {
   return result.data;
 }
 
-export function validateQueryString(query: unknown) {
-  const result = queryStringSchema.safeParse(query);
+export function validateQueryParams(query: unknown) {
+  const result = queryParamsSchema.safeParse(query);
   if (!result.success) {
     throw new BadRequestError('Invalid data', extractIssues(result.error));
   }
