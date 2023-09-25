@@ -37,7 +37,7 @@ export async function deleteRecord(req: Request, res: Response) {
       `Failed to delete record. Record with id=${recordId} not found.`
     );
   }
-  res.status(204);
+  res.sendStatus(204);
 }
 
 export async function createRecord(req: Request, res: Response) {
