@@ -5,6 +5,7 @@ import nodemailer from 'nodemailer';
 import userDAO from '../user.dao';
 import { NewAccount } from '../../db/types';
 import { NotFoundError } from '../../errors/not-found.error';
+import { validateVerificationJwt } from './auth.validator';
 
 async function login(email: string, password: string) {
   const user = await userDAO.findByEmail(email);
@@ -68,7 +69,43 @@ async function sendEmailTo(email: string) {
   });
 }
 
+async function verifyEmail(token: string) {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    const { email } = validateVerificationJwt(decoded);
+
+    const user = await userDAO.findByEmail(email);
+    if (!user) {
+      // this should never be true. Again, jwt.verify should fail
+      throw "Email doesn't exist. Unexpected jwt email. JWT should contain only valid email, that is, registered emails. This should not happen... Server error";
+    }
+
+    if (user.verified) {
+      return {
+        status: 'Failure',
+        message: 'Email is already verified',
+      };
+    }
+
+    // check for error? or manybe not
+    const updatedUser = await userDAO.update(email, { verified: true });
+    if (!updatedUser) {
+      throw 'Something went wrong while updating user to verified user';
+    }
+    return {
+      status: 'Success',
+      message: 'Email verified successfully',
+      user: { id: updatedUser.id },
+    };
+  } catch (err) {
+    // check different types of verify errors
+    // expired, not valid jwt...
+    throw err;
+  }
+}
+
 export default {
   login,
   register,
+  verifyEmail,
 };
