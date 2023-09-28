@@ -20,10 +20,13 @@ export function errorHandler(
     res.status(409).json({ error: dbError });
   } else if (error instanceof Error) {
     console.log('error');
-    res.json({ error });
+    res.send(error.message);
   } else if (typeof error === 'string') {
     console.log('string');
-    res.json(error);
+    res.send(error);
+  } else {
+    console.log('unknown error');
+    res.send('unknown error');
   }
 }
 
