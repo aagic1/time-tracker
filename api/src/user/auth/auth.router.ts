@@ -14,5 +14,6 @@ authRouter.route('/logout').post(logout);
 authRouter.route('/login').post(checkNotAuthenticated, login);
 authRouter.route('/register').post(checkNotAuthenticated, register);
 authRouter.route('/verify-email/:token').post(verifyEmail);
+authRouter.route('/verify-email/resend').post(resendVerificationCode);
 
 export default authRouter;

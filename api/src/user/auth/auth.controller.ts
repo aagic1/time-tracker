@@ -3,6 +3,7 @@ import authService from './auth.service';
 import {
   validateLoginPayload,
   validateRegisterPayload,
+  validateResendConfirmationPayload,
 } from './auth.validator';
 
 export async function login(req: Request, res: Response) {
@@ -44,4 +45,11 @@ export async function verifyEmail(req: Request, res: Response) {
       .status(400)
       .json({ msg: 'Some server error in verifyEmail controller' });
   }
+}
+
+export async function resendVerificationCode(req: Request, res: Response) {
+  const { email } = validateResendConfirmationPayload(req.body);
+
+  const message = await authService.sendVerificationCode(email);
+  res.status(200).send(message);
 }

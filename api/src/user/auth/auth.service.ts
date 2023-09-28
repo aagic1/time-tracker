@@ -104,8 +104,19 @@ async function verifyEmail(token: string) {
   }
 }
 
+async function sendVerificationCode(email: string) {
+  const user = await userDAO.findByEmail(email);
+  if (!user) {
+    throw new NotFoundError(`User with email: ${email} does not exist.`);
+  }
+  await sendEmailTo(email);
+  console.log(`Email sent successfully.`);
+  return 'Confirmation code successfully sent to you email';
+}
+
 export default {
   login,
   register,
   verifyEmail,
+  sendVerificationCode,
 };
