@@ -14,11 +14,14 @@ apiRouter.get('/', (req: Request, res: Response) => {
 
 apiRouter.use('/auth', authRouter);
 
-apiRouter.use(checkAuthenticated);
+// apiRouter.use(checkAuthenticated);
 
 // protected routes - only logged in users with valid session
-apiRouter.use('/users', userRouter);
-apiRouter.use('/activities', activitiesRouter);
-apiRouter.use('/records', recordsRouter);
+apiRouter.use('/users', checkAuthenticated, userRouter);
+apiRouter.use('/activities', checkAuthenticated, activitiesRouter);
+apiRouter.use('/records', checkAuthenticated, recordsRouter);
+apiRouter.use('*', (req: Request, res: Response) => {
+  res.status(404).send('Not Found');
+});
 
 export default apiRouter;
