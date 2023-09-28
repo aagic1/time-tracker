@@ -37,6 +37,9 @@ export async function createActivity(req: Request, res: Response) {
     ...activity,
     account_id: req.session.user!.id,
   });
+  if (!createActivity) {
+    throw `Failed to create activity. Server error`;
+  }
   res.status(201).json({ activity: createdActivity });
 }
 
@@ -48,11 +51,19 @@ export async function updateActivity(req: Request, res: Response) {
     req.session.user!.id,
     activity
   );
+  if (!updatedActivity) {
+    throw `Failed to update activity. Server error`;
+  }
   res.status(200).json({ activity: updatedActivity });
 }
 
 export async function deleteActivity(req: Request, res: Response) {
   const activityName = validatePathParam(req.params.activityName);
-  console.log(await activityDAO.remove(activityName, req.session.user!.id));
+  const result = await activityDAO.remove(activityName, req.session.user!.id);
+  if (result.numDeletedRows === 0n) {
+    throw new NotFoundError(
+      `Failed to delete activity. Activity with name=${activityName} not found.`
+    );
+  }
   res.sendStatus(204);
 }
