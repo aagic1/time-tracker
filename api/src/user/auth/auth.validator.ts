@@ -3,16 +3,14 @@ import { BadRequestError } from '../../errors/bad-request.error';
 
 const emailSchema = z.string().email();
 const passwordSchema = z.string().min(8);
-const userNameSchema = z.string().min(3);
 
 const loginSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
 });
 
-const registerSchema = loginSchema.merge(
-  z.object({ username: userNameSchema })
-);
+const registerSchema = loginSchema;
+
 
 export function validateLoginPayload(payload: unknown) {
   const result = loginSchema.safeParse(payload);

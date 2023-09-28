@@ -14,8 +14,8 @@ export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 export interface AccountTable {
   id: Generated<bigint>;
   email: string;
-  username: string;
   password: string;
+  verified: Generated<boolean>;
 }
 
 export interface ActivityTable {
@@ -52,7 +52,10 @@ export type NewAccount = Omit<Insertable<AccountTable>, 'id'>;
 export type NewActivity = Omit<Insertable<ActivityTable>, 'id'>;
 export type NewRecord = Omit<Insertable<RecordTable>, 'id'>;
 
-export type AccounUpdate = Omit<Updateable<AccountTable>, 'id'>;
+export type AccounUpdate = Omit<
+  Updateable<AccountTable>,
+  'id' | 'email' | 'username'
+>;
 export type ActivityUpdate = Omit<
   Updateable<ActivityTable>,
   'id' | 'account_id'
