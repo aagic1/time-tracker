@@ -12,6 +12,10 @@ async function login(email: string, password: string) {
   if (!match) {
     throw new NotFoundError('Wrong email or password');
   }
+  if (!user.verified) {
+    throw new Error('You have not verified your email.');
+  }
+
   return { id: user.id };
 }
 
