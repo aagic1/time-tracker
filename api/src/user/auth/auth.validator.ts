@@ -1,5 +1,6 @@
 import { ZodError, ZodIssue, z } from 'zod';
 import { BadRequestError } from '../../errors/bad-request.error';
+import { JwtPayload } from 'jsonwebtoken';
 
 const emailSchema = z.string().email();
 const passwordSchema = z.string().min(8);
@@ -11,6 +12,29 @@ const loginSchema = z.object({
 
 const registerSchema = loginSchema;
 
+const verificationJwtSchema = z.object({
+  email: z.string().email(),
+});
+
+const resendConfirmationEmailSchema = z.object({ email: z.string().email() });
+
+export function validateResendConfirmationPayload(payload: unknown) {
+  const result = resendConfirmationEmailSchema.safeParse(payload);
+  if (!result.success) {
+    throw 'error send verification code validation';
+  }
+  return result.data;
+}
+
+export function validateVerificationJwt(
+  token: JwtPayload | string | undefined
+) {
+  const result = verificationJwtSchema.safeParse(token);
+  if (!result.success) {
+    throw new BadRequestError('Invalid jwt format');
+  }
+  return result.data;
+}
 
 export function validateLoginPayload(payload: unknown) {
   const result = loginSchema.safeParse(payload);

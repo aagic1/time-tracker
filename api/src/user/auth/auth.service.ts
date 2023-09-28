@@ -1,5 +1,8 @@
-import userDAO from '../user.dao';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
+
+import userDAO from '../user.dao';
 import { NewAccount } from '../../db/types';
 import { NotFoundError } from '../../errors/not-found.error';
 
@@ -27,7 +30,42 @@ async function register(account: NewAccount) {
     ...account,
     password: hashedPassword,
   });
-  return user;
+
+  try {
+    // is this try catch needed
+    const info = await sendEmailTo(account.email);
+    console.log(`Email sent successfully.`);
+    return user;
+  } catch (err) {
+    // maybe better error handling
+    console.log(err);
+    console.log('Email could not be sent. Error');
+    throw err;
+  }
+}
+
+function generateToken(recipientEmail: string) {
+  return jwt.sign({ email: recipientEmail }, process.env.JWT_SECRET!, {
+    expiresIn: '30m',
+  });
+}
+
+async function sendEmailTo(email: string) {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_EMAIL,
+      pass: process.env.GMAIL_PASSWORD,
+    },
+  });
+
+  return transporter.sendMail({
+    from: process.env.GMAIL_EMAIL,
+    to: email,
+    subject: 'Email Verification',
+    text: `Your verification code: 
+    ${generateToken(email)}`,
+  });
 }
 
 export default {
