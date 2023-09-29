@@ -8,7 +8,7 @@ import {
   forgotPassword,
   resetPassword,
 } from './auth.controller';
-import { checkNotAuthenticated } from '../../middleware/authenticate';
+import { checkNotAuthenticated } from '../middleware/authenticate';
 
 const authRouter = express.Router();
 

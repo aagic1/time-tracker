@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt, { hash } from 'bcrypt';
 
 import userDAO from './user.dao';
-import { validatePassword } from './auth/auth.validator';
+import { validatePassword } from '../auth/auth.validator';
 
 export async function changePassword(req: Request, res: Response) {
   const oldPassword = validatePassword(req.body.oldPassword);

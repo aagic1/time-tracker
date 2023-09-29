@@ -1,5 +1,5 @@
 import { ZodError, ZodIssue, z } from 'zod';
-import { BadRequestError } from '../../errors/bad-request.error';
+import { BadRequestError } from '../errors/bad-request.error';
 import { JwtPayload } from 'jsonwebtoken';
 
 const emailSchema = z.string().email();

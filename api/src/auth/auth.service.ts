@@ -2,9 +2,9 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 
-import userDAO from '../user.dao';
-import { NewAccount } from '../../db/types';
-import { NotFoundError } from '../../errors/not-found.error';
+import userDAO from '../user/user.dao';
+import { NewAccount } from '../db/types';
+import { NotFoundError } from '../errors/not-found.error';
 import { validateAuthJwt, validatePassword } from './auth.validator';
 
 async function login(email: string, password: string) {

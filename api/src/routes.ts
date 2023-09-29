@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 
-import authRouter from './user/auth/auth.router';
+import authRouter from './auth/auth.router';
 import userRouter from './user/user.router';
 import activitiesRouter from './activity/activity.router';
 import recordsRouter from './record/record.router';
