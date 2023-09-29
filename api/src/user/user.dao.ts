@@ -1,4 +1,4 @@
-import { AccounUpdate, NewAccount } from '../db/types';
+import { AccounUpdate, Account, NewAccount } from '../db/types';
 import { db } from '../db/index';
 
 async function findByEmail(email: string) {
@@ -6,6 +6,14 @@ async function findByEmail(email: string) {
     .selectFrom('account')
     .selectAll()
     .where('email', '=', email)
+    .executeTakeFirst();
+}
+
+async function findById(id: bigint) {
+  return db
+    .selectFrom('account')
+    .selectAll()
+    .where('id', '=', id)
     .executeTakeFirst();
 }
 
@@ -28,6 +36,7 @@ async function update(accountEmail: string, account: AccounUpdate) {
 
 export default {
   findByEmail,
+  findById,
   create,
   update,
 };
