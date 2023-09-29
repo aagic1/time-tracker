@@ -36,7 +36,6 @@ export async function logout(req: Request, res: Response) {
 export async function verifyEmail(req: Request, res: Response) {
   const result = await authService.verifyEmail(req.params.token.trim());
   if (result.status === 'Success') {
-    req.session.user = result.user;
     res.status(200).json({ msg: result.message });
   } else if (result.status === 'Failure') {
     res.status(409).json({ msg: result.message });
