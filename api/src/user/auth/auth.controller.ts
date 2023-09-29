@@ -53,3 +53,15 @@ export async function resendVerificationCode(req: Request, res: Response) {
   const message = await authService.sendVerificationCode(email);
   res.status(200).send(message);
 }
+
+export async function forgotPassword(req: Request, res: Response) {
+  const email = req.body.email;
+  const message = await authService.sendResetPasswordCode(email);
+  res.status(200).send(message);
+}
+
+export async function resetPassword(req: Request, res: Response) {
+  const { password, token } = req.body;
+  const result = await authService.resetPassword(token.trim(), password);
+  res.status(200).json({ msg: result.message });
+}

@@ -5,7 +5,7 @@ import nodemailer from 'nodemailer';
 import userDAO from '../user.dao';
 import { NewAccount } from '../../db/types';
 import { NotFoundError } from '../../errors/not-found.error';
-import { validateAuthJwt } from './auth.validator';
+import { validateAuthJwt, validatePassword } from './auth.validator';
 
 async function login(email: string, password: string) {
   const user = await userDAO.findByEmail(email);
@@ -122,9 +122,43 @@ async function sendVerificationCode(email: string) {
   return 'Confirmation code successfully sent to your email';
 }
 
+async function sendResetPasswordCode(email: string) {
+  const user = await userDAO.findByEmail(email);
+  if (!user) {
+    throw new NotFoundError(`User with email: ${email} does not exist.`);
+  }
+  await sendEmailTo(email, 'Reset password');
+  console.log(`Reset email sent successfully.`);
+  return 'Reset password code successfully sent to your email';
+}
+
+async function resetPassword(token: string, password: string) {
+  try {
+    const newPassword = validatePassword(password);
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET!);
+    const parsedToken = validateAuthJwt(decodedToken);
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const updatedUser = await userDAO.update(parsedToken.email, {
+      password: hashedPassword,
+    });
+    if (!updatedUser) {
+      throw 'Failed to update password. Server error';
+    }
+    return {
+      status: 'Success',
+      message: 'Password changed successfully',
+    };
+  } catch (err) {
+    throw err;
+  }
+}
+
 export default {
   login,
   register,
   verifyEmail,
   sendVerificationCode,
+  sendResetPasswordCode,
+  resetPassword,
 };

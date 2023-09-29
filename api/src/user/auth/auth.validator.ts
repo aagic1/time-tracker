@@ -19,6 +19,14 @@ const authJwtSchema = z.object({
 
 const resendConfirmationEmailSchema = z.object({ email: z.string().email() });
 
+export function validatePassword(password: string) {
+  const result = passwordSchema.safeParse(password);
+  if (!result.success) {
+    throw result.error;
+  }
+  return result.data;
+}
+
 export function validateResendConfirmationPayload(payload: unknown) {
   const result = resendConfirmationEmailSchema.safeParse(payload);
   if (!result.success) {
