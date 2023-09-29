@@ -18,6 +18,6 @@ authRouter.route('/register').post(register);
 authRouter.route('/forgot-password').post(forgotPassword);
 authRouter.route('/reset-password').post(resetPassword);
 authRouter.route('/verify-email/resend').post(resendVerificationCode);
-authRouter.route('/verify-email/:token').post(verifyEmail);
+authRouter.route('/verify-email').patch(verifyEmail);
 
 export default authRouter;
