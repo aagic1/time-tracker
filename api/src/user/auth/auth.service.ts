@@ -5,7 +5,7 @@ import nodemailer from 'nodemailer';
 import userDAO from '../user.dao';
 import { NewAccount } from '../../db/types';
 import { NotFoundError } from '../../errors/not-found.error';
-import { validateVerificationJwt } from './auth.validator';
+import { validateAuthJwt } from './auth.validator';
 
 async function login(email: string, password: string) {
   const user = await userDAO.findByEmail(email);
@@ -34,7 +34,7 @@ async function register(account: NewAccount) {
 
   try {
     // is this try catch needed
-    const info = await sendEmailTo(account.email);
+    const info = await sendEmailTo(account.email, 'Email verification');
     console.log(`Email sent successfully.`);
     return user;
   } catch (err) {
@@ -45,13 +45,19 @@ async function register(account: NewAccount) {
   }
 }
 
-function generateToken(recipientEmail: string) {
-  return jwt.sign({ email: recipientEmail }, process.env.JWT_SECRET!, {
+function generateToken(
+  email: string,
+  type: 'Email verification' | 'Reset password'
+) {
+  return jwt.sign({ email, type }, process.env.JWT_SECRET!, {
     expiresIn: '30m',
   });
 }
 
-async function sendEmailTo(email: string) {
+async function sendEmailTo(
+  email: string,
+  type: 'Email verification' | 'Reset password'
+) {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -63,16 +69,18 @@ async function sendEmailTo(email: string) {
   return transporter.sendMail({
     from: process.env.GMAIL_EMAIL,
     to: email,
-    subject: 'Email Verification',
-    text: `Your verification code: 
-    ${generateToken(email)}`,
+    subject: type,
+    text: `Your ${type} code:\n${generateToken(email, type)}`,
   });
 }
 
 async function verifyEmail(token: string) {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    const { email } = validateVerificationJwt(decoded);
+    const { email, type } = validateAuthJwt(decoded);
+    if (type !== 'Email verification') {
+      throw 'Invalid verification code';
+    }
 
     const user = await userDAO.findByEmail(email);
     if (!user) {
@@ -109,9 +117,9 @@ async function sendVerificationCode(email: string) {
   if (!user) {
     throw new NotFoundError(`User with email: ${email} does not exist.`);
   }
-  await sendEmailTo(email);
-  console.log(`Email sent successfully.`);
-  return 'Confirmation code successfully sent to you email';
+  await sendEmailTo(email, 'Email verification');
+  console.log(`Verification email sent successfully.`);
+  return 'Confirmation code successfully sent to your email';
 }
 
 export default {

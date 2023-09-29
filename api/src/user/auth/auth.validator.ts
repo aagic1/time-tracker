@@ -12,8 +12,9 @@ const loginSchema = z.object({
 
 const registerSchema = loginSchema;
 
-const verificationJwtSchema = z.object({
+const authJwtSchema = z.object({
   email: z.string().email(),
+  type: z.union([z.literal('Email verification'), z.literal('Reset password')]),
 });
 
 const resendConfirmationEmailSchema = z.object({ email: z.string().email() });
@@ -26,10 +27,8 @@ export function validateResendConfirmationPayload(payload: unknown) {
   return result.data;
 }
 
-export function validateVerificationJwt(
-  token: JwtPayload | string | undefined
-) {
-  const result = verificationJwtSchema.safeParse(token);
+export function validateAuthJwt(token: JwtPayload | string | undefined) {
+  const result = authJwtSchema.safeParse(token);
   if (!result.success) {
     throw new BadRequestError('Invalid jwt format');
   }
