@@ -117,6 +117,9 @@ async function sendVerificationCode(email: string) {
   if (!user) {
     throw new NotFoundError(`User with email: ${email} does not exist.`);
   }
+  if (user.verified) {
+    return 'Email is already verified';
+  }
   await sendEmailTo(email, 'Email verification');
   console.log(`Verification email sent successfully.`);
   return 'Confirmation code successfully sent to your email';
