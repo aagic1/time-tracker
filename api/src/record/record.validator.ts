@@ -1,6 +1,4 @@
-import { ZodError, date, z } from 'zod';
-import { BadRequestError } from '../errors/bad-request.error';
-import { start } from 'repl';
+import { z } from 'zod';
 
 const MAX_BIGINT_POSTGRES = 9223372036854775807n;
 
@@ -49,95 +47,82 @@ const booleanStringSchema = z
   })
   .transform((archived) => archived === 'true');
 
-const createRequestPayloadSchema = z
-  .object({
-    activityId: bigintStringSchema,
-    comment: stringNonEmptySchema.nullable().optional(),
-    startedAt: z.string().datetime(),
-    stoppedAt: z.string().datetime().nullable().optional(),
-  })
-  .refine(
-    ({ stoppedAt, startedAt }) => {
-      return !stoppedAt || new Date(stoppedAt) > new Date(startedAt);
-    },
-    () => ({
-      message: `Start time has to be before stop time`,
-      path: ['startedAt'],
+const getRequestObject = {
+  params: z.object({
+    recordId: bigintStringSchema,
+  }),
+};
+export const getRequestSchema = z.object(getRequestObject);
+export type GetRequest = z.infer<typeof getRequestSchema>;
+
+const getAllRequestObject = {
+  query: z
+    .object({
+      active: booleanStringSchema,
+      comment: stringNonEmptySchema,
+      activityId: bigintStringSchema,
+      date: dateWithoutTimeSchema,
+      dateFrom: dateWithoutTimeSchema,
+      dateTo: dateWithoutTimeSchema,
     })
-  );
+    .partial()
+    .refine(({ dateFrom, dateTo }) => {
+      if (dateFrom && dateTo && dateTo < dateFrom) {
+        return false;
+      }
+      return true;
+    }),
+};
+export const getAllRequestSchema = z.object(getAllRequestObject);
+export type GetAllRequest = z.infer<typeof getAllRequestSchema>;
 
-const updateRequestPayloadSchema = z
-  .object({
-    activityId: bigintStringSchema,
-    comment: stringNonEmptySchema.nullable().optional(),
-    startedAt: z.string().datetime(),
-    stoppedAt: z.string().datetime().nullable().optional(),
-  })
-  .partial()
-  .refine(
-    ({ stoppedAt, startedAt }) =>
-      !startedAt || !stoppedAt || new Date(stoppedAt) > new Date(startedAt),
-    () => ({
-      message: `Start time has to be before stop time`,
-      path: ['startedAt'],
+const createRequestObject = {
+  body: z
+    .object({
+      activityId: bigintStringSchema,
+      comment: stringNonEmptySchema.nullable().optional(),
+      startedAt: z.string().datetime(),
+      stoppedAt: z.string().datetime().nullable().optional(),
     })
-  );
+    .refine(
+      ({ stoppedAt, startedAt }) => {
+        return !stoppedAt || new Date(stoppedAt) > new Date(startedAt);
+      },
+      () => ({
+        message: `Stop time has to be after start time`,
+        path: ['stoppedAt'],
+      })
+    ),
+};
+export const createRequestSchema = z.object(createRequestObject);
+export type CreateRequest = z.infer<typeof createRequestSchema>;
 
-const queryParamsSchema = z
-  .object({
-    active: booleanStringSchema,
-    comment: stringNonEmptySchema,
-    activityId: bigintStringSchema,
-    date: dateWithoutTimeSchema,
-    dateFrom: dateWithoutTimeSchema,
-    dateTo: dateWithoutTimeSchema,
-  })
-  .partial()
-  .refine(({ dateFrom, dateTo }) => {
-    if (dateFrom && dateTo && dateTo < dateFrom) {
-      return false;
-    }
-    return true;
-  });
+const updateRequestObject = {
+  body: z
+    .object({
+      activityId: bigintStringSchema,
+      comment: stringNonEmptySchema.nullable().optional(),
+      startedAt: z.string().datetime(),
+      stoppedAt: z.string().datetime().nullable().optional(),
+    })
+    .partial()
+    .refine(
+      ({ stoppedAt, startedAt }) =>
+        !startedAt || !stoppedAt || new Date(stoppedAt) > new Date(startedAt),
+      () => ({
+        message: `Stop time has to be after start time`,
+        path: ['stoppedAt'],
+      })
+    ),
+  params: z.object({
+    recordId: bigintStringSchema,
+  }),
+};
+export const updateRequestSchema = z.object(updateRequestObject);
+export type UpdateRequest = z.infer<typeof updateRequestSchema>;
 
-export type QueryParams = z.infer<typeof queryParamsSchema>;
+const deleteRequestObject = getRequestObject;
+export const deleteRequestSchema = z.object(deleteRequestObject);
+export type DeleteRequest = z.infer<typeof deleteRequestSchema>;
 
-export function validatePathParam(param: string) {
-  const result = bigintStringSchema.safeParse(param);
-  if (!result.success) {
-    throw new BadRequestError(
-      'Invalid path parameter. recordId has to be positive whole number'
-    );
-  }
-  return result.data;
-}
-
-export function validateCreatePaylaod(payload: unknown) {
-  const result = createRequestPayloadSchema.safeParse(payload);
-  if (!result.success) {
-    throw new BadRequestError('Invalid data', extractIssues(result.error));
-  }
-  return result.data;
-}
-
-export function validateUpdatePayload(payload: unknown) {
-  const result = updateRequestPayloadSchema.safeParse(payload);
-  if (!result.success) {
-    throw new BadRequestError('Invalid data', extractIssues(result.error));
-  }
-  return result.data;
-}
-
-export function validateQueryParams(query: unknown) {
-  const result = queryParamsSchema.safeParse(query);
-  if (!result.success) {
-    throw new BadRequestError('Invalid data', extractIssues(result.error));
-  }
-  return result.data;
-}
-
-function extractIssues(error: ZodError) {
-  return error.issues.map(({ message, path }) => {
-    return { message, path };
-  });
-}
+export type QueryParams = z.infer<typeof getAllRequestObject.query>;

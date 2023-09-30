@@ -1,20 +1,22 @@
 import { Request, Response } from 'express';
 
 import {
-  validateCreatePaylaod,
-  validatePathParam,
-  validateQueryParams,
-  validateUpdatePayload,
+  createRequestSchema,
+  deleteRequestSchema,
+  getAllRequestSchema,
+  getRequestSchema,
+  updateRequestSchema,
 } from './record.validator';
+import { validateRequest } from '../utils/validation.util';
 import recordDAO from './record.dao';
 import { NotFoundError } from '../errors/not-found.error';
 
 export async function getRecord(req: Request, res: Response) {
-  const recordId = validatePathParam(req.params.recordId);
-  const record = await recordDAO.findById(
-    req.session.user!.id,
-    BigInt(req.params.recordId)
-  );
+  const {
+    params: { recordId },
+  } = await validateRequest(getRequestSchema, req, 'Invalid get request data');
+
+  const record = await recordDAO.findById(req.session.user!.id, recordId);
   if (!record) {
     throw new NotFoundError(`Record with id=${recordId} not found`);
   }
@@ -22,15 +24,23 @@ export async function getRecord(req: Request, res: Response) {
 }
 
 export async function getAllRecords(req: Request, res: Response) {
-  console.log(req.query);
-  const queryParams = validateQueryParams(req.query);
-  console.log(queryParams);
-  const records = await recordDAO.find(req.session.user!.id, queryParams);
+  const { query } = await validateRequest(
+    getAllRequestSchema,
+    req,
+    'Invalid get all records request data'
+  );
+  const records = await recordDAO.find(req.session.user!.id, query);
   res.status(200).json({ records });
 }
 
 export async function deleteRecord(req: Request, res: Response) {
-  const recordId = validatePathParam(req.params.recordId);
+  const {
+    params: { recordId },
+  } = await validateRequest(
+    deleteRequestSchema,
+    req,
+    'Invalid delete request data'
+  );
   const result = await recordDAO.remove(req.session.user!.id, recordId);
   if (result.numDeletedRows === 0n) {
     throw new NotFoundError(
@@ -41,31 +51,44 @@ export async function deleteRecord(req: Request, res: Response) {
 }
 
 export async function createRecord(req: Request, res: Response) {
-  const record = validateCreatePaylaod(req.body);
+  const {
+    body: { activityId, startedAt, comment, stoppedAt },
+  } = await validateRequest(
+    createRequestSchema,
+    req,
+    'Invalid create request data'
+  );
   const newRecord = await recordDAO.create(req.session.user!.id, {
-    activity_id: record.activityId,
-    comment: record.comment,
-    started_at: record.startedAt,
-    stopped_at: record.stoppedAt,
+    activity_id: activityId,
+    comment: comment,
+    started_at: startedAt,
+    stopped_at: stoppedAt,
   });
   if (!newRecord) {
     throw new NotFoundError(
-      `Failed to create record for specified activity. Activity with id=${record.activityId} not found.`
+      `Failed to create record for specified activity. Activity with id=${activityId} not found.`
     );
   }
   res.status(201).json(newRecord);
 }
 
 export async function updateRecord(req: Request, res: Response) {
-  const recordId = validatePathParam(req.params.recordId);
-  const record = validateUpdatePayload(req.body);
+  const {
+    body: { activityId, comment, startedAt, stoppedAt },
+    params: { recordId },
+  } = await validateRequest(
+    updateRequestSchema,
+    req,
+    'Invalid update request data'
+  );
+
   const updatedRecord = await recordDAO.update(req.session.user!.id, recordId, {
-    activity_id: record.activityId,
-    comment: record.comment,
-    started_at: record.startedAt,
-    stopped_at: record.stoppedAt,
+    activity_id: activityId,
+    comment: comment,
+    started_at: startedAt,
+    stopped_at: stoppedAt,
   });
-  console.log(updatedRecord);
+
   if (!updatedRecord) {
     throw new NotFoundError(`Failed to update - some reason`);
   }
