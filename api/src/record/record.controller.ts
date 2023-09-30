@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { objectToSnake } from 'ts-case-convert/lib/caseConvert';
 
 import {
   createRequestSchema,
@@ -51,22 +52,18 @@ export async function deleteRecord(req: Request, res: Response) {
 }
 
 export async function createRecord(req: Request, res: Response) {
-  const {
-    body: { activityId, startedAt, comment, stoppedAt },
-  } = await validateRequest(
+  const { body } = await validateRequest(
     createRequestSchema,
     req,
     'Invalid create request data'
   );
-  const newRecord = await recordDAO.create(req.session.user!.id, {
-    activity_id: activityId,
-    comment: comment,
-    started_at: startedAt,
-    stopped_at: stoppedAt,
-  });
+  const newRecord = await recordDAO.create(
+    req.session.user!.id,
+    objectToSnake(body)
+  );
   if (!newRecord) {
     throw new NotFoundError(
-      `Failed to create record for specified activity. Activity with id=${activityId} not found.`
+      `Failed to create record for specified activity. Activity with id=${body.activityId} not found.`
     );
   }
   res.status(201).json(newRecord);
@@ -74,7 +71,7 @@ export async function createRecord(req: Request, res: Response) {
 
 export async function updateRecord(req: Request, res: Response) {
   const {
-    body: { activityId, comment, startedAt, stoppedAt },
+    body,
     params: { recordId },
   } = await validateRequest(
     updateRequestSchema,
@@ -82,12 +79,11 @@ export async function updateRecord(req: Request, res: Response) {
     'Invalid update request data'
   );
 
-  const updatedRecord = await recordDAO.update(req.session.user!.id, recordId, {
-    activity_id: activityId,
-    comment: comment,
-    started_at: startedAt,
-    stopped_at: stoppedAt,
-  });
+  const updatedRecord = await recordDAO.update(
+    req.session.user!.id,
+    recordId,
+    objectToSnake(body)
+  );
 
   if (!updatedRecord) {
     throw new NotFoundError(`Failed to update - some reason`);
