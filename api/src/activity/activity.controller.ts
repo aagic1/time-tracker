@@ -2,24 +2,32 @@ import { Request, Response } from 'express';
 
 import activityDAO from './activity.dao';
 import {
-  validatePathParam,
-  validateCreatePayload,
-  validateUpdatePayload,
-  validateQueryStrings,
+  createRequestSchema,
+  updateRequestSchema,
+  getRequestSchema,
+  deleteRequestSchema,
+  getAllRequestSchema,
 } from './activity.validator';
 import { NotFoundError } from '../errors/not-found.error';
+import { validateRequest } from '../utils/validation.util';
 
 export async function getAllActivities(req: Request, res: Response) {
-  const filters = validateQueryStrings(req.query);
+  const { query } = await validateRequest(
+    getAllRequestSchema,
+    req,
+    'Invalid get all request data'
+  );
   const activities = await activityDAO.findByAccountId(
     req.session.user!.id,
-    filters
+    query
   );
   res.status(200).json({ activities });
 }
 
 export async function getActivity(req: Request, res: Response) {
-  const activityName = validatePathParam(req.params.activityName);
+  const {
+    params: { activityName },
+  } = await validateRequest(getRequestSchema, req, 'Invalid get request data');
 
   const activity = await activityDAO.findByNameAndAccountId(
     activityName,
@@ -32,10 +40,19 @@ export async function getActivity(req: Request, res: Response) {
 }
 
 export async function createActivity(req: Request, res: Response) {
-  const activity = validateCreatePayload(req.body);
+  const { body } = await validateRequest(
+    createRequestSchema,
+    req,
+    'Invalid create request data'
+  );
   const createdActivity = await activityDAO.create({
-    ...activity,
     account_id: req.session.user!.id,
+    name: body.name,
+    color: body.color,
+    session_goal: body.sessionGoal,
+    day_goal: body.dayGoal,
+    week_goal: body.weekGoal,
+    month_goal: body.monthGoal,
   });
   if (!createActivity) {
     throw `Failed to create activity. Server error`;
@@ -44,12 +61,23 @@ export async function createActivity(req: Request, res: Response) {
 }
 
 export async function updateActivity(req: Request, res: Response) {
-  const activityName = validatePathParam(req.params.activityName);
-  const activity = validateUpdatePayload(req.body);
+  const { body, params } = await validateRequest(
+    updateRequestSchema,
+    req,
+    'Invalid update request data'
+  );
   const updatedActivity = await activityDAO.update(
-    activityName,
+    params.activityName,
     req.session.user!.id,
-    activity
+    {
+      name: body.name,
+      color: body.color,
+      archived: body.archived,
+      session_goal: body.sessionGoal,
+      day_goal: body.dayGoal,
+      week_goal: body.weekGoal,
+      month_goal: body.monthGoal,
+    }
   );
   if (!updatedActivity) {
     throw `Failed to update activity. Server error`;
@@ -58,7 +86,13 @@ export async function updateActivity(req: Request, res: Response) {
 }
 
 export async function deleteActivity(req: Request, res: Response) {
-  const activityName = validatePathParam(req.params.activityName);
+  const {
+    params: { activityName },
+  } = await validateRequest(
+    deleteRequestSchema,
+    req,
+    'Invalid delete request data'
+  );
   const result = await activityDAO.remove(activityName, req.session.user!.id);
   if (result.numDeletedRows === 0n) {
     throw new NotFoundError(
