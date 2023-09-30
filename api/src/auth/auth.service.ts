@@ -5,7 +5,7 @@ import nodemailer from 'nodemailer';
 import userDAO from '../user/user.dao';
 import { NewAccount } from '../db/types';
 import { NotFoundError } from '../errors/not-found.error';
-import { validateAuthJwt, validatePassword } from './auth.validator';
+import { validateAuthJwt } from './auth.validator';
 
 async function login(email: string, password: string) {
   const user = await userDAO.findByEmail(email);
@@ -23,7 +23,6 @@ async function login(email: string, password: string) {
   return { id: user.id };
 }
 
-// later add logic for email verification upon registration - send verification code to email adress, user has to verify to complete registration
 async function register(account: NewAccount) {
   const hashedPassword = await bcrypt.hash(account.password, 10);
 
@@ -135,9 +134,8 @@ async function sendResetPasswordCode(email: string) {
   return 'Reset password code successfully sent to your email';
 }
 
-async function resetPassword(token: string, password: string) {
+async function resetPassword(token: string, newPassword: string) {
   try {
-    const newPassword = validatePassword(password);
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET!);
     const parsedToken = validateAuthJwt(decodedToken);
 
