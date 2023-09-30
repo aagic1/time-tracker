@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { objectToSnake } from 'ts-case-convert';
 
 import activityDAO from './activity.dao';
 import {
@@ -45,15 +46,10 @@ export async function createActivity(req: Request, res: Response) {
     req,
     'Invalid create request data'
   );
-  const createdActivity = await activityDAO.create({
-    account_id: req.session.user!.id,
-    name: body.name,
-    color: body.color,
-    session_goal: body.sessionGoal,
-    day_goal: body.dayGoal,
-    week_goal: body.weekGoal,
-    month_goal: body.monthGoal,
-  });
+
+  const createdActivity = await activityDAO.create(
+    objectToSnake({ ...body, accountId: req.session.user!.id })
+  );
   if (!createActivity) {
     throw `Failed to create activity. Server error`;
   }
@@ -69,15 +65,7 @@ export async function updateActivity(req: Request, res: Response) {
   const updatedActivity = await activityDAO.update(
     params.activityName,
     req.session.user!.id,
-    {
-      name: body.name,
-      color: body.color,
-      archived: body.archived,
-      session_goal: body.sessionGoal,
-      day_goal: body.dayGoal,
-      week_goal: body.weekGoal,
-      month_goal: body.monthGoal,
-    }
+    objectToSnake(body)
   );
   if (!updatedActivity) {
     throw `Failed to update activity. Server error`;
