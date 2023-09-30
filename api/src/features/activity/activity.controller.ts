@@ -9,8 +9,8 @@ import {
   deleteRequestSchema,
   getAllRequestSchema,
 } from './activity.validator';
-import { NotFoundError } from '../errors/not-found.error';
-import { validateRequest } from '../utils/validation.util';
+import { NotFoundError } from '../../errors/not-found.error';
+import { validateRequest } from '../../utils/validation.util';
 
 export async function getAllActivities(req: Request, res: Response) {
   const { query } = await validateRequest(

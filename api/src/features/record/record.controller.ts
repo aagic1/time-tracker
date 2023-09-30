@@ -8,9 +8,9 @@ import {
   getRequestSchema,
   updateRequestSchema,
 } from './record.validator';
-import { validateRequest } from '../utils/validation.util';
+import { validateRequest } from '../../utils/validation.util';
 import recordDAO from './record.dao';
-import { NotFoundError } from '../errors/not-found.error';
+import { NotFoundError } from '../../errors/not-found.error';
 
 export async function getRecord(req: Request, res: Response) {
   const {

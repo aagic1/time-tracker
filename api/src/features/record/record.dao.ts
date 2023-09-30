@@ -1,6 +1,6 @@
 import { sql, Expression, SqlBool, expressionBuilder } from 'kysely';
-import { db } from '../db';
-import { DB, NewRecord, RecordUpdate } from '../db/types';
+import { db } from '../../db';
+import { DB, NewRecord, RecordUpdate } from '../../db/types';
 import { QueryParams } from './record.validator';
 
 const recordColumnsToSelect = [

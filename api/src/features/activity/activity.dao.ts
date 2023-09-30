@@ -1,5 +1,5 @@
-import { db } from '../db';
-import { NewActivity, ActivityUpdate } from '../db/types';
+import { db } from '../../db';
+import { NewActivity, ActivityUpdate } from '../../db/types';
 import { QueryString } from './activity.types';
 
 const columnsToReturn = [

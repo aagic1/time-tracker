@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt, { hash } from 'bcrypt';
 
 import userDAO from './user.dao';
-import { validateRequest } from '../utils/validation.util';
+import { validateRequest } from '../../utils/validation.util';
 import { changePasswordRequestSchema } from './user.validator';
 
 export async function changePassword(req: Request, res: Response) {

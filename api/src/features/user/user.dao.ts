@@ -1,5 +1,5 @@
-import { AccounUpdate, Account, NewAccount } from '../db/types';
-import { db } from '../db/index';
+import { AccounUpdate, Account, NewAccount } from '../../db/types';
+import { db } from '../../db/index';
 
 async function findByEmail(email: string) {
   return db

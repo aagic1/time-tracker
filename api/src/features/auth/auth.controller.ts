@@ -8,7 +8,7 @@ import {
   resetPasswordSchema,
   verifyEmailSchema,
 } from './auth.validator';
-import { validateRequest } from '../utils/validation.util';
+import { validateRequest } from '../../utils/validation.util';
 
 export async function login(req: Request, res: Response) {
   const { body } = await validateRequest(
