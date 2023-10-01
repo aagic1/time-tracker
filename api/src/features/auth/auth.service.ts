@@ -129,6 +129,9 @@ async function sendResetPasswordCode(email: string) {
   if (!user) {
     throw new NotFoundError(`User with email: ${email} does not exist.`);
   }
+  if (!user.verified) {
+    throw new Error('You have not verified your email');
+  }
   await sendEmailTo(email, 'Reset password');
   console.log(`Reset email sent successfully.`);
   return 'Reset password code successfully sent to your email';
@@ -138,6 +141,10 @@ async function resetPassword(token: string, newPassword: string) {
   try {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET!);
     const parsedToken = validateAuthJwt(decodedToken);
+    const user = await userDAO.findByEmail(parsedToken.email);
+    if (!user?.verified) {
+      throw new Error('You have not verified your email');
+    }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     const updatedUser = await userDAO.update(parsedToken.email, {
