@@ -20,8 +20,8 @@ async function findById(accountId: bigint, recordId: bigint) {
     .selectFrom('record')
     .innerJoin('activity', 'record.activity_id', 'activity.id')
     .select(recordColumnsToSelect)
-    .where('record.id', '=', recordId)
     .where('activity.account_id', '=', accountId)
+    .where('record.id', '=', recordId)
     .executeTakeFirst();
 }
 
@@ -39,6 +39,7 @@ async function find(accountId: bigint, queryParams?: QueryParams) {
       const filters: Expression<SqlBool>[] = [];
       const { active, activityId, comment, date, dateFrom, dateTo } =
         queryParams;
+      const dateTomorrow = getNextDayDate(new Date());
 
       if (active === true) {
         filters.push(eb('record.stopped_at', 'is', null));
@@ -60,14 +61,14 @@ async function find(accountId: bigint, queryParams?: QueryParams) {
 
       // ugly nesting
       if (dateFrom) {
-        if (!dateTo || dateTo >= addDaysToDate(new Date(), 1)) {
+        if (!dateTo || dateTo >= dateTomorrow) {
           filters.push(filterRecordsBetweenDates(dateFrom, new Date()));
         } else {
           filters.push(filterRecordsBetweenDates(dateFrom, dateTo));
         }
       } else if (dateTo) {
-        if (dateTo >= addDaysToDate(new Date(), 1)) {
-          filters.push(eb('started_at', '<', addDaysToDate(dateTo, 1)));
+        if (dateTo >= dateTomorrow) {
+          filters.push(eb('started_at', '<', getNextDayDate(dateTo)));
         } else {
           filters.push(eb('started_at', '<', dateTo));
         }
@@ -81,18 +82,16 @@ async function find(accountId: bigint, queryParams?: QueryParams) {
 async function remove(accountId: bigint, recordId: bigint) {
   return db
     .deleteFrom('record')
+    .where('record.id', '=', recordId)
     .where(({ eb }) =>
-      eb.and([
-        eb('id', '=', recordId),
-        eb(
-          'record.activity_id',
-          'in',
-          eb
-            .selectFrom('activity')
-            .where('account_id', '=', accountId)
-            .select('activity.id')
-        ),
-      ])
+      eb(
+        'record.activity_id',
+        'in',
+        eb
+          .selectFrom('activity')
+          .where('account_id', '=', accountId)
+          .select('activity.id')
+      )
     )
     .executeTakeFirst();
 }
@@ -105,10 +104,10 @@ async function create(accountId: bigint, record: NewRecord) {
       db
         .selectFrom('activity')
         .select([
-          sql`${record.activity_id}`.as('acid'),
-          sql`${record.comment}`.as('commt'),
-          sql`${record.started_at}`.as('startedat'),
-          sql`${record.stopped_at}`.as('stoppedat'),
+          sql`${record.activity_id}`.as('activityId'),
+          sql`${record.comment}`.as('comment'),
+          sql`${record.started_at}`.as('startedAt'),
+          sql`${record.stopped_at}`.as('stoppedAt'),
         ])
         .where(belongsActivityToAccount(accountId, record.activity_id))
         .limit(1)
@@ -129,13 +128,10 @@ async function update(
         .set(record)
         .where('id', '=', record_id)
         .where((eb) => {
-          const filters: Expression<SqlBool>[] = [];
-          if (record.activity_id) {
-            filters.push(
-              belongsActivityToAccount(accountId, record.activity_id)
-            );
+          if (!record.activity_id) {
+            return eb.and([]);
           }
-          return eb.and(filters);
+          return belongsActivityToAccount(accountId, record.activity_id);
         })
         .returningAll()
     )
@@ -155,25 +151,22 @@ export default {
 
 function filterRecordsBetweenDates(startDate: Date, stopDate: Date) {
   const eb = expressionBuilder<DB, 'record'>();
+  const dateTomorrow = getNextDayDate(new Date());
 
   return eb.or([
     eb.and([
       eb('started_at', '<=', startDate),
       eb.or([
         eb('stopped_at', '>=', startDate),
-        eb('stopped_at', 'is', null).and(
-          sql`${startDate}`,
-          '<',
-          addDaysToDate(new Date(), 1)
-        ),
+        eb('stopped_at', 'is', null).and(sql`${startDate}`, '<', dateTomorrow),
       ]),
     ]),
     eb.and([
       eb('started_at', '>=', startDate),
-      eb('started_at', '<', addDaysToDate(stopDate, 1)),
+      eb('started_at', '<', getNextDayDate(stopDate)),
       eb.or([
         eb('stopped_at', 'is not', null),
-        eb(sql`${startDate}`, '<', addDaysToDate(new Date(), 1)),
+        eb(sql`${startDate}`, '<', dateTomorrow),
       ]),
     ]),
   ]);
@@ -189,8 +182,7 @@ function belongsActivityToAccount(accountId: bigint, activityId: bigint) {
   );
 }
 
-// add validation, should be int, maybe only positive, or also negative?
-function addDaysToDate(date: Date, days: number) {
+function getNextDayDate(date: Date) {
   const newDate = new Date(date);
-  return new Date(newDate.setDate(newDate.getDate() + days));
+  return new Date(newDate.setDate(newDate.getDate() + 1));
 }
