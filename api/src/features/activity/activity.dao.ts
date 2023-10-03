@@ -1,11 +1,12 @@
 import { db } from '../../db';
+import { sql } from 'kysely';
 import { NewActivity, ActivityUpdate } from '../../db/types';
 import { QueryString } from './activity.types';
 
 const columnsToReturn = [
   'id',
   'name',
-  'color',
+  sql<string>`concat('#', activity.color)`.as('color'),
   'archived',
   'session_goal as sessionGoal',
   'day_goal as dayGoal',
