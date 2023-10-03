@@ -13,10 +13,16 @@ const intervalSchema = z
     message: 'At least one field must be defined and greater than 0',
   });
 
+const colorSchema = z
+  .string()
+  .length(7)
+  .regex(/^#[A-Fa-f0-9]$/, 'String must match hexadecimal color code')
+  .transform((reg) => reg.slice(1));
+
 const createRequestObject = {
   body: z.object({
     name: z.string().min(1),
-    color: z.string().length(6),
+    color: colorSchema,
     sessionGoal: intervalSchema
       .transform((val) => toStringFromInterval(val))
       .nullish(),
