@@ -100,10 +100,10 @@ async function create(accountId: bigint, record: NewRecord) {
       db
         .selectFrom('activity')
         .select([
-          sql`${record.activity_id}`.as('activityId'),
-          sql`${record.comment}`.as('comment'),
-          sql`${record.started_at}`.as('startedAt'),
-          sql`${record.stopped_at}`.as('stoppedAt'),
+          sql.val(record.activity_id).as('activityId'),
+          sql.val(record.comment).as('comment'),
+          sql.val(record.started_at).as('startedAt'),
+          sql.val(record.stopped_at).as('stoppedAt'),
         ])
         .where(belongsActivityToAccount(accountId, record.activity_id))
         .limit(1)
@@ -163,7 +163,7 @@ function filterRecordsBetweenDates(startDate: Date, stopDate: Date) {
       eb('started_at', '<=', startDate),
       eb.or([
         eb('stopped_at', '>=', startDate),
-        eb('stopped_at', 'is', null).and(sql`${startDate}`, '<', dateNow),
+        eb('stopped_at', 'is', null).and(sql.val(startDate), '<', dateNow),
       ]),
     ]),
     eb.and([
@@ -171,7 +171,7 @@ function filterRecordsBetweenDates(startDate: Date, stopDate: Date) {
       eb('started_at', '<=', stopDate),
       eb.or([
         eb('stopped_at', 'is not', null),
-        eb('stopped_at', 'is', null).and(sql`${startDate}`, '<', dateNow),
+        eb('stopped_at', 'is', null).and(sql.val(startDate), '<', dateNow),
       ]),
     ]),
   ]);
@@ -181,7 +181,7 @@ function filterRecordsFrom(dateFrom: Date): Expression<SqlBool> {
   const eb = expressionBuilder<DB, 'record'>();
   return eb.or([
     eb('stopped_at', '>=', dateFrom),
-    eb('stopped_at', 'is', null).and(sql`${dateFrom} <= ${new Date()}`),
+    eb('stopped_at', 'is', null).and(sql.val(dateFrom), '<=', new Date()),
   ]);
 }
 
