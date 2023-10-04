@@ -60,7 +60,14 @@ const getAllRequestObject = {
     .object({
       active: booleanStringSchema,
       comment: stringNonEmptySchema,
-      activityId: bigintStringSchema,
+      activityId: bigintStringSchema
+        .or(z.array(bigintStringSchema))
+        .transform((val) => {
+          if (typeof val === 'bigint') {
+            return [val];
+          }
+          return val;
+        }),
       dateFrom: z
         .string()
         .datetime()

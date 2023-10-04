@@ -52,7 +52,7 @@ function getFilters(queryParams: QueryParams | undefined) {
   }
 
   if (activityId) {
-    filters.push(eb('record.activity_id', '=', activityId));
+    filters.push(eb('record.activity_id', 'in', activityId));
   }
 
   if (comment) {
