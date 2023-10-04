@@ -61,7 +61,6 @@ const getAllRequestObject = {
       active: booleanStringSchema,
       comment: stringNonEmptySchema,
       activityId: bigintStringSchema,
-      date: dateWithoutTimeSchema,
       dateFrom: dateWithoutTimeSchema,
       dateTo: dateWithoutTimeSchema,
     })
