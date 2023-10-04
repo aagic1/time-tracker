@@ -61,8 +61,14 @@ const getAllRequestObject = {
       active: booleanStringSchema,
       comment: stringNonEmptySchema,
       activityId: bigintStringSchema,
-      dateFrom: dateWithoutTimeSchema,
-      dateTo: dateWithoutTimeSchema,
+      dateFrom: z
+        .string()
+        .datetime()
+        .transform((date) => new Date(date)),
+      dateTo: z
+        .string()
+        .datetime()
+        .transform((date) => new Date(date)),
     })
     .partial()
     .refine(
@@ -94,6 +100,18 @@ const createRequestObject = {
         message: `Stop time has to be after start time`,
         path: ['stoppedAt'],
       })
+    )
+    .refine(
+      ({ stoppedAt, startedAt }) => {
+        if (!stoppedAt) {
+          return new Date(startedAt) < new Date();
+        }
+        return true;
+      },
+      () => ({
+        message: 'Start time of active record can not be in the future',
+        path: ['startTime'],
+      })
     ),
 };
 export const createRequestSchema = z.object(createRequestObject);
@@ -114,6 +132,18 @@ const updateRequestObject = {
       () => ({
         message: `Stop time has to be after start time`,
         path: ['stoppedAt'],
+      })
+    )
+    .refine(
+      ({ stoppedAt, startedAt }) => {
+        if (stoppedAt === null && startedAt) {
+          return new Date(startedAt) < new Date();
+        }
+        return true;
+      },
+      () => ({
+        message: 'Start time of active record can not be in the future',
+        path: ['startTime'],
       })
     ),
   params: z.object({
