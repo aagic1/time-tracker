@@ -65,12 +65,15 @@ const getAllRequestObject = {
       dateTo: dateWithoutTimeSchema,
     })
     .partial()
-    .refine(({ dateFrom, dateTo }) => {
-      if (dateFrom && dateTo && dateTo < dateFrom) {
-        return false;
-      }
-      return true;
-    }),
+    .refine(
+      ({ dateFrom, dateTo }) => {
+        if (dateFrom && dateTo && dateTo < dateFrom) {
+          return false;
+        }
+        return true;
+      },
+      () => ({ message: 'dateTo has to be after dateFrom', path: ['dateTo'] })
+    ),
 };
 export const getAllRequestSchema = z.object(getAllRequestObject);
 export type GetAllRequest = z.infer<typeof getAllRequestSchema>;
