@@ -31,52 +31,48 @@ async function find(accountId: bigint, queryParams?: QueryParams) {
     .innerJoin('activity', 'activity.id', 'record.activity_id')
     .select(recordColumnsToSelect)
     .where('activity.account_id', '=', accountId)
-    .where((eb) => {
-      if (!queryParams) {
-        return eb.and([]);
-      }
-
-      const filters: Expression<SqlBool>[] = [];
-      const { active, activityId, comment, date, dateFrom, dateTo } =
-        queryParams;
-      const dateTomorrow = getNextDayDate(new Date());
-
-      if (active === true) {
-        filters.push(eb('record.stopped_at', 'is', null));
-      } else if (active === false) {
-        filters.push(eb('record.stopped_at', 'is not', null));
-      }
-
-      if (activityId) {
-        filters.push(eb('activity.id', '=', activityId));
-      }
-
-      if (comment) {
-        filters.push(eb('record.comment', 'ilike', `%${comment}%`));
-      }
-
-      if (date && !dateFrom && !dateTo) {
-        filters.push(filterRecordsBetweenDates(date, date));
-      }
-
-      // ugly nesting
-      if (dateFrom) {
-        if (!dateTo || dateTo >= dateTomorrow) {
-          filters.push(filterRecordsBetweenDates(dateFrom, new Date()));
-        } else {
-          filters.push(filterRecordsBetweenDates(dateFrom, dateTo));
-        }
-      } else if (dateTo) {
-        if (dateTo >= dateTomorrow) {
-          filters.push(eb('started_at', '<', getNextDayDate(dateTo)));
-        } else {
-          filters.push(eb('started_at', '<', dateTo));
-        }
-      }
-
-      return eb.and(filters);
-    })
+    .where(getFilters(queryParams))
     .execute();
+}
+
+function getFilters(queryParams: QueryParams | undefined) {
+  const eb = expressionBuilder<DB, 'record'>();
+
+  if (!queryParams) {
+    return eb.and([]);
+  }
+
+  const filters: Expression<SqlBool>[] = [];
+  const { active, activityId, comment, dateFrom, dateTo } = queryParams;
+
+  if (active === true) {
+    filters.push(eb('record.stopped_at', 'is', null));
+  } else if (active === false) {
+    filters.push(eb('record.stopped_at', 'is not', null));
+  }
+
+  if (activityId) {
+    filters.push(eb('record.activity_id', '=', activityId));
+  }
+
+  if (comment) {
+    filters.push(eb('record.comment', 'ilike', `%${comment}%`));
+  }
+
+  // maybe: if dateFrom > dateTo throw some error to signalize invalid data
+  if (dateFrom && dateTo && dateFrom > dateTo) {
+    throw 'Invalid data. This should not happen, because zod validates request query params. Can still happen if developer manually enters this functions parameters';
+  }
+
+  if (dateFrom && dateTo && dateFrom < dateTo) {
+    filters.push(filterRecordsBetweenDates(dateFrom, dateTo));
+  } else if (dateFrom && !dateTo) {
+    filters.push(filterRecordsFrom(dateFrom));
+  } else if (!dateFrom && dateTo) {
+    filters.push(filterRecordsTo(dateTo));
+  }
+
+  return eb.and(filters);
 }
 
 async function remove(accountId: bigint, recordId: bigint) {
@@ -151,25 +147,38 @@ export default {
 
 function filterRecordsBetweenDates(startDate: Date, stopDate: Date) {
   const eb = expressionBuilder<DB, 'record'>();
-  const dateTomorrow = getNextDayDate(new Date());
+  const dateNow = new Date();
 
   return eb.or([
     eb.and([
       eb('started_at', '<=', startDate),
       eb.or([
         eb('stopped_at', '>=', startDate),
-        eb('stopped_at', 'is', null).and(sql`${startDate}`, '<', dateTomorrow),
+        eb('stopped_at', 'is', null).and(sql`${startDate}`, '<', dateNow),
       ]),
     ]),
     eb.and([
       eb('started_at', '>=', startDate),
-      eb('started_at', '<', getNextDayDate(stopDate)),
+      eb('started_at', '<=', stopDate),
       eb.or([
         eb('stopped_at', 'is not', null),
-        eb(sql`${startDate}`, '<', dateTomorrow),
+        eb('stopped_at', 'is', null).and(sql`${startDate}`, '<', dateNow),
       ]),
     ]),
   ]);
+}
+
+function filterRecordsFrom(dateFrom: Date): Expression<SqlBool> {
+  const eb = expressionBuilder<DB, 'record'>();
+  return eb.or([
+    eb('stopped_at', '>=', dateFrom),
+    eb('stopped_at', 'is', null).and(sql`${dateFrom} <= ${new Date()}`),
+  ]);
+}
+
+function filterRecordsTo(dateTo: Date): Expression<SqlBool> {
+  const eb = expressionBuilder<DB, 'record'>();
+  return eb('started_at', '<=', dateTo);
 }
 
 function belongsActivityToAccount(accountId: bigint, activityId: bigint) {
@@ -180,9 +189,4 @@ function belongsActivityToAccount(accountId: bigint, activityId: bigint) {
       .where('account_id', '=', accountId)
       .where('id', '=', activityId)
   );
-}
-
-function getNextDayDate(date: Date) {
-  const newDate = new Date(date);
-  return new Date(newDate.setDate(newDate.getDate() + 1));
 }
