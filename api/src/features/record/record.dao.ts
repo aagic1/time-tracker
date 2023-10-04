@@ -118,11 +118,20 @@ async function update(
   record: RecordUpdate
 ) {
   return db
-    .with('record', (db) =>
+    .with('updateResult', (db) =>
       db
         .updateTable('record')
         .set(record)
         .where('id', '=', record_id)
+        .where(({ eb, selectFrom }) =>
+          eb(
+            'record.activity_id',
+            'in',
+            selectFrom('activity')
+              .select('id')
+              .where('account_id', '=', accountId)
+          )
+        )
         .where((eb) => {
           if (!record.activity_id) {
             return eb.and([]);
@@ -131,7 +140,7 @@ async function update(
         })
         .returningAll()
     )
-    .selectFrom('record')
+    .selectFrom('updateResult as record')
     .innerJoin('activity', 'record.activity_id', 'activity.id')
     .select(recordColumnsToSelect)
     .executeTakeFirst();
