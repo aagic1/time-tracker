@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const MAX_BIGINT_POSTGRES = 9223372036854775807n;
 
-const stringNonEmptySchema = z.string().trim().min(1);
+const stringNonEmptySchema = z.string().trim().min(1, 'Required');
 
 const dateWithoutTimeSchema = z
   .string()
