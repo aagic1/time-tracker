@@ -93,15 +93,17 @@ export async function updateRecord(req: Request, res: Response) {
 }
 
 export async function getCurrentGoals(req: Request, res: Response) {
-  const { query } = await validateRequest(
+  const {
+    query: { timezoneOffset },
+  } = await validateRequest(
     getCurrentGoalsRequestSchema,
     req,
-    'invalid goal request query string...'
+    'invalid goal request query string 2'
   );
 
-  const data = await recordDAO.findCurrentGoals(req.session.user!.id, {
-    ...query,
-    dayOfWeek: new Date(query.year, query.month - 1, query.dayOfMonth).getDay(),
-  });
+  const data = await recordDAO.findCurrentGoals(
+    req.session.user!.id,
+    timezoneOffset
+  );
   res.status(200).json(data);
 }
