@@ -2,6 +2,16 @@ import { sql, Expression, SqlBool, expressionBuilder } from 'kysely';
 import { db } from '../../db';
 import { DB, NewRecord, RecordUpdate } from '../../db/types';
 import { QueryParams } from './record.validator';
+import type { IPostgresInterval } from 'postgres-interval';
+import {
+  getEndOfDayDate,
+  getEndOfMonth,
+  getEndOfWeek,
+  getStartOfDayDate,
+  getStartOfMonth,
+  getStartOfWeek,
+} from './record.utils';
+import { DateObject } from './record.types';
 
 const recordColumnsToSelect = [
   'record.id as recordId',
@@ -146,12 +156,158 @@ async function update(
     .executeTakeFirst();
 }
 
+async function findCurrentGoals(accountId: bigint, currentDate: DateObject) {
+  const dateNow = new Date();
+
+  const startOfDay = getStartOfDayDate(currentDate);
+  const endOfDay = getEndOfDayDate(currentDate);
+
+  const startOfWeek = getStartOfWeek(currentDate);
+  const endOfWeek = getEndOfWeek(currentDate);
+
+  const startOfMonth = getStartOfMonth(currentDate);
+  const endOfMonth = getEndOfMonth(currentDate);
+
+  console.log({ startOfDay });
+  console.log({ endOfDay });
+  console.log({ startOfWeek });
+  console.log({ endOfWeek });
+  console.log({ startOfMonth });
+  console.log({ endOfMonth });
+
+  return db
+    .with('currentDayGoalData', (db) =>
+      db
+        .selectFrom('activity as a')
+        .innerJoin('record as r', 'r.activity_id', 'a.id')
+        .select((eb) => [
+          'a.id',
+          'a.name',
+          'a.color',
+          eb.val('dayGoal').as('goalName'),
+          'a.day_goal as goalTime',
+          sql<boolean>`(COUNT(*) - COUNT(r.stopped_at)) > 0`.as(
+            'hasActiveRecord'
+          ),
+          sql<IPostgresInterval | null>`SUM(
+          CASE
+            WHEN r.stopped_at IS NOT NULL THEN
+            CASE
+                WHEN r.started_at >= ${startOfDay} AND r.stopped_at <= ${endOfDay} THEN r.stopped_at - r.started_at
+                WHEN r.started_at <= ${startOfDay} AND r.stopped_at >= ${startOfDay} AND r.stopped_at <= ${endOfDay} THEN r.stopped_at - ${startOfDay}
+                WHEN r.started_at <= ${startOfDay} AND r.stopped_at >= ${endOfDay} THEN ${endOfDay} - ${startOfDay}::timestamp
+                WHEN r.started_at >= ${startOfDay} AND r.started_at <= ${endOfDay} AND r.stopped_at >= ${endOfDay} THEN ${endOfDay} - r.started_at
+              END 
+            ELSE
+              CASE
+                WHEN r.started_at >= ${startOfDay} AND r.started_at <= ${endOfDay} THEN ${
+            dateNow < endOfDay ? dateNow : endOfDay
+          } - r.started_at
+                WHEN r.started_at < ${startOfDay} THEN ${
+            dateNow < endOfDay ? dateNow : endOfDay
+          } - ${startOfDay}::timestamp
+              END 
+          END
+        )`.as('totalTime'),
+        ])
+        .where('account_id', '=', accountId)
+        .where('day_goal', 'is not', null)
+        .where('archived', '=', false)
+        .groupBy(['a.name', 'a.id'])
+    )
+    .with('currentWeekGoalData', (db) =>
+      db
+        .selectFrom('activity as a')
+        .innerJoin('record as r', 'r.activity_id', 'a.id')
+        .select((eb) => [
+          'a.id',
+          'a.name',
+          'a.color',
+          eb.val('weekGoal').as('goalName'),
+          'a.week_goal as goalTime',
+          sql<boolean>`(COUNT(*) - COUNT(r.stopped_at)) > 0`.as(
+            'hasActiveRecord'
+          ),
+          sql<IPostgresInterval | null>`SUM(
+          CASE
+            WHEN r.stopped_at IS NOT NULL THEN
+            CASE
+                WHEN r.started_at >= ${startOfWeek} AND r.stopped_at <= ${endOfWeek} THEN r.stopped_at - r.started_at
+                WHEN r.started_at <= ${startOfWeek} AND r.stopped_at >= ${startOfWeek} AND r.stopped_at <= ${endOfWeek} THEN r.stopped_at - ${startOfWeek}
+                WHEN r.started_at <= ${startOfWeek} AND r.stopped_at >= ${endOfWeek} THEN ${endOfWeek} - ${startOfWeek}::timestamp
+                WHEN r.started_at >= ${startOfWeek} AND r.started_at <= ${endOfWeek} AND r.stopped_at >= ${endOfWeek} THEN ${endOfWeek} - r.started_at
+              END
+            ELSE
+              CASE
+                WHEN r.started_at >= ${startOfWeek} AND r.started_at <= ${endOfWeek} THEN ${
+            dateNow < endOfWeek ? dateNow : endOfWeek
+          } - r.started_at
+                WHEN r.started_at < ${startOfWeek} THEN ${
+            dateNow < endOfWeek ? dateNow : endOfWeek
+          } - ${startOfWeek}::timestamp
+                    END
+                END
+              )`.as('totalTime'),
+        ])
+        .where('account_id', '=', accountId)
+        .where('week_goal', 'is not', null)
+        .where('archived', '=', false)
+        .groupBy(['a.name', 'a.id'])
+    )
+    .with('currentMonthGoalData', (db) =>
+      db
+        .selectFrom('activity as a')
+        .innerJoin('record as r', 'r.activity_id', 'a.id')
+        .select((eb) => [
+          'a.id',
+          'a.name',
+          'a.color',
+          eb.val('monthGoal').as('goalName'),
+          'a.month_goal as goalTime',
+          sql<boolean>`(COUNT(*) - COUNT(r.stopped_at)) > 0`.as(
+            'hasActiveRecord'
+          ),
+          sql<IPostgresInterval | null>`SUM(
+            CASE
+            WHEN r.stopped_at IS NOT NULL THEN
+                CASE
+                  WHEN r.started_at >= ${startOfMonth} AND r.stopped_at <= ${endOfMonth} THEN r.stopped_at - r.started_at
+                  WHEN r.started_at <= ${startOfMonth} AND r.stopped_at >= ${startOfMonth} AND r.stopped_at <= ${endOfMonth} THEN r.stopped_at - ${startOfMonth}
+                  WHEN r.started_at <= ${startOfMonth} AND r.stopped_at >= ${endOfMonth} THEN ${endOfMonth} - ${startOfMonth}::timestamp
+                  WHEN r.started_at >= ${startOfMonth} AND r.started_at <= ${endOfMonth} AND r.stopped_at >= ${endOfMonth} THEN ${endOfMonth} - r.started_at
+                END
+              ELSE
+                CASE
+                  WHEN r.started_at >= ${startOfMonth} AND r.started_at <= ${endOfMonth} THEN ${
+            dateNow < endOfMonth ? dateNow : endOfMonth
+          } - r.started_at
+                      WHEN r.started_at < ${startOfMonth} THEN ${
+            dateNow < endOfMonth ? dateNow : endOfMonth
+          } - ${startOfMonth}::timestamp
+                    END
+                END
+                  )`.as('totalTime'),
+        ])
+        .where('account_id', '=', accountId)
+        .where('month_goal', 'is not', null)
+        .where('archived', '=', false)
+        .groupBy(['a.name', 'a.id'])
+    )
+    .selectFrom('currentDayGoalData')
+    .union((eb) => eb.selectFrom('currentWeekGoalData').selectAll())
+    .union((eb) => eb.selectFrom('currentMonthGoalData').selectAll())
+    .selectAll()
+    .orderBy(['goalName', 'name'])
+    .execute();
+}
+
 export default {
   findById,
   find,
   remove,
   create,
   update,
+  findCurrentGoals,
 };
 
 function filterRecordsBetweenDates(startDate: Date, stopDate: Date) {

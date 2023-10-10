@@ -5,6 +5,7 @@ import {
   createRequestSchema,
   deleteRequestSchema,
   getAllRequestSchema,
+  getCurrentGoalsRequestSchema,
   getRequestSchema,
   updateRequestSchema,
 } from './record.validator';
@@ -89,4 +90,18 @@ export async function updateRecord(req: Request, res: Response) {
     throw new NotFoundError(`Failed to update - some reason`);
   }
   res.json({ updatedRecord });
+}
+
+export async function getCurrentGoals(req: Request, res: Response) {
+  const { query } = await validateRequest(
+    getCurrentGoalsRequestSchema,
+    req,
+    'invalid goal request query string...'
+  );
+
+  const data = await recordDAO.findCurrentGoals(req.session.user!.id, {
+    ...query,
+    dayOfWeek: new Date(query.year, query.month - 1, query.dayOfMonth).getDay(),
+  });
+  res.status(200).json(data);
 }
