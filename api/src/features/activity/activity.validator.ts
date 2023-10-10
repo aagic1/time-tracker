@@ -16,7 +16,7 @@ const intervalSchema = z
 const colorSchema = z
   .string()
   .length(7)
-  .regex(/^#[A-Fa-f0-9]$/, 'String must match hexadecimal color code')
+  .regex(/^#[A-Fa-f0-9]{6}$/, 'String must match hexadecimal color code')
   .transform((reg) => reg.slice(1));
 
 const createRequestObject = {
