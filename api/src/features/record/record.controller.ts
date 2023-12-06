@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { objectToSnake } from 'ts-case-convert/lib/caseConvert';
 
+import recordService from './record.service';
 import {
   createRequestSchema,
   deleteRequestSchema,
@@ -8,6 +9,7 @@ import {
   getCurrentGoalsRequestSchema,
   getRequestSchema,
   updateRequestSchema,
+  getStatisticsRequestSchema,
 } from './record.validator';
 import { validateRequest } from '../../utils/validation.util';
 import recordDAO from './record.dao';
@@ -106,4 +108,17 @@ export async function getCurrentGoals(req: Request, res: Response) {
     timezoneOffset
   );
   res.status(200).json(data);
+}
+
+export async function getStatistics(req: Request, res: Response) {
+  console.log('hi');
+  console.log(req.query);
+  const { query } = await validateRequest(
+    getStatisticsRequestSchema,
+    req,
+    'bad get statistics request'
+  );
+  console.log('hi');
+  const data = await recordService.getStatistics(req.session.user!.id, query);
+  res.json(Object.fromEntries(data));
 }

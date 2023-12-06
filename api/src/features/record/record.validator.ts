@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { getDayNumber, getDaysInMonth } from './record.utils';
 
 const MAX_BIGINT_POSTGRES = 9223372036854775807n;
 
@@ -184,3 +183,38 @@ export const getCurrentGoalsRequestSchema = z.object(
 export type getCurrentGoalsRequest = z.infer<
   typeof getCurrentGoalsRequestSchema
 >;
+
+const getStatisticsRequestObject = {
+  query: z
+    .object({
+      from: z
+        .string()
+        .datetime()
+        .transform((date) => new Date(date)),
+      to: z
+        .string()
+        .datetime()
+        .transform((date) => new Date(date)),
+      activityId: bigintStringSchema
+        .or(z.array(bigintStringSchema))
+        .transform((val) => {
+          if (typeof val === 'bigint') {
+            return [val];
+          }
+          return val;
+        }),
+    })
+    .partial({ from: true, to: true, activityId: true })
+    .refine(
+      ({ from, to }) => {
+        if (from && to && to < from) {
+          return false;
+        }
+        return true;
+      },
+      () => ({ message: 'dateTo has to be after dateFrom', path: ['dateTo'] })
+    ),
+};
+export const getStatisticsRequestSchema = z.object(getStatisticsRequestObject);
+export type GetStatisticsRequest = z.infer<typeof getStatisticsRequestSchema>;
+export type StatisticsQuery = z.infer<typeof getStatisticsRequestObject.query>;
