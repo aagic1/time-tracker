@@ -4,6 +4,7 @@ dotenv.config();
 import express, { Express, Request, Response, Application } from 'express';
 import 'express-async-errors';
 import helmet from 'helmet';
+import cors from 'cors';
 
 import session from './src/middleware/session';
 import apiRouter from './src/routes';
@@ -15,6 +16,7 @@ const app: Application = express();
 app.use(express.json());
 app.use(session);
 app.use(helmet());
+app.use(cors({ origin: ['http://localhost:5173'] }));
 
 // routes
 app.use('/api/v1', apiRouter);
