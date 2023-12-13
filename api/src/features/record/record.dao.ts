@@ -1,4 +1,10 @@
-import { sql, Expression, SqlBool, expressionBuilder } from 'kysely';
+import {
+  sql,
+  Expression,
+  SqlBool,
+  expressionBuilder,
+  QueryCreator,
+} from 'kysely';
 import { db } from '../../db';
 import { DB, NewRecord, RecordUpdate } from '../../db/types';
 import { QueryParams } from './record.validator';
@@ -218,6 +224,20 @@ async function findCurrentGoals(accountId: bigint, timezoneOffset: number) {
         .where('account_id', '=', accountId)
         .where('day_goal', 'is not', null)
         .where('archived', '=', false)
+        .where((eb) =>
+          eb.or([
+            eb.and([
+              eb('r.started_at', '>=', startOfDay),
+              eb('r.started_at', '<=', endOfDay),
+            ]),
+            eb('r.started_at', '<=', startOfDay).and(
+              eb.or([
+                eb('r.stopped_at', '>=', startOfDay),
+                eb('r.stopped_at', 'is', null),
+              ])
+            ),
+          ])
+        )
         .groupBy(['a.name', 'a.id'])
     )
     .with('currentWeekGoalData', (db) =>
@@ -253,6 +273,20 @@ async function findCurrentGoals(accountId: bigint, timezoneOffset: number) {
         .where('account_id', '=', accountId)
         .where('week_goal', 'is not', null)
         .where('archived', '=', false)
+        .where((eb) =>
+          eb.or([
+            eb.and([
+              eb('r.started_at', '>=', startOfWeek),
+              eb('r.started_at', '<=', endOfWeek),
+            ]),
+            eb('r.started_at', '<=', startOfWeek).and(
+              eb.or([
+                eb('r.stopped_at', '>=', startOfWeek),
+                eb('r.stopped_at', 'is', null),
+              ])
+            ),
+          ])
+        )
         .groupBy(['a.name', 'a.id'])
     )
     .with('currentMonthGoalData', (db) =>
@@ -289,6 +323,20 @@ async function findCurrentGoals(accountId: bigint, timezoneOffset: number) {
         .where('a.account_id', '=', accountId)
         .where('a.month_goal', 'is not', null)
         .where('a.archived', '=', false)
+        .where((eb) =>
+          eb.or([
+            eb.and([
+              eb('r.started_at', '>=', startOfMonth),
+              eb('r.started_at', '<=', endOfMonth),
+            ]),
+            eb('r.started_at', '<=', startOfMonth).and(
+              eb.or([
+                eb('r.stopped_at', '>=', startOfMonth),
+                eb('r.stopped_at', 'is', null),
+              ])
+            ),
+          ])
+        )
         .groupBy(['a.name', 'a.id'])
     )
     .selectFrom('currentDayGoalData')
