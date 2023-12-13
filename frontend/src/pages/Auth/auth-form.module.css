@@ -1,10 +1,15 @@
-.authInputContainer {
+.authForm {
+    width: 400px;
+}
+
+
+.inputContainer {
     display: flex;
     flex-direction: column;
     margin-bottom: 10px;
 }
 
-.authButtonContainer {
+.buttonContainer {
     display: flex;
 }
 
@@ -18,3 +23,12 @@
     display: flex;
 }
 
+.forgotPassword {
+    margin-top: 5px;
+    padding: 0;
+    text-align: end;
+}
+
+.message {
+    text-align: center;
+}

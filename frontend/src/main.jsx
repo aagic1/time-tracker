@@ -3,13 +3,13 @@ import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import Layout from './pages/Layout/Layout.jsx';
-import AuthLayout from './pages/AuthLayout/AuthLayout.jsx';
-import Login from './pages/Login/Login.jsx';
-import Register from './pages/Register/Register.jsx';
-import ForgotPassword from './pages/ForgotPassword/ForgotPassword.jsx';
-import ForgotPasswordConfirmation from './pages/ForgotPasswordConfirmation/ForgotPasswordConfirmation.jsx';
-import ResetPassword from './pages/ResetPassword/ResetPassword.jsx';
-import VerifyEmail from './pages/VerifyEmail/VerifyEmail.jsx';
+import AuthLayout from './pages/Auth/AuthLayout/AuthLayout.jsx';
+import Login from './pages/Auth/Login/Login.jsx';
+import Register from './pages/Auth/Register/Register.jsx';
+import ForgotPassword from './pages/Auth/ForgotPassword/ForgotPassword.jsx';
+import ForgotPasswordConfirmation from './pages/Auth/ForgotPasswordConfirmation/ForgotPasswordConfirmation.jsx';
+import ResetPassword from './pages/Auth/ResetPassword/ResetPassword.jsx';
+import VerifyEmail from './pages/Auth/VerifyEmail/VerifyEmail.jsx';
 
 const router = createBrowserRouter([
   {

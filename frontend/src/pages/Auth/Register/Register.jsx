@@ -1,9 +1,10 @@
 import { Form } from 'react-router-dom';
-import styles from './register.module.css';
+// import styles from './register.module.css';
+import styles from '../auth-form.module.css';
 
 export default function Register() {
   return (
-    <Form className={styles.registerForm}>
+    <Form className={styles.authForm}>
       <div className={styles.inputContainer}>
         <label className={styles.label} htmlFor="email">
           Email:
@@ -23,7 +24,7 @@ export default function Register() {
         <input type="password" name="repeatPassword" id="repeatPassword" />
       </div>
       <div className={styles.buttonContainer}>
-        <button className={styles.registerButton}>Register</button>
+        <button className={styles.confirmButton}>Register</button>
       </div>
     </Form>
   );
