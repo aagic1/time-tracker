@@ -19,7 +19,8 @@ export async function action({ request }) {
   if (!res.ok) {
     return await res.json();
   }
-  return redirect('../verify-email');
+
+  return redirect(`../verify-email?email=${email}`);
 }
 
 export default function Register() {
