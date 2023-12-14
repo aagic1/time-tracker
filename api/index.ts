@@ -18,6 +18,13 @@ app.use(session);
 app.use(helmet());
 app.use(cors({ origin: ['http://localhost:5173'] }));
 
+app.use(
+  cors({
+    credentials: true,
+    origin: ['http://localhost:5173'],
+  })
+);
+
 // routes
 app.use('/api/v1', apiRouter);
 
