@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import Layout from './pages/Layout/Layout.jsx';
 import AuthLayout from './pages/Auth/AuthLayout/AuthLayout.jsx';
-import Login from './pages/Auth/Login/Login.jsx';
+import Login, { action as loginAction } from './pages/Auth/Login/Login.jsx';
 import Register, {
   action as registerAction,
 } from './pages/Auth/Register/Register.jsx';
@@ -28,6 +28,7 @@ const router = createBrowserRouter([
           {
             path: 'login',
             element: <Login />,
+            action: loginAction,
           },
           {
             path: 'forgot-password',
