@@ -13,7 +13,9 @@ import ForgotPassword, {
 } from './pages/Auth/ForgotPassword/ForgotPassword.jsx';
 import ForgotPasswordConfirmation from './pages/Auth/ForgotPasswordConfirmation/ForgotPasswordConfirmation.jsx';
 import ResetPassword from './pages/Auth/ResetPassword/ResetPassword.jsx';
-import VerifyEmail from './pages/Auth/VerifyEmail/VerifyEmail.jsx';
+import VerifyEmail, {
+  action as verifyEmailAction,
+} from './pages/Auth/VerifyEmail/VerifyEmail.jsx';
 
 const router = createBrowserRouter([
   {
@@ -48,6 +50,7 @@ const router = createBrowserRouter([
           {
             path: 'verify-email',
             element: <VerifyEmail />,
+            action: verifyEmailAction,
           },
         ],
       },
