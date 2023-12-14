@@ -5,7 +5,9 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Layout from './pages/Layout/Layout.jsx';
 import AuthLayout from './pages/Auth/AuthLayout/AuthLayout.jsx';
 import Login from './pages/Auth/Login/Login.jsx';
-import Register from './pages/Auth/Register/Register.jsx';
+import Register, {
+  action as registerAction,
+} from './pages/Auth/Register/Register.jsx';
 import ForgotPassword, {
   action as forgotPasswordAction,
 } from './pages/Auth/ForgotPassword/ForgotPassword.jsx';
@@ -41,6 +43,7 @@ const router = createBrowserRouter([
           {
             path: 'register',
             element: <Register />,
+            action: registerAction,
           },
           {
             path: 'verify-email',
