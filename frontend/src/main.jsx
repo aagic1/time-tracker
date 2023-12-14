@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import Layout from './pages/Layout/Layout.jsx';
 import AuthLayout from './pages/Auth/AuthLayout/AuthLayout.jsx';
-import Login, { action as loginAction } from './pages/Auth/Login/Login.jsx';
+import Login from './pages/Auth/Login/Login.jsx';
 import Register, {
   action as registerAction,
 } from './pages/Auth/Register/Register.jsx';
@@ -17,55 +17,61 @@ import VerifyEmail, {
   action as verifyEmailAction,
 } from './pages/Auth/VerifyEmail/VerifyEmail.jsx';
 
+import AuthProvider from './pages/Auth/AuthProvider.jsx';
+
 const router = createBrowserRouter([
   {
-    path: '/',
-    element: <Layout />,
+    element: <AuthProvider />,
     children: [
       {
-        element: <AuthLayout />,
+        path: '/',
+        element: <Layout />,
         children: [
           {
-            path: 'login',
-            element: <Login />,
-            action: loginAction,
+            element: <AuthLayout />,
+            children: [
+              {
+                path: 'login',
+                element: <Login />,
+              },
+              {
+                path: 'forgot-password',
+                element: <ForgotPassword />,
+                action: forgotPasswordAction,
+              },
+              {
+                path: 'forgot-password-confirmation',
+                element: <ForgotPasswordConfirmation />,
+              },
+              {
+                path: 'reset-password',
+                element: <ResetPassword />,
+              },
+              {
+                path: 'register',
+                element: <Register />,
+                action: registerAction,
+              },
+              {
+                path: 'verify-email',
+                element: <VerifyEmail />,
+                action: verifyEmailAction,
+              },
+            ],
           },
           {
-            path: 'forgot-password',
-            element: <ForgotPassword />,
-            action: forgotPasswordAction,
+            path: '/goals',
+            element: <div>Goals page</div>,
           },
           {
-            path: 'forgot-password-confirmation',
-            element: <ForgotPasswordConfirmation />,
+            path: '/records',
+            element: <div>Records page</div>,
           },
           {
-            path: 'reset-password',
-            element: <ResetPassword />,
-          },
-          {
-            path: 'register',
-            element: <Register />,
-            action: registerAction,
-          },
-          {
-            path: 'verify-email',
-            element: <VerifyEmail />,
-            action: verifyEmailAction,
+            path: '/statistics',
+            element: <div>Statistics page</div>,
           },
         ],
-      },
-      {
-        path: '/goals',
-        element: <div>Goals page</div>,
-      },
-      {
-        path: '/records',
-        element: <div>Records page</div>,
-      },
-      {
-        path: '/statistics',
-        element: <div>Statistics page</div>,
       },
     ],
   },
