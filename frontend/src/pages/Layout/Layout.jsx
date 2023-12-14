@@ -16,8 +16,8 @@ function Header() {
       return await res.json();
     }
 
-    logout();
-    return navigate('/login');
+    return logout();
+    // return navigate('/login');
   }
 
   return (

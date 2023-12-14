@@ -18,6 +18,8 @@ import VerifyEmail, {
 } from './pages/Auth/VerifyEmail/VerifyEmail.jsx';
 
 import AuthProvider from './pages/Auth/AuthProvider.jsx';
+import ProtectedRoutes from './components/ProtectedRoutes.jsx';
+import AuthRoutes from './components/AuthRoutes.jsx';
 
 const router = createBrowserRouter([
   {
@@ -28,48 +30,58 @@ const router = createBrowserRouter([
         element: <Layout />,
         children: [
           {
-            element: <AuthLayout />,
+            element: <AuthRoutes />,
             children: [
               {
-                path: 'login',
-                element: <Login />,
-              },
-              {
-                path: 'forgot-password',
-                element: <ForgotPassword />,
-                action: forgotPasswordAction,
-              },
-              {
-                path: 'forgot-password-confirmation',
-                element: <ForgotPasswordConfirmation />,
-              },
-              {
-                path: 'reset-password',
-                element: <ResetPassword />,
-              },
-              {
-                path: 'register',
-                element: <Register />,
-                action: registerAction,
-              },
-              {
-                path: 'verify-email',
-                element: <VerifyEmail />,
-                action: verifyEmailAction,
+                element: <AuthLayout />,
+                children: [
+                  {
+                    path: 'login',
+                    element: <Login />,
+                  },
+                  {
+                    path: 'forgot-password',
+                    element: <ForgotPassword />,
+                    action: forgotPasswordAction,
+                  },
+                  {
+                    path: 'forgot-password-confirmation',
+                    element: <ForgotPasswordConfirmation />,
+                  },
+                  {
+                    path: 'reset-password',
+                    element: <ResetPassword />,
+                  },
+                  {
+                    path: 'register',
+                    element: <Register />,
+                    action: registerAction,
+                  },
+                  {
+                    path: 'verify-email',
+                    element: <VerifyEmail />,
+                    action: verifyEmailAction,
+                  },
+                ],
               },
             ],
           },
           {
-            path: '/goals',
-            element: <div>Goals page</div>,
-          },
-          {
-            path: '/records',
-            element: <div>Records page</div>,
-          },
-          {
-            path: '/statistics',
-            element: <div>Statistics page</div>,
+            element: <ProtectedRoutes />,
+            children: [
+              {
+                path: '/goals',
+                element: <div>Goals page</div>,
+              },
+              {
+                path: '/records',
+                element: <div>Records page</div>,
+              },
+              {
+                path: '/statistics',
+                element: <div>Statistics page</div>,
+              },
+            ],
           },
         ],
       },
