@@ -28,7 +28,7 @@ export async function register(req: Request, res: Response) {
     'Invalid register request data'
   );
   await authService.register(body);
-  res.status(201).send('User created successfully');
+  res.status(201).json('User created successfully');
 }
 
 export async function logout(req: Request, res: Response) {
