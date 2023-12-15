@@ -1,5 +1,7 @@
 import { useLoaderData } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthProvider';
+import ActivityCard from '../../components/ActivityCard/ActivityCard';
+import styles from './home.module.css';
 
 export async function loader() {
   const res = await fetch('http://localhost:8000/api/v1/activities', {
@@ -16,13 +18,17 @@ export default function Home() {
 
   return (
     <>
-      <div>Home</div>
-      <p>{user.email}</p>
-      <ul>
+      {/* <div>Home</div>
+      <p>{user.email}</p> */}
+      <div className={styles.activitesContainer}>
         {activities.map((activity) => (
-          <li key={activity.id}>{activity.name}</li>
+          <ActivityCard
+            key={activity.id}
+            activity={activity}
+            allActivities={activities}
+          />
         ))}
-      </ul>
+      </div>
     </>
   );
 }
