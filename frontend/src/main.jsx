@@ -16,6 +16,7 @@ import ResetPassword from './pages/Auth/ResetPassword/ResetPassword.jsx';
 import VerifyEmail, {
   action as verifyEmailAction,
 } from './pages/Auth/VerifyEmail/VerifyEmail.jsx';
+import Home, { loader as homeLoader } from './pages/Home/Home.jsx';
 
 import AuthProvider from './pages/Auth/AuthProvider.jsx';
 import ProtectedRoutes from './components/ProtectedRoutes.jsx';
@@ -69,6 +70,11 @@ const router = createBrowserRouter([
           {
             element: <ProtectedRoutes />,
             children: [
+              {
+                index: true,
+                element: <Home />,
+                loader: homeLoader,
+              },
               {
                 path: '/goals',
                 element: <div>Goals page</div>,
