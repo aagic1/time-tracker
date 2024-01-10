@@ -37,6 +37,6 @@ app.listen(port, () => {
 
 declare module 'express-session' {
   interface SessionData {
-    user: { id: bigint };
+    user: { id: bigint; email: string };
   }
 }
