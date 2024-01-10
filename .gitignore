@@ -3,3 +3,5 @@
 **/.env
 
 # Frontend
+/frontend/node_modules
+/frontend/.vite/deps
