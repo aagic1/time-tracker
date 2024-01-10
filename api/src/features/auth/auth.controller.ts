@@ -17,7 +17,7 @@ export async function login(req: Request, res: Response) {
     'Invalid login request data'
   );
   const user = await authService.login(body.email, body.password);
-  req.session.user = user;
+  req.session.user = { ...user, email: body.email };
   res.status(200).send('Logged in succesfully');
 }
 
