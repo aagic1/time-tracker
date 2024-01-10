@@ -215,8 +215,8 @@ async function findCurrentGoals(accountId: bigint, timezoneOffset: number) {
                 END 
               ELSE
                 CASE
-                  WHEN r.started_at >= ${startOfDay} AND r.started_at <= ${endOfDay} THEN ${dateNow} - r.started_at
-                  WHEN r.started_at < ${startOfDay} THEN ${dateNow} - ${startOfDay}::timestamp
+                  WHEN r.started_at >= ${startOfDay} AND r.started_at <= ${endOfDay} THEN ${dateNow.toISOString()} - r.started_at
+                  WHEN r.started_at < ${startOfDay} THEN ${dateNow.toISOString()} - ${startOfDay}::timestamp
                 END 
             END
         )`.as('totalTime'),
@@ -236,6 +236,7 @@ async function findCurrentGoals(accountId: bigint, timezoneOffset: number) {
                 eb('r.stopped_at', 'is', null),
               ])
             ),
+            eb('r.started_at', 'is', null),
           ])
         )
         .groupBy(['a.name', 'a.id'])
@@ -264,8 +265,8 @@ async function findCurrentGoals(accountId: bigint, timezoneOffset: number) {
                 END
               ELSE
                 CASE
-                  WHEN r.started_at >= ${startOfWeek} AND r.started_at <= ${endOfWeek} THEN ${dateNow} - r.started_at
-                  WHEN r.started_at < ${startOfWeek} THEN ${dateNow} - ${startOfWeek}::timestamp
+                  WHEN r.started_at >= ${startOfWeek} AND r.started_at <= ${endOfWeek} THEN ${dateNow.toISOString()} - r.started_at
+                  WHEN r.started_at < ${startOfWeek} THEN ${dateNow.toISOString()} - ${startOfWeek}::timestamp
                 END
             END
           )`.as('totalTime'),
@@ -285,6 +286,7 @@ async function findCurrentGoals(accountId: bigint, timezoneOffset: number) {
                 eb('r.stopped_at', 'is', null),
               ])
             ),
+            eb('r.started_at', 'is', null),
           ])
         )
         .groupBy(['a.name', 'a.id'])
@@ -313,8 +315,8 @@ async function findCurrentGoals(accountId: bigint, timezoneOffset: number) {
                 END
               ELSE
                 CASE
-                  WHEN r.started_at >= ${startOfMonth} AND r.started_at <= ${endOfMonth} THEN ${dateNow} - r.started_at
-                  WHEN r.started_at < ${startOfMonth} THEN ${dateNow} - ${startOfMonth}::timestamp
+                  WHEN r.started_at >= ${startOfMonth} AND r.started_at <= ${endOfMonth} THEN ${dateNow.toISOString()} - r.started_at
+                  WHEN r.started_at < ${startOfMonth} THEN ${dateNow.toISOString()} - ${startOfMonth}::timestamp
                   
                 END
             END
@@ -335,6 +337,7 @@ async function findCurrentGoals(accountId: bigint, timezoneOffset: number) {
                 eb('r.stopped_at', 'is', null),
               ])
             ),
+            eb('r.started_at', 'is', null),
           ])
         )
         .groupBy(['a.name', 'a.id'])
