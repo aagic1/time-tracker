@@ -1,11 +1,26 @@
 import { createContext, useContext, useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useLoaderData, useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext({});
 
+export async function loader() {
+  const res = await fetch('http://localhost:8000/api/v1/auth/whoami', {
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    throw new Error('whoami error');
+  }
+
+  return await res.json();
+}
+
 export default function AuthProvider({ children }) {
+  const loaderData = useLoaderData();
+
   //   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(
+    loaderData === null ? null : { email: loaderData }
+  );
   const navigate = useNavigate();
 
   function login(email) {

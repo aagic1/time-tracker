@@ -26,9 +26,30 @@ function Header() {
       {user !== null && (
         <>
           <div className={styles.navigation}>
-            <NavLink to="/">Activities</NavLink>
-            <NavLink to="goals">Goals</NavLink>
-            <NavLink to="statistics">Statistics</NavLink>
+            <NavLink
+              className={({ isActive }) =>
+                `${isActive ? styles.active : ''} ${styles.navLinks}`
+              }
+              to="/"
+            >
+              Activities
+            </NavLink>
+            <NavLink
+              className={({ isActive }) =>
+                `${isActive ? styles.active : ''} ${styles.navLinks}`
+              }
+              to="goals"
+            >
+              Goals
+            </NavLink>
+            <NavLink
+              className={({ isActive }) =>
+                `${isActive ? styles.active : ''} ${styles.navLinks}`
+              }
+              to="statistics"
+            >
+              Statistics
+            </NavLink>
           </div>
           <button type="button" onClick={handleLogout}>
             Log out

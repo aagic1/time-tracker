@@ -18,13 +18,20 @@ import VerifyEmail, {
 } from './pages/Auth/VerifyEmail/VerifyEmail.jsx';
 import Home, { loader as homeLoader } from './pages/Home/Home.jsx';
 
-import AuthProvider from './pages/Auth/AuthProvider.jsx';
+import AuthProvider, {
+  loader as authProviderLoader,
+} from './pages/Auth/AuthProvider.jsx';
 import ProtectedRoutes from './components/ProtectedRoutes.jsx';
 import AuthRoutes from './components/AuthRoutes.jsx';
+import ActivityEditor, {
+  loader as activityEditorLoader,
+} from './pages/ActivityEditor/ActivityEditor.jsx';
+import Goal, { loader as goalLoader } from './pages/Goal/Goal.jsx';
 
 const router = createBrowserRouter([
   {
     element: <AuthProvider />,
+    loader: authProviderLoader,
     children: [
       {
         path: '/',
@@ -76,8 +83,19 @@ const router = createBrowserRouter([
                 loader: homeLoader,
               },
               {
+                path: 'activity/:activityName',
+                element: <ActivityEditor type="edit" />,
+                loader: activityEditorLoader,
+              },
+              {
+                path: 'activity/create',
+                element: <ActivityEditor />,
+                loader: activityEditorLoader,
+              },
+              {
                 path: '/goals',
-                element: <div>Goals page</div>,
+                element: <Goal />,
+                loader: goalLoader,
               },
               {
                 path: '/records',

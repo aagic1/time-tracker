@@ -1,0 +1,69 @@
+.activityForm {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    margin-bottom: 30px;
+}
+
+.inputContainer {
+    display: flex;
+    gap: 3px;
+}
+
+.numberInput {
+    width: 35px;
+    border: none;
+    border-bottom: 1px solid black;
+}
+
+.numberInput::-webkit-inner-spin-button,
+.numberInput::-webkit-outer-spin-button {
+    opacity: 1;
+}
+
+.numberInputHours {
+    width: 50px;
+}
+
+.label {
+    display: block;
+    width: 65px;
+}
+
+
+.goalContainer {
+    display: flex;
+    flex-direction: row;
+    margin-left: 20px;
+}
+
+.separator {
+    border-top: 1px solid black;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.deleteButton {
+    background-color: #ff5e5e;
+}
+
+.archiveButton {
+    background-color: #ffef5e;
+}
+
+.editArchivedHeader {
+    padding: 5px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 100px;
+    border: 1px solid black;
+    margin-bottom: 20px;
+}
