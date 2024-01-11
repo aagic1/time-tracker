@@ -1,23 +1,9 @@
-import {
-  sql,
-  Expression,
-  SqlBool,
-  expressionBuilder,
-  QueryCreator,
-} from 'kysely';
+import { sql, Expression, SqlBool, expressionBuilder } from 'kysely';
 import { db } from '../../db';
 import { DB, NewRecord, RecordUpdate } from '../../db/types';
 import { QueryParams } from './record.validator';
 import type { IPostgresInterval } from 'postgres-interval';
-import {
-  getEndOfDayDate,
-  getEndOfMonth,
-  getEndOfWeek,
-  getStartOfDayDate,
-  getStartOfMonth,
-  getStartOfWeek,
-} from './record.utils';
-import { DateObject } from './record.types';
+import { DateWithTimezone } from './record.helpers';
 
 const recordColumnsToSelect = [
   'record.id as recordId',
@@ -30,6 +16,8 @@ const recordColumnsToSelect = [
   'activity.day_goal as dayGoal',
   'activity.session_goal as sessionGoal',
 ] as const;
+
+// Public API
 
 async function findById(accountId: bigint, recordId: bigint) {
   return db
@@ -49,46 +37,6 @@ async function find(accountId: bigint, queryParams?: QueryParams) {
     .where('activity.account_id', '=', accountId)
     .where(getFilters(queryParams))
     .execute();
-}
-
-function getFilters(queryParams: QueryParams | undefined) {
-  const eb = expressionBuilder<DB, 'record'>();
-
-  if (!queryParams) {
-    return eb.and([]);
-  }
-
-  const filters: Expression<SqlBool>[] = [];
-  const { active, activityId, comment, dateFrom, dateTo } = queryParams;
-
-  if (active === true) {
-    filters.push(eb('record.stopped_at', 'is', null));
-  } else if (active === false) {
-    filters.push(eb('record.stopped_at', 'is not', null));
-  }
-
-  if (activityId) {
-    filters.push(eb('record.activity_id', 'in', activityId));
-  }
-
-  if (comment) {
-    filters.push(eb('record.comment', 'ilike', `%${comment}%`));
-  }
-
-  // maybe: if dateFrom > dateTo throw some error to signalize invalid data
-  if (dateFrom && dateTo && dateFrom > dateTo) {
-    throw 'Invalid data. This should not happen, because zod validates request query params. Can still happen if developer manually enters this functions parameters';
-  }
-
-  if (dateFrom && dateTo && dateFrom < dateTo) {
-    filters.push(filterRecordsBetweenDates(dateFrom, dateTo));
-  } else if (dateFrom && !dateTo) {
-    filters.push(filterRecordsFrom(dateFrom));
-  } else if (!dateFrom && dateTo) {
-    filters.push(filterRecordsTo(dateTo));
-  }
-
-  return eb.and(filters);
 }
 
 async function remove(accountId: bigint, recordId: bigint) {
@@ -162,202 +110,139 @@ async function update(
     .executeTakeFirst();
 }
 
-function getTimestampForTimezone(date: Date, timezoneOffset: number) {
-  const timestampOffset = new Date(date);
-  timestampOffset.setMinutes(
-    date.getMinutes() + (date.getTimezoneOffset() - timezoneOffset)
-  );
-  return timestampOffset;
-}
-
-async function findCurrentGoals(accountId: bigint, timezoneOffset: number) {
-  const dateNow = new Date();
-  const offsetDateNow = getTimestampForTimezone(dateNow, timezoneOffset);
-  const offsetDateObject = {
-    year: offsetDateNow.getFullYear(),
-    month: offsetDateNow.getMonth() + 1,
-    dayOfMonth: offsetDateNow.getDate(),
-    dayOfWeek: offsetDateNow.getDay(),
-    timezoneOffset,
-  };
-
-  const startOfDay = getStartOfDayDate(offsetDateObject);
-  const endOfDay = getEndOfDayDate(offsetDateObject);
-
-  const startOfWeek = getStartOfWeek(offsetDateObject);
-  const endOfWeek = getEndOfWeek(offsetDateObject);
-
-  const startOfMonth = getStartOfMonth(offsetDateObject);
-  const endOfMonth = getEndOfMonth(offsetDateObject);
+async function getCurrentGoalsByType(
+  accountId: bigint,
+  dateTZ: DateWithTimezone,
+  type: 'day' | 'week' | 'month'
+) {
+  const startOfPeriod = dateTZ.getStartOf(type);
+  const endOfPeriod = dateTZ.getEndOf(type);
 
   return db
-    .with('currentDayGoalData', (db) =>
-      db
-        .selectFrom('activity as a')
-        .leftJoin('record as r', 'r.activity_id', 'a.id')
-        .select((eb) => [
-          'a.id',
-          'a.name',
-          'a.color',
-          eb.val('dayGoal').as('goalName'),
-          'a.day_goal as goalTime',
-          sql<boolean>`(COUNT(r.started_at) - COUNT(r.stopped_at)) > 0`.as(
-            'hasActiveRecord'
-          ),
-          sql<IPostgresInterval | null>`SUM(
-            CASE
-              WHEN r.stopped_at IS NOT NULL THEN
-                CASE
-                  WHEN r.started_at >= ${startOfDay} AND r.stopped_at <= ${endOfDay} THEN r.stopped_at - r.started_at
-                  WHEN r.started_at <= ${startOfDay} AND r.stopped_at >= ${startOfDay} AND r.stopped_at <= ${endOfDay} THEN r.stopped_at - ${startOfDay}
-                  WHEN r.started_at <= ${startOfDay} AND r.stopped_at >= ${endOfDay} THEN ${endOfDay} - ${startOfDay}::timestamp
-                  WHEN r.started_at >= ${startOfDay} AND r.started_at <= ${endOfDay} AND r.stopped_at >= ${endOfDay} THEN ${endOfDay} - r.started_at
-                END 
-              ELSE
-                CASE
-                  WHEN r.started_at >= ${startOfDay} AND r.started_at <= ${endOfDay} THEN ${dateNow.toISOString()} - r.started_at
-                  WHEN r.started_at < ${startOfDay} THEN ${dateNow.toISOString()} - ${startOfDay}::timestamp
-                END 
-            END
-        )`.as('totalTime'),
-        ])
-        .where('account_id', '=', accountId)
-        .where('day_goal', 'is not', null)
-        .where('archived', '=', false)
-        .where((eb) =>
-          eb.or([
-            eb.and([
-              eb('r.started_at', '>=', startOfDay),
-              eb('r.started_at', '<=', endOfDay),
-            ]),
-            eb('r.started_at', '<=', startOfDay).and(
-              eb.or([
-                eb('r.stopped_at', '>=', startOfDay),
-                eb('r.stopped_at', 'is', null),
-              ])
-            ),
-            eb('r.started_at', 'is', null),
-          ])
-        )
-        .groupBy(['a.name', 'a.id'])
+    .selectFrom('activity as a')
+    .leftJoin(
+      getRecordsBetween(dateTZ.getStartOf(type), dateTZ.getEndOf(type)).as('r'),
+      (join) => join.onRef('r.activity_id', '=', 'a.id')
     )
-    .with('currentWeekGoalData', (db) =>
-      db
-        .selectFrom('activity as a')
-        .leftJoin('record as r', 'r.activity_id', 'a.id')
-        .select((eb) => [
-          'a.id',
-          'a.name',
-          'a.color',
-          eb.val('weekGoal').as('goalName'),
-          'a.week_goal as goalTime',
-          sql<boolean>`(COUNT(r.started_at) - COUNT(r.stopped_at)) > 0`.as(
-            'hasActiveRecord'
-          ),
-          sql<IPostgresInterval | null>`SUM(
+    .select((eb) => [
+      'a.id',
+      'a.name',
+      'a.color',
+      eb.val(`${type}Goal`).as('goalName'),
+      `a.${type}_goal as goalTime`,
+      sql<boolean>`(COUNT(r.started_at) - COUNT(r.stopped_at)) > 0`.as(
+        'hasActiveRecord'
+      ),
+      sql<IPostgresInterval>`SUM(
+        CASE
+          WHEN r.started_at IS NULL THEN '0s'::interval
+          WHEN r.stopped_at IS NOT NULL THEN
             CASE
-              WHEN r.stopped_at IS NOT NULL THEN
-                CASE
-                  WHEN r.started_at >= ${startOfWeek} AND r.stopped_at <= ${endOfWeek} THEN r.stopped_at - r.started_at
-                  WHEN r.started_at <= ${startOfWeek} AND r.stopped_at >= ${startOfWeek} AND r.stopped_at <= ${endOfWeek} THEN r.stopped_at - ${startOfWeek}
-                  WHEN r.started_at <= ${startOfWeek} AND r.stopped_at >= ${endOfWeek} THEN ${endOfWeek} - ${startOfWeek}::timestamp
-                  WHEN r.started_at >= ${startOfWeek} AND r.started_at <= ${endOfWeek} AND r.stopped_at >= ${endOfWeek} THEN ${endOfWeek} - r.started_at
-                END
-              ELSE
-                CASE
-                  WHEN r.started_at >= ${startOfWeek} AND r.started_at <= ${endOfWeek} THEN ${dateNow.toISOString()} - r.started_at
-                  WHEN r.started_at < ${startOfWeek} THEN ${dateNow.toISOString()} - ${startOfWeek}::timestamp
-                END
+              WHEN r.started_at >= ${startOfPeriod} 
+                AND r.stopped_at <= ${endOfPeriod}
+                THEN r.stopped_at - r.started_at
+
+              WHEN r.started_at >= ${startOfPeriod} 
+                  AND r.started_at <= ${endOfPeriod} 
+                  AND r.stopped_at >= ${endOfPeriod}
+                THEN ${endOfPeriod} - r.started_at
+
+              WHEN r.started_at <= ${startOfPeriod} 
+                  AND r.stopped_at >= ${startOfPeriod}
+                  AND r.stopped_at <= ${endOfPeriod}
+                THEN r.stopped_at - ${startOfPeriod}
+
+              WHEN r.started_at <= ${startOfPeriod} 
+                  AND r.stopped_at >= ${endOfPeriod}
+                THEN ${endOfPeriod}::timestamptz - ${startOfPeriod}
+
+              ELSE '0s'::interval
             END
-          )`.as('totalTime'),
-        ])
-        .where('account_id', '=', accountId)
-        .where('week_goal', 'is not', null)
-        .where('archived', '=', false)
-        .where((eb) =>
-          eb.or([
-            eb.and([
-              eb('r.started_at', '>=', startOfWeek),
-              eb('r.started_at', '<=', endOfWeek),
-            ]),
-            eb('r.started_at', '<=', startOfWeek).and(
-              eb.or([
-                eb('r.stopped_at', '>=', startOfWeek),
-                eb('r.stopped_at', 'is', null),
-              ])
-            ),
-            eb('r.started_at', 'is', null),
-          ])
-        )
-        .groupBy(['a.name', 'a.id'])
-    )
-    .with('currentMonthGoalData', (db) =>
-      db
-        .selectFrom('activity as a')
-        .leftJoin('record as r', 'r.activity_id', 'a.id')
-        .select((eb) => [
-          'a.id',
-          'a.name',
-          'a.color',
-          eb.val('monthGoal').as('goalName'),
-          'a.month_goal as goalTime',
-          sql<boolean>`(COUNT(r.started_at) - COUNT(r.stopped_at)) > 0`.as(
-            'hasActiveRecord'
-          ),
-          sql<IPostgresInterval | null>`SUM(
+          ELSE
             CASE
-              WHEN r.stopped_at IS NOT NULL THEN
-                CASE
-                  WHEN r.started_at >= ${startOfMonth} AND r.stopped_at <= ${endOfMonth} THEN r.stopped_at - r.started_at
-                  WHEN r.started_at <= ${startOfMonth} AND r.stopped_at >= ${startOfMonth} AND r.stopped_at <= ${endOfMonth} THEN r.stopped_at - ${startOfMonth}
-                  WHEN r.started_at <= ${startOfMonth} AND r.stopped_at >= ${endOfMonth} THEN ${endOfMonth} - ${startOfMonth}::timestamp
-                  WHEN r.started_at >= ${startOfMonth} AND r.started_at <= ${endOfMonth} AND r.stopped_at >= ${endOfMonth} THEN ${endOfMonth} - r.started_at
-                END
-              ELSE
-                CASE
-                  WHEN r.started_at >= ${startOfMonth} AND r.started_at <= ${endOfMonth} THEN ${dateNow.toISOString()} - r.started_at
-                  WHEN r.started_at < ${startOfMonth} THEN ${dateNow.toISOString()} - ${startOfMonth}::timestamp
-                  
-                END
+              WHEN r.started_at >= ${startOfPeriod} 
+                  AND r.started_at <= ${endOfPeriod}
+                THEN ${dateTZ.toDate()} - r.started_at
+                
+              WHEN r.started_at < ${startOfPeriod}
+                THEN ${dateTZ.toDate()}::timestamptz - ${startOfPeriod}
+                
+              ELSE '0s'::interval
             END
-          )`.as('totalTime'),
-        ])
-        .where('a.account_id', '=', accountId)
-        .where('a.month_goal', 'is not', null)
-        .where('a.archived', '=', false)
-        .where((eb) =>
-          eb.or([
-            eb.and([
-              eb('r.started_at', '>=', startOfMonth),
-              eb('r.started_at', '<=', endOfMonth),
-            ]),
-            eb('r.started_at', '<=', startOfMonth).and(
-              eb.or([
-                eb('r.stopped_at', '>=', startOfMonth),
-                eb('r.stopped_at', 'is', null),
-              ])
-            ),
-            eb('r.started_at', 'is', null),
-          ])
-        )
-        .groupBy(['a.name', 'a.id'])
-    )
-    .selectFrom('currentDayGoalData')
-    .union((eb) => eb.selectFrom('currentWeekGoalData').selectAll())
-    .union((eb) => eb.selectFrom('currentMonthGoalData').selectAll())
-    .selectAll()
+        END
+    )`.as('totalTime'),
+    ])
+    .where('account_id', '=', accountId)
+    .where(`a.${type}_goal`, 'is not', null)
+    .where('archived', '=', false)
+    .groupBy(['a.name', 'a.id'])
     .orderBy(['goalName', 'name'])
     .execute();
 }
 
-export default {
-  findById,
-  find,
-  remove,
-  create,
-  update,
-  findCurrentGoals,
-};
+// Private helper functions
+
+function getFilters(queryParams: QueryParams | undefined) {
+  const eb = expressionBuilder<DB, 'record'>();
+
+  if (!queryParams) {
+    return eb.and([]);
+  }
+
+  const filters: Expression<SqlBool>[] = [];
+  const { active, activityId, comment, dateFrom, dateTo } = queryParams;
+
+  if (active === true) {
+    filters.push(eb('record.stopped_at', 'is', null));
+  } else if (active === false) {
+    filters.push(eb('record.stopped_at', 'is not', null));
+  }
+
+  if (activityId) {
+    filters.push(eb('record.activity_id', 'in', activityId));
+  }
+
+  if (comment) {
+    filters.push(eb('record.comment', 'ilike', `%${comment}%`));
+  }
+
+  // maybe: if dateFrom > dateTo throw some error to signalize invalid data
+  if (dateFrom && dateTo && dateFrom > dateTo) {
+    throw 'Invalid data. This should not happen, because zod validates request query params. Can still happen if developer manually enters this functions parameters';
+  }
+
+  if (dateFrom && dateTo && dateFrom < dateTo) {
+    filters.push(filterRecordsBetweenDates(dateFrom, dateTo));
+  } else if (dateFrom && !dateTo) {
+    filters.push(filterRecordsFrom(dateFrom));
+  } else if (!dateFrom && dateTo) {
+    filters.push(filterRecordsTo(dateTo));
+  }
+
+  return eb.and(filters);
+}
+
+function getRecordsBetween(startOfPeriod: Date, endOfPeriod: Date) {
+  const eb = expressionBuilder<DB, 'record'>();
+
+  return eb
+    .selectFrom('record')
+    .selectAll()
+    .where((eb) =>
+      eb.or([
+        eb.and([
+          eb('record.started_at', '>=', startOfPeriod),
+          eb('record.started_at', '<=', endOfPeriod),
+        ]),
+        eb('record.started_at', '<=', startOfPeriod).and(
+          eb.or([
+            eb('record.stopped_at', '>=', startOfPeriod),
+            eb('record.stopped_at', 'is', null),
+          ])
+        ),
+      ])
+    );
+}
 
 function filterRecordsBetweenDates(startDate: Date, stopDate: Date) {
   const eb = expressionBuilder<DB, 'record'>();
@@ -404,3 +289,14 @@ function belongsActivityToAccount(accountId: bigint, activityId: bigint) {
       .where('id', '=', activityId)
   );
 }
+
+// Public API export
+
+export default {
+  findById,
+  find,
+  remove,
+  create,
+  update,
+  getCurrentGoalsByType,
+};

@@ -1,4 +1,5 @@
 import recordDAO from './record.dao';
+import { DateWithTimezone } from './record.helpers';
 import { StatisticsQuery } from './record.validator';
 
 async function getStatistics(accountId: bigint, filters: StatisticsQuery) {
@@ -21,6 +22,28 @@ async function getStatistics(accountId: bigint, filters: StatisticsQuery) {
     activityStats.set(activityId, activityStats.get(activityId)! + elapsedTime);
   });
   return activityStats;
+}
+
+async function getCurrentGoals(accountId: bigint, timezoneOffset: number) {
+  const dateNowTZ = new DateWithTimezone(timezoneOffset);
+
+  const dayGoals = recordDAO.getCurrentGoalsByType(accountId, dateNowTZ, 'day');
+  const weekGoals = recordDAO.getCurrentGoalsByType(
+    accountId,
+    dateNowTZ,
+    'week'
+  );
+  const monthGoals = recordDAO.getCurrentGoalsByType(
+    accountId,
+    dateNowTZ,
+    'month'
+  );
+  try {
+    const allGoals = await Promise.all([dayGoals, weekGoals, monthGoals]);
+    return allGoals.flat();
+  } catch (e) {
+    return null;
+  }
 }
 
 function calculateElapsedTime(
@@ -58,4 +81,5 @@ function calculateElapsedTime(
 
 export default {
   getStatistics,
+  getCurrentGoals,
 };

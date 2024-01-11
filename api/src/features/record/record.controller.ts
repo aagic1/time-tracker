@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, query } from 'express';
 import { objectToSnake } from 'ts-case-convert/lib/caseConvert';
 
 import recordService from './record.service';
@@ -103,10 +103,11 @@ export async function getCurrentGoals(req: Request, res: Response) {
     'invalid goal request query string 2'
   );
 
-  const data = await recordDAO.findCurrentGoals(
+  const data = await recordService.getCurrentGoals(
     req.session.user!.id,
     timezoneOffset
   );
+
   res.status(200).json(data);
 }
 
