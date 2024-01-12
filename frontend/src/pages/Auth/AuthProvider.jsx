@@ -1,47 +1,51 @@
-import { createContext, useContext, useState } from 'react';
-import { Outlet, useLoaderData, useNavigate } from 'react-router-dom';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 const AuthContext = createContext({});
 
-export async function loader() {
-  const res = await fetch('http://localhost:8000/api/v1/auth/whoami', {
-    credentials: 'include',
-  });
-  if (!res.ok) {
-    throw new Error('whoami error');
-  }
-
-  return await res.json();
+export function useAuth() {
+  return useContext(AuthContext);
 }
 
 export default function AuthProvider({ children }) {
-  const loaderData = useLoaderData();
-
-  //   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(
-    loaderData === null ? null : { email: loaderData }
-  );
-  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
+  const [user, setUser] = useState(null);
 
   function login(email) {
-    // setIsLoggedIn(true);
+    setIsLoggedIn(true);
     setUser({ email });
-    navigate('/', { replace: true });
   }
 
   function logout() {
-    // setIsLoggedIn(false);
+    setIsLoggedIn(false);
     setUser(null);
-    navigate('/login');
   }
 
+  useEffect(() => {
+    async function whoami() {
+      const res = await fetch('http://localhost:8000/api/v1/auth/whoami', {
+        credentials: 'include',
+      });
+      if (!res.ok) {
+        console.log('whoami error');
+        throw new Error('whoami error');
+      }
+
+      const data = await res.json();
+      if (data === null) {
+        setIsLoggedIn(false);
+        setUser(null);
+      } else {
+        setIsLoggedIn(true);
+        setUser({ email: data });
+      }
+    }
+
+    whoami();
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      <Outlet />
+    <AuthContext.Provider value={{ user, isLoggedIn, login, logout }}>
+      {isLoggedIn === null ? <div>whoami error, handle better</div> : children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  return useContext(AuthContext);
 }

@@ -1,6 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  RouterProvider,
+  useRouteError,
+} from 'react-router-dom';
 
 import Layout from './pages/Layout/Layout.jsx';
 import AuthLayout from './pages/Auth/AuthLayout/AuthLayout.jsx';
@@ -18,9 +22,7 @@ import VerifyEmail, {
 } from './pages/Auth/VerifyEmail/VerifyEmail.jsx';
 import Home, { loader as homeLoader } from './pages/Home/Home.jsx';
 
-import AuthProvider, {
-  loader as authProviderLoader,
-} from './pages/Auth/AuthProvider.jsx';
+import AuthProvider from './pages/Auth/AuthProvider.jsx';
 import ProtectedRoutes from './components/ProtectedRoutes.jsx';
 import AuthRoutes from './components/AuthRoutes.jsx';
 import ActivityEditor, {
@@ -30,82 +32,83 @@ import Goal, { loader as goalLoader } from './pages/Goal/Goal.jsx';
 
 const router = createBrowserRouter([
   {
-    element: <AuthProvider />,
-    loader: authProviderLoader,
+    path: '/',
+    element: <Layout />,
     children: [
       {
-        path: '/',
-        element: <Layout />,
+        element: <AuthRoutes />,
         children: [
           {
-            element: <AuthRoutes />,
+            element: <AuthLayout />,
+            errorElement: <div>Error auth layout</div>,
             children: [
               {
-                element: <AuthLayout />,
-                children: [
-                  {
-                    path: 'login',
-                    element: <Login />,
-                  },
-                  {
-                    path: 'forgot-password',
-                    element: <ForgotPassword />,
-                    action: forgotPasswordAction,
-                  },
-                  {
-                    path: 'forgot-password-confirmation',
-                    element: <ForgotPasswordConfirmation />,
-                  },
-                  {
-                    path: 'reset-password',
-                    element: <ResetPassword />,
-                  },
-                  {
-                    path: 'register',
-                    element: <Register />,
-                    action: registerAction,
-                  },
-                  {
-                    path: 'verify-email',
-                    element: <VerifyEmail />,
-                    action: verifyEmailAction,
-                  },
-                ],
+                path: 'login',
+                element: <Login />,
+              },
+              {
+                path: 'forgot-password',
+                element: <ForgotPassword />,
+                action: forgotPasswordAction,
+              },
+              {
+                path: 'forgot-password-confirmation',
+                element: <ForgotPasswordConfirmation />,
+              },
+              {
+                path: 'reset-password',
+                element: <ResetPassword />,
+              },
+              {
+                path: 'register',
+                element: <Register />,
+                action: registerAction,
+              },
+              {
+                path: 'verify-email',
+                element: <VerifyEmail />,
+                action: verifyEmailAction,
               },
             ],
           },
+        ],
+      },
+      {
+        element: <ProtectedRoutes />,
+        children: [
           {
-            element: <ProtectedRoutes />,
-            children: [
-              {
-                index: true,
-                element: <Home />,
-                loader: homeLoader,
-              },
-              {
-                path: 'activity/:activityName',
-                element: <ActivityEditor type="edit" />,
-                loader: activityEditorLoader,
-              },
-              {
-                path: 'activity/create',
-                element: <ActivityEditor />,
-                loader: activityEditorLoader,
-              },
-              {
-                path: '/goals',
-                element: <Goal />,
-                loader: goalLoader,
-              },
-              {
-                path: '/records',
-                element: <div>Records page</div>,
-              },
-              {
-                path: '/statistics',
-                element: <div>Statistics page</div>,
-              },
-            ],
+            index: true,
+            element: <Home />,
+            loader: homeLoader,
+            errorElement: <ErrorElement />,
+          },
+          {
+            path: 'activity/:activityName',
+            element: <ActivityEditor type="edit" />,
+            loader: activityEditorLoader,
+            errorElement: <ErrorElement />,
+          },
+          {
+            path: 'activity/create',
+            element: <ActivityEditor />,
+            loader: activityEditorLoader,
+            errorElement: <ErrorElement />,
+          },
+          {
+            path: '/goals',
+            element: <Goal />,
+            loader: goalLoader,
+            errorElement: <ErrorElement />,
+          },
+          {
+            path: '/records',
+            element: <div>Records page</div>,
+            errorElement: <ErrorElement />,
+          },
+          {
+            path: '/statistics',
+            element: <div>Statistics page</div>,
+            errorElement: <ErrorElement />,
           },
         ],
       },
@@ -115,6 +118,16 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router}></RouterProvider>
+    <AuthProvider>
+      <RouterProvider router={router}></RouterProvider>
+    </AuthProvider>
   </React.StrictMode>
 );
+
+function ErrorElement() {
+  let error = useRouteError();
+  useEffect(() => {
+    console.error(error);
+  }, []);
+  return <div>{error.message}</div>;
+}
