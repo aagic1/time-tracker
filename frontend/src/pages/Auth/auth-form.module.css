@@ -1,5 +1,5 @@
 .authForm {
-    width: 400px;
+    /* width: 400px; */
 }
 
 
@@ -11,16 +11,13 @@
 
 .buttonContainer {
     display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
 .confirmButton {
     flex: 1;
     padding: 5px;
-}
-
-.resendButtonContainer {
-    margin-top: 5px;
-    display: flex;
 }
 
 .forgotPassword {
