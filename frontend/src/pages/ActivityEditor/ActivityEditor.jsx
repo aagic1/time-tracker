@@ -2,6 +2,8 @@ import { Form, redirect, useLoaderData, useNavigate } from 'react-router-dom';
 import styles from './activity-editor.module.css';
 import { useState } from 'react';
 import { useImmer } from 'use-immer';
+import ActivityPreview from '../../components/ActivityPreview/ActivityPreview.jsx';
+import GoalPicker from '../../components/GoalPicker/GoalPicker.jsx';
 
 export async function loader({ params, request }) {
   const url = new URL(request.url);
@@ -195,6 +197,7 @@ export default function ActivityEditor() {
   if (activity && activity.archived) {
     return (
       <>
+        <ActivityPreview name={name} color={color} className={styles.preview} />
         {/* <div
           className={styles.editArchivedHeader}
           style={{ backgroundColor: activity.color }}
@@ -223,179 +226,148 @@ export default function ActivityEditor() {
   }
 
   return (
-    <form
-      method={type === 'create' ? 'POST' : 'PATCH'}
-      className={styles.activityForm}
-      onSubmit={handleSubmit}
-    >
-      <div className={styles.inputContainer}>
-        <label htmlFor="name">Name:</label>
-        <input
-          type="text"
-          name="name"
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-      </div>
-      <div className={styles.inputContainer}>
-        <label htmlFor="name">Color:</label>
-        <input
-          type="color"
-          name="name"
-          id="name"
-          value={color}
-          onChange={(e) => setColor(e.target.value)}
-        />
-      </div>
-
-      <div className={styles.inputContainer}>
-        <label htmlFor="sessionGoal">Session goal:</label>
-        <input
-          checked={checkedGoals.sessionGoal}
-          onChange={handleCheck}
-          type="checkbox"
-          name="sessionGoal"
-          id="sessionGoal"
-        />
-      </div>
-      {checkedGoals.sessionGoal && (
-        <div className={styles.goalContainer}>
-          <GoalPicker
-            value={goalData.sessionGoal}
-            onChange={handleChange}
-            type="session"
-          />
-        </div>
-      )}
-      <div className={styles.inputContainer}>
-        <label htmlFor="dayGoal">Day goal:</label>
-        <input
-          checked={checkedGoals.dayGoal}
-          onChange={handleCheck}
-          type="checkbox"
-          name="dayGoal"
-          id="dayGoal"
-        />
-      </div>
-      {checkedGoals.dayGoal && (
-        <div className={styles.goalContainer}>
-          <GoalPicker
-            value={goalData.dayGoal}
-            onChange={handleChange}
-            type="day"
-          />
-        </div>
-      )}
-      <div className={styles.inputContainer}>
-        <label htmlFor="weekGoal">Week goal:</label>
-        <input
-          checked={checkedGoals.weekGoal}
-          onChange={handleCheck}
-          type="checkbox"
-          name="weekGoal"
-          id="weekGoal"
-        />
-      </div>
-      {checkedGoals.weekGoal && (
-        <div className={styles.goalContainer}>
-          <GoalPicker
-            value={goalData.weekGoal}
-            onChange={handleChange}
-            type="week"
-          />
-        </div>
-      )}
-      <div className={styles.inputContainer}>
-        <label htmlFor="monthGoal">Month goal:</label>
-        <input
-          checked={checkedGoals.monthGoal}
-          onChange={handleCheck}
-          type="checkbox"
-          name="monthGoal"
-          id="monthGoal"
-        />
-      </div>
-      {checkedGoals.monthGoal && (
-        <div className={styles.goalContainer}>
-          <GoalPicker
-            value={goalData.monthGoal}
-            onChange={handleChange}
-            type="month"
-          />
-        </div>
-      )}
-      <button>Save</button>
-      <button type="button" onClick={() => navigate('..')}>
-        Cancel
-      </button>
-      {type !== 'create' && (
-        <>
-          <div className={styles.separator}></div>
-          <button
-            type="button"
-            onClick={handleArchive}
-            className={styles.archiveButton}
-          >
-            {activity.archived ? 'Restore' : 'Archive'}
-          </button>
-        </>
-      )}
-    </form>
-  );
-}
-
-function GoalPicker({ type, value, onChange }) {
-  const goal = value != null ? value : { hours: 0, minutes: 0, seconds: 0 };
-
-  return (
-    <div className={styles.container}>
-      <div className={styles.inputContainer}>
-        <input
-          dir="rtl"
-          className={`${styles.numberInput} ${styles.numberInputHours}`}
-          type="number"
-          name="hours"
-          id="hours"
-          min={0}
-          value={goal.hours}
-          onChange={(e) => onChange(e, type)}
-        />
-        <label className={styles.goalLabel} htmlFor="hours">
-          hours
-        </label>
-      </div>
-      <div className={styles.inputContainer}>
-        <input
-          dir="rtl"
-          className={styles.numberInput}
-          type="number"
-          name="minutes"
-          id="minutes"
-          min={0}
-          max={59}
-          value={goal.minutes}
-          onChange={(e) => onChange(e, type)}
-        />
-        <label className={styles.goalLabel} htmlFor="minutes">
-          minutes
-        </label>
-      </div>
-      <div className={styles.inputContainer}>
-        <input
-          dir="rtl"
-          className={styles.numberInput}
-          type="number"
-          name="seconds"
-          id="seconds"
-          min={0}
-          max={59}
-          value={goal.seconds}
-          onChange={(e) => onChange(e, type)}
-        />
-        <label className={styles.goalLabel} htmlFor="seconds">
-          seconds
-        </label>
+    <div className={styles.pageWrapper}>
+      <div className={styles.formContainer}>
+        <ActivityPreview name={name} color={color} className={styles.preview} />
+        <form
+          method={type === 'create' ? 'POST' : 'PATCH'}
+          className={styles.activityForm}
+          onSubmit={handleSubmit}
+        >
+          <div className={styles.inputContainer}>
+            <label htmlFor="name">Name:</label>
+            <input
+              type="text"
+              name="name"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+          <div className={styles.inputContainer}>
+            <label htmlFor="name">Color:</label>
+            <input
+              type="color"
+              name="name"
+              id="name"
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
+            />
+          </div>
+          <div className={styles.goalsContainer}>
+            Goals
+            <div className={styles.goalInputContainer}>
+              <div className={styles.goalCheckContainer}>
+                <input
+                  checked={checkedGoals.sessionGoal}
+                  onChange={handleCheck}
+                  type="checkbox"
+                  name="sessionGoal"
+                  id="sessionGoal"
+                />
+                <label className={styles.checkLabel} htmlFor="sessionGoal">
+                  Session goal
+                </label>
+              </div>
+              {checkedGoals.sessionGoal && (
+                <div className={styles.goalPickerContainer}>
+                  <GoalPicker
+                    value={goalData.sessionGoal}
+                    onChange={handleChange}
+                    type="session"
+                  />
+                </div>
+              )}
+            </div>
+            <div className={styles.goalInputContainer}>
+              <div className={styles.goalCheckContainer}>
+                <input
+                  checked={checkedGoals.dayGoal}
+                  onChange={handleCheck}
+                  type="checkbox"
+                  name="dayGoal"
+                  id="dayGoal"
+                />
+                <label className={styles.checkLabel} htmlFor="dayGoal">
+                  Day goal
+                </label>
+              </div>
+              {checkedGoals.dayGoal && (
+                <div className={styles.goalPickerContainer}>
+                  <GoalPicker
+                    value={goalData.dayGoal}
+                    onChange={handleChange}
+                    type="day"
+                  />
+                </div>
+              )}
+            </div>
+            <div className={styles.goalInputContainer}>
+              <div className={styles.goalCheckContainer}>
+                <input
+                  checked={checkedGoals.weekGoal}
+                  onChange={handleCheck}
+                  type="checkbox"
+                  name="weekGoal"
+                  id="weekGoal"
+                />
+                <label className={styles.checkLabel} htmlFor="weekGoal">
+                  Week goal
+                </label>
+              </div>
+              {checkedGoals.weekGoal && (
+                <div className={styles.goalPickerContainer}>
+                  <GoalPicker
+                    value={goalData.weekGoal}
+                    onChange={handleChange}
+                    type="week"
+                  />
+                </div>
+              )}
+            </div>
+            <div className={styles.goalInputContainer}>
+              <div className={styles.goalCheckContainer}>
+                <input
+                  checked={checkedGoals.monthGoal}
+                  onChange={handleCheck}
+                  type="checkbox"
+                  name="monthGoal"
+                  id="monthGoal"
+                />
+                <label className={styles.checkLabel} htmlFor="monthGoal">
+                  Month goal
+                </label>
+              </div>
+              {checkedGoals.monthGoal && (
+                <div className={styles.goalPickerContainer}>
+                  <GoalPicker
+                    value={goalData.monthGoal}
+                    onChange={handleChange}
+                    type="month"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+          <div className={styles.buttonContainer}>
+            <button>Save</button>
+            <button type="button" onClick={() => navigate('..')}>
+              Cancel
+            </button>
+            {type !== 'create' && (
+              <>
+                {/* <div className={styles.separator}></div> */}
+                <button
+                  type="button"
+                  onClick={handleArchive}
+                  className={styles.archiveButton}
+                >
+                  {activity.archived ? 'Restore' : 'Archive'}
+                </button>
+              </>
+            )}
+          </div>
+        </form>
       </div>
     </div>
   );
