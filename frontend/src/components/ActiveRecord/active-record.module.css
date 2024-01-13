@@ -1,7 +1,26 @@
 .card {
-    border: 1px solid black;
+    /* border: 1px solid black; */
+    box-shadow: 1px 2px 5px 0px #888;
     border-radius: 5px;
-    padding: 12px;
+    padding: 12px 24px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+}
+
+.right {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.editIcon {
+    /* font-size: 20px; */
+    padding: 10px;
+    background-color: #3333;
+    border-radius: 8px;
+}
+
+.editIcon:hover {
+    background-color: #3336;
 }
