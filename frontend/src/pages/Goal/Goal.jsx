@@ -38,7 +38,11 @@ export default function Goal() {
       </div>
       <div className={styles.goalsContainer}>
         {dayGoalsData.map((gd) => (
-          <GoalCard data={gd} style={{ backgroundColor: '#' + gd.color }} />
+          <GoalCard
+            key={gd.id + gd.goalName}
+            data={gd}
+            style={{ backgroundColor: '#' + gd.color }}
+          />
         ))}
       </div>
       <div className={styles.lineContainer}>
@@ -48,7 +52,11 @@ export default function Goal() {
       </div>
       <div className={styles.goalsContainer}>
         {weekGoalsData.map((gd) => (
-          <GoalCard data={gd} style={{ backgroundColor: '#' + gd.color }} />
+          <GoalCard
+            key={gd.id + gd.goalName}
+            data={gd}
+            style={{ backgroundColor: '#' + gd.color }}
+          />
         ))}
       </div>
       <div className={styles.lineContainer}>
@@ -58,7 +66,7 @@ export default function Goal() {
       </div>
       <div className={styles.goalsContainer}>
         {monthGoalsData.map((gd) => (
-          <GoalCard key={'' + gd.id + gd.goalName} data={gd} />
+          <GoalCard key={gd.id + gd.goalName} data={gd} />
         ))}
       </div>
     </div>
@@ -66,10 +74,21 @@ export default function Goal() {
 }
 
 function GoalCard({ data }) {
-  // console.log(data);
-  const hours = data.totalTime?.hours;
-  const minutes = data.totalTime?.minutes;
-  const seconds = data.totalTime?.seconds;
+  const days = data.totalTime?.days || 0;
+  const hours = data.totalTime?.hours || 0;
+  const minutes = data.totalTime?.minutes || 0;
+  const seconds = data.totalTime?.seconds || 0;
+
+  let intervalString = '';
+  if (hours) {
+    intervalString += days * 24 + hours + 'h ';
+  }
+  if (minutes || hours || days) {
+    intervalString += minutes + 'm ';
+  }
+  if (seconds || minutes || hours || days) {
+    intervalString += seconds + 's';
+  }
 
   return (
     <div
@@ -80,18 +99,16 @@ function GoalCard({ data }) {
         <span>{data.name}</span>
       </div>
       <div className={styles.timeContainer}>
-        <div className={styles.accomplished}>
-          {hours ? hours + 'h ' : ''}
-          {minutes ? minutes + 'm ' : ''}
-          {''}
-          {seconds ? seconds + 's' : ''}
-        </div>
+        <div className={styles.accomplished}>{intervalString}</div>
         <div className={styles.goal}>
           <div className={styles.label}>goal</div>
           <div className={styles.time}>
             {data.goalTime.hours ? data.goalTime.hours + 'h ' : ''}
-            {data.goalTime.minutes ? data.goalTime.minutes + 'm ' : ''}
-            {''}
+            {data.goalTime.minutes
+              ? data.goalTime.minutes + 'm '
+              : data.goalTime.Hours
+              ? '0m'
+              : ''}
             {data.goalTime.seconds ? data.goalTime.seconds + 's' : ''}
           </div>
         </div>

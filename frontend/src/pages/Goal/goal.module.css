@@ -18,10 +18,15 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    padding-bottom: 50px;
+    /* border: 2px dashed #666; */
+    /* border-radius: 10px; */
+    /* padding: 20px; */
 }
 
 .goalCardContainer {
-    padding: 8px ;
+    box-shadow: 1px 2px 5px 0 #aaa;
+    padding: 8px 16px ;
     border-radius: 5px;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 14px;
