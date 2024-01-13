@@ -46,7 +46,7 @@ export default function ActivityCard({ activity, allActivities }) {
           onClick={(e) => {
             e.stopPropagation();
           }}
-          to={`activity/${activity.name}`}
+          to={`activities/${activity.name}`}
         >
           Edit
         </Link>

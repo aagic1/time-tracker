@@ -83,13 +83,13 @@ const router = createBrowserRouter([
             errorElement: <ErrorElement />,
           },
           {
-            path: 'activity/:activityName',
+            path: 'activities/:activityName',
             element: <ActivityEditor type="edit" />,
             loader: activityEditorLoader,
             errorElement: <ErrorElement />,
           },
           {
-            path: 'activity/create',
+            path: 'activities/create',
             element: <ActivityEditor />,
             loader: activityEditorLoader,
             errorElement: <ErrorElement />,
