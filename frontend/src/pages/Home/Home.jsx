@@ -4,6 +4,7 @@ import ActivityCard from '../../components/ActivityCard/ActivityCard';
 import styles from './home.module.css';
 import CreateActivityCard from '../../components/CreateActivityCard/CreateActivityCard';
 import ActiveRecord from '../../components/ActiveRecord/ActiveRecord';
+import HorizontalSeparator from '../../components/HorizontalSeparator/HorizontalSeparator';
 
 export async function loader() {
   const promiseActivities = fetch('http://localhost:8000/api/v1/activities', {
@@ -48,11 +49,7 @@ export default function Home() {
     <>
       {activeRecords.length > 0 && (
         <>
-          <div className={styles.lineContainer}>
-            <div className={styles.line}></div>
-            <div className={styles.lineText}>Tracking</div>
-            <div className={styles.line}></div>
-          </div>
+          <HorizontalSeparator text="Tracking" className={styles.separator} />
           <div className={styles.activeRecordsContainer}>
             <div className={styles.activeRecords}>
               {activeRecords.map((record) => (
@@ -62,13 +59,7 @@ export default function Home() {
           </div>
         </>
       )}
-      {/* <div>Home</div>
-      <p>{user.email}</p> */}
-      <div className={styles.lineContainer}>
-        <div className={styles.line}></div>
-        <div className={styles.lineText}>Activities</div>
-        <div className={styles.line}></div>
-      </div>
+      <HorizontalSeparator text="Activities" className={styles.separator} />
       <div className={styles.activitesContainer}>
         {activities
           .filter((activity) => !activity.archived)
@@ -77,11 +68,7 @@ export default function Home() {
           ))}
         <CreateActivityCard />
       </div>
-      <div className={styles.lineContainer}>
-        <div className={styles.line}></div>
-        <div className={styles.lineText}>Archived</div>
-        <div className={styles.line}></div>
-      </div>
+      <HorizontalSeparator text="Archived" className={styles.separator} />
       <div className={styles.activitesContainer}>
         {activities
           .filter((activity) => activity.archived)

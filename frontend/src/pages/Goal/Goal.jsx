@@ -1,5 +1,6 @@
 import { useLoaderData } from 'react-router-dom';
 import styles from './goal.module.css';
+import HorizontalSeparator from '../../components/HorizontalSeparator/HorizontalSeparator';
 
 export async function loader() {
   const result = await fetch(
@@ -31,11 +32,7 @@ export default function Goal() {
 
   return (
     <div className={styles.h}>
-      <div className={styles.lineContainer}>
-        <div className={styles.line}></div>
-        <div className={styles.lineText}>Today</div>
-        <div className={styles.line}></div>
-      </div>
+      <HorizontalSeparator className={styles.separator} text={'Today'} />
       <div className={styles.goalsContainer}>
         {dayGoalsData.map((gd) => (
           <GoalCard
@@ -45,11 +42,7 @@ export default function Goal() {
           />
         ))}
       </div>
-      <div className={styles.lineContainer}>
-        <div className={styles.line}></div>
-        <div className={styles.lineText}>This week</div>
-        <div className={styles.line}></div>
-      </div>
+      <HorizontalSeparator className={styles.separator} text={'This week'} />
       <div className={styles.goalsContainer}>
         {weekGoalsData.map((gd) => (
           <GoalCard
@@ -59,11 +52,7 @@ export default function Goal() {
           />
         ))}
       </div>
-      <div className={styles.lineContainer}>
-        <div className={styles.line}></div>
-        <div className={styles.lineText}>This month</div>
-        <div className={styles.line}></div>
-      </div>
+      <HorizontalSeparator className={styles.separator} text={'This month'} />
       <div className={styles.goalsContainer}>
         {monthGoalsData.map((gd) => (
           <GoalCard key={gd.id + gd.goalName} data={gd} />
@@ -74,6 +63,8 @@ export default function Goal() {
 }
 
 function GoalCard({ data }) {
+  console.log('data');
+  console.log(data);
   const days = data.totalTime?.days || 0;
   const hours = data.totalTime?.hours || 0;
   const minutes = data.totalTime?.minutes || 0;
