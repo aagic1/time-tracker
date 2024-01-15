@@ -40,7 +40,7 @@ async function getCurrentGoals(accountId: bigint, timezoneOffset: number) {
   );
   try {
     const allGoals = await Promise.all([dayGoals, weekGoals, monthGoals]);
-    return allGoals.flat();
+    return { goals: allGoals.flat(), measuredAt: dateNowTZ.toDate() };
   } catch (e) {
     return null;
   }
