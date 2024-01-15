@@ -44,7 +44,12 @@ export default function Home() {
     recordsData: { records: activeRecords },
   } = useLoaderData();
   const { user } = useAuth();
+  console.log('active records');
   console.log(activeRecords);
+
+  function findActiveRecord(activity) {
+    return activeRecords.find((record) => record.activityId === activity.id);
+  }
 
   return (
     <>
@@ -65,7 +70,11 @@ export default function Home() {
         {activities
           .filter((activity) => !activity.archived)
           .map((activity) => (
-            <ActivityCard key={activity.id} activity={activity} />
+            <ActivityCard
+              key={activity.id}
+              activity={activity}
+              activeRecord={findActiveRecord(activity)}
+            />
           ))}
         <CreateActivityCard />
       </div>
