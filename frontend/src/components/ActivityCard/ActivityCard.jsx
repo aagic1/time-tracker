@@ -1,13 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './activity-card.module.css';
+import { useState } from 'react';
 
-export default function ActivityCard({ activity, allActivities }) {
+export default function ActivityCard({ activity }) {
   const navigate = useNavigate();
 
   async function handleClick() {
-    if (activity.archived) {
-      return navigate(`activity/${activity.name}`);
-    }
     const res = await fetch('http://localhost:8000/api/v1/records', {
       method: 'POST',
       credentials: 'include',
@@ -31,9 +29,6 @@ export default function ActivityCard({ activity, allActivities }) {
       className={styles.cardContainer}
       style={{
         backgroundColor: activity.color,
-        // background: `linear-gradient(135deg, ${activity.color}, ${
-        //   activity.color + '88'
-        // })`,
       }}
       onClick={handleClick}
     >

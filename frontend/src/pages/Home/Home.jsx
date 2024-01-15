@@ -5,6 +5,7 @@ import styles from './home.module.css';
 import CreateActivityCard from '../../components/CreateActivityCard/CreateActivityCard';
 import ActiveRecord from '../../components/ActiveRecord/ActiveRecord';
 import HorizontalSeparator from '../../components/HorizontalSeparator/HorizontalSeparator';
+import ArchivedActivityCard from '../../components/ArchivedActivityCard/ArchivedActivityCard';
 
 export async function loader() {
   const promiseActivities = fetch('http://localhost:8000/api/v1/activities', {
@@ -73,7 +74,7 @@ export default function Home() {
         {activities
           .filter((activity) => activity.archived)
           .map((activity) => (
-            <ActivityCard key={activity.id} activity={activity} />
+            <ArchivedActivityCard key={activity.id} activity={activity} />
           ))}
       </div>
     </>
