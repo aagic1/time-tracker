@@ -1,0 +1,25 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
+
+.inputContainer {
+    display: flex;
+    gap: 3px;
+}
+
+.numberInput {
+    width: 35px;
+    border: none;
+    border-bottom: 1px solid black;
+}
+
+.numberInput::-webkit-inner-spin-button,
+.numberInput::-webkit-outer-spin-button {
+    opacity: 1;
+}
+
+.numberInputHours {
+    width: 50px;
+}
