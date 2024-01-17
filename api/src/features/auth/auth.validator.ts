@@ -25,6 +25,12 @@ export const resendVerificationCodeSchema = z.object({
 
 export const forgotPasswordSchema = resendVerificationCodeSchema;
 
+export const verifyRecoveryCodeSchema = z.object({
+  body: z.object({
+    token: stringNonEmptySchema.transform((token) => token.trim()),
+  }),
+});
+
 export const resetPasswordSchema = z.object({
   body: z.object({
     newPassword: passwordSchema,
@@ -34,7 +40,11 @@ export const resetPasswordSchema = z.object({
 
 const authJwtPayloadSchema = z.object({
   email: emailSchema,
-  type: z.union([z.literal('Email verification'), z.literal('Reset password')]),
+  type: z.union([
+    z.literal('Email verification'),
+    z.literal('Reset password'),
+    z.literal('Change password'),
+  ]),
 });
 
 export function validateAuthJwt(token: JwtPayload | string | undefined) {

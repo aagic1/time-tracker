@@ -7,6 +7,7 @@ import {
   resendVerificationCodeSchema,
   resetPasswordSchema,
   verifyEmailSchema,
+  verifyRecoveryCodeSchema,
 } from './auth.validator';
 import { validateRequest } from '../../utils/validation.util';
 
@@ -21,16 +22,6 @@ export async function login(req: Request, res: Response) {
   res.status(200).send('Logged in succesfully');
 }
 
-export async function register(req: Request, res: Response) {
-  const { body } = await validateRequest(
-    registerSchema,
-    req,
-    'Invalid register request data'
-  );
-  await authService.register(body);
-  res.status(201).json('User created successfully');
-}
-
 export async function logout(req: Request, res: Response) {
   if (!req.session.user) {
     return res.status(204).end();
@@ -43,6 +34,16 @@ export async function logout(req: Request, res: Response) {
     res.clearCookie('sessionId');
     res.status(200).send('Logged out successfully');
   });
+}
+
+export async function register(req: Request, res: Response) {
+  const { body } = await validateRequest(
+    registerSchema,
+    req,
+    'Invalid register request data'
+  );
+  await authService.register(body);
+  res.status(201).json('User created successfully');
 }
 
 export async function verifyEmail(req: Request, res: Response) {
@@ -74,7 +75,7 @@ export async function resendVerificationCode(req: Request, res: Response) {
   res.status(200).send(message);
 }
 
-export async function forgotPassword(req: Request, res: Response) {
+export async function sendPasswordRecoveryCode(req: Request, res: Response) {
   const { body } = await validateRequest(
     forgotPasswordSchema,
     req,
@@ -82,6 +83,22 @@ export async function forgotPassword(req: Request, res: Response) {
   );
   const message = await authService.sendResetPasswordCode(body.email);
   res.status(200).send(message);
+}
+
+export async function verifyPasswordRecoveryCode(req: Request, res: Response) {
+  const { body } = await validateRequest(
+    verifyRecoveryCodeSchema,
+    req,
+    'Invalid password recovery code'
+  );
+  const result = await authService.verifyRecoveryCode(body.token);
+  if (result.status === 'Success') {
+    res.status(200).json(result);
+  } else {
+    res
+      .status(400)
+      .json({ msg: 'Some server error in verify password recovery code' });
+  }
 }
 
 export async function resetPassword(req: Request, res: Response) {

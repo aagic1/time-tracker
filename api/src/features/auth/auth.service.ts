@@ -129,12 +129,47 @@ async function sendResetPasswordCode(email: string) {
   if (!user) {
     throw new NotFoundError(`User with email: ${email} does not exist.`);
   }
-  if (!user.verified) {
-    throw new Error('You have not verified your email');
-  }
+  // if (!user.verified) {
+  //   throw new Error('You have not verified your email');
+  // }
   await sendEmailTo(email, 'Reset password');
   console.log(`Reset email sent successfully.`);
   return 'Reset password code successfully sent to your email';
+}
+
+async function verifyRecoveryCode(token: string) {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    const { email, type } = validateAuthJwt(decoded);
+    if (type !== 'Reset password') {
+      throw 'Invalid verification code';
+    }
+
+    const user = await userDAO.findByEmail(email);
+    if (!user) {
+      // this should never be true. Again, jwt.verify should fail
+      throw "Email doesn't exist. Unexpected jwt email. JWT should contain only valid email, that is, registered emails. This should not happen... Server error";
+    }
+
+    return {
+      status: 'Success',
+      message: 'Password recovery code verified',
+      token: jwt.sign(
+        { email, type: 'Change password' },
+        process.env.JWT_SECRET!,
+        {
+          expiresIn: '10m',
+        }
+      ),
+    };
+  } catch (err) {
+    // check different types of verify errors
+    // expired, not valid jwt...
+    return {
+      status: 'Failure',
+    };
+    // throw err;
+  }
 }
 
 async function resetPassword(token: string, newPassword: string) {
@@ -168,5 +203,6 @@ export default {
   verifyEmail,
   sendVerificationCode,
   sendResetPasswordCode,
+  verifyRecoveryCode,
   resetPassword,
 };
