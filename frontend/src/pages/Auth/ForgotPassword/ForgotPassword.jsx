@@ -1,4 +1,4 @@
-import { Form, redirect } from 'react-router-dom';
+import { Form, redirect, useNavigate } from 'react-router-dom';
 // import styles from './forgot-password.module.css';
 import styles from '../auth-form.module.css';
 
@@ -6,7 +6,7 @@ export async function action({ request }) {
   const formData = await request.formData();
   const email = formData.get('email');
   const response = await fetch(
-    'http://localhost:8000/api/v1/auth/forgot-password',
+    'http://localhost:8000/api/v1/auth/forgot-password/initiate',
     {
       method: 'POST',
       headers: {
@@ -22,6 +22,8 @@ export async function action({ request }) {
 }
 
 export default function ForgotPassword() {
+  const navigate = useNavigate();
+
   return (
     <Form method="post" className={styles.authForm}>
       <p className={styles.message}>
@@ -35,6 +37,13 @@ export default function ForgotPassword() {
       <div className={styles.buttonContainer}>
         <button type="submit" className={styles.confirmButton}>
           Confirm
+        </button>
+        <button
+          type="button"
+          className={styles.confirmButton}
+          onClick={() => navigate('/login')}
+        >
+          Cancel
         </button>
       </div>
     </Form>
