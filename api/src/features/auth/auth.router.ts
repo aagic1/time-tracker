@@ -9,21 +9,29 @@ import {
   verifyPasswordRecoveryCode,
   resetPassword,
 } from './auth.controller';
-import { checkNotAuthenticated } from '../../middleware/authenticate';
+import {
+  checkNotAuthenticated,
+  checkAuthenticated,
+} from '../../middleware/authenticate';
+
+const notAuthenticatedRoutes = express.Router();
+notAuthenticatedRoutes.use(checkNotAuthenticated);
+notAuthenticatedRoutes.route('/login').post(login);
+notAuthenticatedRoutes.route('/register').post(register);
+notAuthenticatedRoutes.route('/verify-email').patch(verifyEmail);
+notAuthenticatedRoutes
+  .route('/verify-email/resend')
+  .post(resendVerificationCode);
+notAuthenticatedRoutes
+  .route('/forgot-password/initiate')
+  .post(sendPasswordRecoveryCode);
+notAuthenticatedRoutes
+  .route('/forgot-password/code')
+  .post(verifyPasswordRecoveryCode);
+notAuthenticatedRoutes.route('/forgot-password/password').patch(resetPassword);
 
 const authRouter = express.Router();
-
-authRouter.route('/login').post(checkNotAuthenticated, login);
-authRouter.route('/logout').post(logout);
-authRouter.route('/register').post(register);
-authRouter.route('/verify-email').patch(verifyEmail);
-authRouter.route('/verify-email/resend').post(resendVerificationCode);
-// authRouter.route('/forgot-password/initiate').post(forgotPassword);
-authRouter.route('/forgot-password/initiate').post(sendPasswordRecoveryCode);
-authRouter.route('/forgot-password/code').post(verifyPasswordRecoveryCode);
-authRouter.route('/forgot-password/password').patch(resetPassword);
-// authRouter.route('/reset-password').patch(resetPassword);
-
+authRouter.route('/logout').post(checkAuthenticated, logout);
 authRouter.route('/whoami').get((req, res) => {
   console.log(req.session);
   if (!req.session || !req.session.user) {
@@ -31,5 +39,6 @@ authRouter.route('/whoami').get((req, res) => {
   }
   return res.json(req.session.user?.email);
 });
+authRouter.use(notAuthenticatedRoutes);
 
 export default authRouter;
