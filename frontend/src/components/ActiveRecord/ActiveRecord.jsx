@@ -1,43 +1,85 @@
-import { useEffect, useRef, useState } from 'react';
 import styles from './active-record.module.css';
 import { useNavigate } from 'react-router-dom';
-import { FaEdit } from 'react-icons/fa';
+import { FaEdit, FaCheckCircle } from 'react-icons/fa';
+import useTimer from '../../hooks/useTimer';
+
+function formatStartDateTime(startDate, elapsedHours) {
+  const hoursFormated = String(startDate.getHours()).padStart(2, '0');
+  const minutesFormated = String(startDate.getMinutes()).padStart(2, '0');
+  let startTimeFormated = `${hoursFormated}:${minutesFormated}`;
+
+  let startDateFormated = '';
+  if (elapsedHours >= 24) {
+    const monthFormated = String(startDate.getMonth() + 1).padStart(2, '0');
+    const dayFormated = String(startDate.getDate()).padStart(2, '0');
+    startDateFormated = `${dayFormated}.${monthFormated}.${startDate.getFullYear()}`;
+  }
+
+  return { startDateFormated, startTimeFormated };
+}
 
 export default function ActiveRecord({ record }) {
   const navigate = useNavigate();
-  const startEpoch = useRef(new Date(record.startedAt).valueOf());
-  const [elapsedTime, setElapsedTime] = useState(
-    Date.now() - new Date(record.startedAt)
+  const timer = useTimer(new Date(record.startedAt));
+
+  const elapsedHours = Math.trunc(timer / (1000 * 60 * 60));
+  let { startDateFormated, startTimeFormated } = formatStartDateTime(
+    new Date(record.startedAt),
+    elapsedHours
   );
 
-  const hours = Math.trunc(elapsedTime / (1000 * 60 * 60));
-  const minutes = Math.trunc((elapsedTime % (1000 * 60 * 60)) / (60 * 1000));
-  const seconds = Math.trunc((elapsedTime % (1000 * 60)) / 1000);
+  let remainingTime;
+  if (record.sessionGoal) {
+    remainingTime = getRemainingGoalTime(record.sessionGoal, timer);
+  }
 
-  const elapsedMiliseconds = Date.now() - new Date(record.startedAt).valueOf();
-  const elapsedHours = Math.trunc(elapsedMiliseconds / (1000 * 60 * 60));
-  const elapsedMinutes = Math.trunc(
-    (elapsedMiliseconds % (1000 * 60 * 60)) / (60 * 1000)
+  return (
+    <div
+      style={{ backgroundColor: '#' + record.color }}
+      className={styles.card}
+      onClick={handleClick}
+    >
+      <div className={styles.left}>
+        <div className={styles.name}>{record.activityName}</div>
+        <div className={styles.startedAtContainer}>
+          <span className={styles.label}>Started at</span>
+          <div className={styles.startedAt}>
+            {elapsedHours >= 24 && (
+              <>
+                <span className={styles.startDate}>{startDateFormated}</span>
+                <span className={styles.separator}> - </span>
+              </>
+            )}
+            <span className={styles.startTime}>{startTimeFormated}</span>
+          </div>
+        </div>
+      </div>
+      <div className={styles.right}>
+        <div className={styles.timesContainer}>
+          <div className={styles.elapsedTime}>{formatTime(timer)}</div>
+          {record.sessionGoal != null && (
+            <div className={styles.sessionGoalContainer}>
+              <div className={styles.sessionGoal}>
+                <span>Session goal: </span>
+                <span>{formatInterval(record.sessionGoal)}</span>
+              </div>
+              <div className={styles.sessionRemaining}>
+                <span>{remainingTime > 0 ? 'Remaining: ' : 'Completed '}</span>
+                <span>
+                  {remainingTime > 0 ? (
+                    formatTime(remainingTime)
+                  ) : (
+                    <FaCheckCircle />
+                  )}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+        <FaEdit onClick={handleEdit} className={styles.editIcon} />
+      </div>
+    </div>
   );
-  const elapsedSeconds = Math.trunc((elapsedMiliseconds % (1000 * 60)) / 1000);
-
-  useEffect(() => {
-    const now = new Date();
-    const ms = now.getMilliseconds();
-    const timeout = 1000 - ms;
-    let intervalId;
-    const timeoutId = setTimeout(() => {
-      setElapsedTime(Date.now() - startEpoch.current);
-      intervalId = setInterval(() => {
-        const now = Date.now();
-        setElapsedTime(Date.now() - startEpoch.current);
-      }, 1000);
-    }, timeout);
-    return () => {
-      clearInterval(intervalId);
-      clearTimeout(timeoutId);
-    };
-  }, []);
 
   async function handleClick() {
     const res = await fetch(
@@ -56,37 +98,43 @@ export default function ActiveRecord({ record }) {
     if (!res.ok) {
       throw new Error('Failed to stop record tracking');
     }
-    navigate('.');
+    navigate('/');
   }
 
-  async function handleEdit(event) {
+  function handleEdit(event) {
     event.stopPropagation();
     console.log('edit');
   }
+}
 
-  return (
-    <div
-      style={{ backgroundColor: '#' + record.color }}
-      className={styles.card}
-      onClick={handleClick}
-    >
-      <div className={styles.name}>{record.activityName}</div>
-      <div>
-        <div>{record.startedAt}</div>
-        <div className={styles.time}>{`${
-          elapsedHours > 0 ? elapsedHours + 'h' : ''
-        } ${
-          elapsedMinutes > 0 ? elapsedMinutes + 'm' : ''
-        } ${elapsedSeconds}s`}</div>
-      </div>
-      <div className={styles.right}>
-        <div className={styles.timesContainer}>
-          <div className={styles.time}>{`${hours > 0 ? hours + 'h' : ''} ${
-            minutes > 0 ? minutes + 'm' : ''
-          } ${seconds}s`}</div>
-        </div>
-        <FaEdit onClick={handleEdit} className={styles.editIcon} />
-      </div>
-    </div>
-  );
+function getRemainingGoalTime(sessionGoal, elapsedTime) {
+  const remainingMS =
+    ((sessionGoal.hours * 60 + sessionGoal.minutes) * 60 +
+      sessionGoal.seconds) *
+      1000 +
+    sessionGoal.miliseconds -
+    elapsedTime;
+
+  return remainingMS;
+}
+
+function formatInterval(interval) {
+  let formated = '';
+  if (interval.hours) {
+    formated += interval.hours + 'h ';
+  }
+  if (interval.minutes || formated.length > 0) {
+    formated += interval.minutes + 'm ';
+  }
+  formated += interval.seconds + 's';
+  return formated;
+}
+
+function formatTime(miliseconds) {
+  const hours = Math.trunc(miliseconds / (1000 * 60 * 60));
+  const minutes = Math.trunc((miliseconds % (1000 * 60 * 60)) / (60 * 1000));
+  const seconds = Math.round((miliseconds % (1000 * 60)) / 1000);
+  // moze pokazati 1s vise ili manje, dodatno obraditi
+
+  return formatInterval({ hours, minutes, seconds });
 }

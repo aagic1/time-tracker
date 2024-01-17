@@ -1,17 +1,54 @@
 .card {
-    /* border: 1px solid black; */
     box-shadow: 1px 2px 5px 0px #888;
     border-radius: 5px;
-    padding: 12px 24px;
+    padding: 8px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.name {
+    font-weight: 600;
+}
+
+.left {
+    display: flex;
+    flex-direction: column;
+}
+
+.startedAtContainer {
+    font-size: 15px;
+    display: flex;
+    flex-direction: column;
 }
 
 .right {
     display: flex;
     gap: 30px;
     align-items: center;
+}
+
+.timesContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.sessionGoalContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-size: 15px;
+}
+
+.sessionRemaining {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.elapsedTime {
+    font-weight: 600;
 }
 
 .editIcon {
@@ -23,4 +60,51 @@
 
 .editIcon:hover {
     background-color: #3336;
+}
+
+@media only screen and (max-width: 450px)  { 
+    .card {
+        padding: 8px 12px;
+    }
+
+    .right {
+        gap: 15px;
+    }
+
+    .startedAt {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .startedAt .separator {
+        display: none;
+    }
+}
+
+
+
+@media only screen and (max-width: 350px)  { 
+    .card {
+        padding: 8px;
+    }
+
+    .left {
+        /* align-self: flex-end; */
+    }
+
+    .right {
+        flex-direction: column-reverse;
+        align-items: flex-end;
+        gap: 5px;
+        
+    }
+
+    .startedAt {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .startedAt .separator {
+        display: none;
+    }
 }
