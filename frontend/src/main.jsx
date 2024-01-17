@@ -15,7 +15,9 @@ import Register, {
 import ForgotPassword, {
   action as forgotPasswordAction,
 } from './pages/Auth/ForgotPassword/ForgotPassword.jsx';
-import ForgotPasswordConfirmation from './pages/Auth/ForgotPasswordConfirmation/ForgotPasswordConfirmation.jsx';
+import ForgotPasswordConfirmation, {
+  action as forgotPasswordConfirmationAction,
+} from './pages/Auth/ForgotPasswordConfirmation/ForgotPasswordConfirmation.jsx';
 import ResetPassword from './pages/Auth/ResetPassword/ResetPassword.jsx';
 import VerifyEmail, {
   action as verifyEmailAction,
@@ -54,6 +56,7 @@ const router = createBrowserRouter([
               {
                 path: 'forgot-password-confirmation',
                 element: <ForgotPasswordConfirmation />,
+                action: forgotPasswordConfirmationAction,
               },
               {
                 path: 'reset-password',
