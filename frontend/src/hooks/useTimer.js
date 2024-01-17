@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 
 export default function useTimer(startedAt) {
-  const [timer, setTimer] = useState(0);
+  const [timer, setTimer] = useState(() => {
+    return new Date() - startedAt;
+  });
 
   useEffect(() => {
     const now = new Date();
