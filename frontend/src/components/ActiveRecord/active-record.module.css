@@ -9,6 +9,7 @@
 
 .name {
     font-weight: 600;
+    font-size: 18px;
 }
 
 .left {
@@ -86,10 +87,6 @@
 @media only screen and (max-width: 350px)  { 
     .card {
         padding: 8px;
-    }
-
-    .left {
-        /* align-self: flex-end; */
     }
 
     .right {
