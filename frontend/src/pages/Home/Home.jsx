@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useReducer } from 'react';
 import { useImmerReducer } from 'use-immer';
 import { useLoaderData, useNavigation } from 'react-router-dom';
 
@@ -65,16 +65,50 @@ function activeRecordsReducer(draft, action) {
     case 'stopRecord': {
       return draft.filter((record) => record.recordId !== action.recordId);
     }
-    case 'continueStoppedRecord':
+    case 'restoreStoppedRecord':
       draft.push(action.stoppedRecord);
       break;
+  }
+}
+
+function activitesReducer(activities, action) {
+  switch (action.type) {
+    case 'setLoading': {
+      const deepCopy = structuredClone(activities);
+      return deepCopy.map((activity) =>
+        activity.id === action.activityId
+          ? { ...activity, loading: true }
+          : activity
+      );
+    }
+    case 'setNotLoading': {
+      const deepCopy = structuredClone(activities);
+      return deepCopy.map((activity) =>
+        activity.id === action.activityId
+          ? { ...activity, loading: false }
+          : activity
+      );
+    }
+    case 'restore': {
+      const deepCopy = structuredClone(activities);
+      return deepCopy.map((activity) =>
+        activity.id === action.activityId
+          ? { ...activity, archived: false, loading: false }
+          : activity
+      );
+    }
+    case 'delete': {
+      const deepCopy = structuredClone(activities);
+      return deepCopy.filter((activity) => activity.id !== action.activityId);
+    }
   }
 }
 
 export default function Home() {
   const navigation = useNavigation();
   const loaderData = useLoaderData();
-  const [activities, setActivities] = useState(
+  const [activities, dispatchActivities] = useReducer(
+    activitesReducer,
     loaderData.activitiesData.activities
   );
   const [activeRecords, dispatchRecords] = useImmerReducer(
@@ -83,12 +117,7 @@ export default function Home() {
   );
 
   async function handleDelete(activity) {
-    setActivities((prev) => {
-      const deepCopy = JSON.parse(JSON.stringify(prev));
-      return deepCopy.map((a) =>
-        a.id === activity.id ? { ...a, loading: true } : a
-      );
-    });
+    dispatchActivities({ type: 'setLoading', activityId: activity.id });
 
     const res = await fetch(
       `http://localhost:8000/api/v1/activities/${activity.name}`,
@@ -97,29 +126,17 @@ export default function Home() {
         credentials: 'include',
       }
     );
+
     if (!res.ok) {
-      setActivities((prev) => {
-        const deepCopy = JSON.parse(JSON.stringify(prev));
-        return deepCopy.map((a) =>
-          a.id === activity.id ? { ...a, loading: false } : a
-        );
-      });
+      dispatchActivities({ type: 'setNotLoading', activityId: activity.id });
       throw new Error('Failed to delete activity with name ' + activity.name);
     }
 
-    setActivities((prev) => {
-      const deepCopy = JSON.parse(JSON.stringify(prev));
-      return deepCopy.filter((a) => a.id !== activity.id);
-    });
+    dispatchActivities({ type: 'delete', activityId: activity.id });
   }
 
   async function handleRestore(activity) {
-    setActivities((prev) => {
-      const deepCopy = JSON.parse(JSON.stringify(prev));
-      return deepCopy.map((a) =>
-        a.id === activity.id ? { ...a, loading: true } : a
-      );
-    });
+    dispatchActivities({ type: 'setLoading', activityId: activity.id });
 
     const res = await fetch(
       `http://localhost:8000/api/v1/activities/${activity.name}`,
@@ -134,34 +151,17 @@ export default function Home() {
     );
 
     if (!res.ok) {
-      setActivities((prev) => {
-        const deepCopy = JSON.parse(JSON.stringify(prev));
-        return deepCopy.map((a) =>
-          a.id === activity.id ? { ...a, loading: false, archived: true } : a
-        );
-      });
+      dispatchActivities({ type: 'setNotLoading', activityId: activity.id });
       throw new Error(`Failed to restore activity`);
     }
 
-    setActivities((prev) => {
-      const deepCopy = JSON.parse(JSON.stringify(prev));
-      return deepCopy.map((a) =>
-        a.id === activity.id ? { ...a, archived: false, loading: false } : a
-      );
-    });
+    dispatchActivities({ type: 'restore', activityId: activity.id });
   }
 
   async function handleRecordClick(record) {
     const stoppedAt = new Date();
     dispatchRecords({ type: 'stopRecord', recordId: record.recordId });
-    setActivities((prev) => {
-      const deepCopy = JSON.parse(JSON.stringify(prev));
-      return deepCopy.map((activity) =>
-        activity.id === record.activityId
-          ? { ...activity, loading: true }
-          : activity
-      );
-    });
+    dispatchActivities({ type: 'setLoading', activityId: record.activityId });
 
     // extract fetch calls to api layer/file
     const res = await fetch(
@@ -178,17 +178,13 @@ export default function Home() {
       }
     );
 
-    setActivities((prev) => {
-      const deepCopy = JSON.parse(JSON.stringify(prev));
-      return deepCopy.map((activity) =>
-        activity.id === record.activityId
-          ? { ...activity, loading: false }
-          : activity
-      );
+    dispatchActivities({
+      type: 'setNotLoading',
+      activityId: record.activityId,
     });
 
     if (!res.ok) {
-      dispatchRecords({ type: 'continueStoppedRecord', stoppedRecord: record });
+      dispatchRecords({ type: 'restoreStoppedRecord', stoppedRecord: record });
       throw new Error('Failed to stop record tracking');
     }
   }
@@ -204,12 +200,7 @@ export default function Home() {
 
     const fakeRecord = createFakeRecord(activity);
 
-    setActivities((prev) => {
-      const copy = JSON.parse(JSON.stringify(prev));
-      return copy.map((a) =>
-        a.id === activity.id ? { ...a, loading: true } : a
-      );
-    });
+    dispatchActivities({ type: 'setLoading', activityId: activity.id });
     dispatchRecords({ type: 'createFake', fakeRecord });
 
     const res = await fetch('http://localhost:8000/api/v1/records', {
@@ -224,14 +215,8 @@ export default function Home() {
       }),
     });
 
-    setActivities((prev) => {
-      const copy = JSON.parse(JSON.stringify(prev));
-      return copy.map((a) =>
-        a.id === activity.id ? { ...a, loading: null } : a
-      );
-    });
-
     if (!res.ok) {
+      dispatchActivities({ type: 'setNotLoading', activityId: activity.id });
       dispatchRecords({ type: 'deleteFake', activityId: activity.id });
       throw new Error('Failed to start record');
     }
@@ -242,6 +227,7 @@ export default function Home() {
       activityId: activity.id,
       recordId: newRecord.id,
     });
+    dispatchActivities({ type: 'setNotLoading', activityId: activity.id });
   }
 
   return (
