@@ -31,6 +31,7 @@ import ActivityEditor, {
   loader as activityEditorLoader,
 } from './pages/ActivityEditor/ActivityEditor.jsx';
 import Goal, { loader as goalLoader } from './pages/Goal/Goal.jsx';
+import Records, { loader as recordsLoader } from './pages/Records/Records.jsx';
 
 const router = createBrowserRouter([
   {
@@ -105,7 +106,8 @@ const router = createBrowserRouter([
           },
           {
             path: '/records',
-            element: <div>Records page</div>,
+            element: <Records />,
+            loader: recordsLoader,
             errorElement: <ErrorElement />,
           },
           {

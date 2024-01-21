@@ -1,0 +1,204 @@
+.pageWrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding-top: 5px;
+}
+
+.addContainer {
+    display: flex;
+    justify-content: flex-end;
+    position: sticky;
+    bottom: 10px;
+    padding: 10px 20px;
+}
+
+.addButton {
+    padding: 14px;
+    /* background-color: white; */
+    background-color: #333;
+    /* border: 3px solid #111; */
+    box-shadow: 0 0 4px #333;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: scale 0.5s, background-color 0.5s;
+}
+
+.addButton:hover {
+    background-color: #555;
+    scale: 1.1;
+    cursor: pointer;
+}
+
+.addButton:hover .addIcon {
+    color: #555;
+}
+
+.addIcon {
+    font-size: 18px;
+    color: #333;
+    background-color: #eee;
+    border: 2px solid #eee;
+    border-radius: 50%;
+    /* color: white; */
+    transition: color 0.5s;
+}
+
+.dateContainer {
+    z-index: 10;
+    position: sticky;
+    top: 115px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    background-color: white;
+    box-shadow: 1px 1px 5px 0px #666;
+    align-self: center;
+    border-radius: 10px;
+}
+
+
+.arrow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 6px;
+    border-radius: 6px;
+}
+
+.arrow:hover {
+    background-color: #aaa;
+    cursor: pointer;
+}
+
+.noData {
+    margin-top: 40px;
+    align-self: center;
+    font-size: 18px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.recordsContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.loading {
+    pointer-events: none;
+    filter: blur(2px) grayscale(50%);
+    opacity: 0.5
+}
+
+.card {
+    box-shadow: 1px 2px 5px 0px #888;
+    border-radius: 5px;
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.name {
+    font-weight: 600;
+}
+
+.left {
+    display: flex;
+    flex-direction: column;
+}
+
+.startedAtContainer {
+    font-size: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.right {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.timesContainer {
+    display: flex;
+    gap: 10px
+    /* flex-direction: column;
+    align-items: flex-end; */
+}
+
+.sessionGoalContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-size: 15px;
+}
+
+.sessionRemaining {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.elapsedTime {
+    font-weight: 600;
+}
+
+.editIcon {
+    /* font-size: 20px; */
+    padding: 10px;
+    background-color: #3333;
+    border-radius: 8px;
+}
+
+.editIcon:hover {
+    background-color: #3336;
+}
+
+@media only screen and (max-width: 950px)  { 
+    .dateContainer {
+        top: 107px;
+    }
+}
+
+@media only screen and (max-width: 550px)  { 
+    .dateContainer {
+        top: 87px;
+        padding: 10px;
+    }
+
+}
+
+@media only screen and (max-width: 450px)  { 
+    .card {
+        padding: 8px 12px;
+    }
+
+    .right {
+        gap: 15px;
+    }    
+}
+
+
+@media only screen and (max-width: 350px)  { 
+    .card {
+        padding: 8px;
+    }
+
+    .right {
+        flex-direction: column-reverse;
+        align-items: flex-end;
+        gap: 5px;
+        
+    }
+
+    .datePicker {
+        width: 140px;
+    }
+}
