@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useImmerReducer } from 'use-immer';
-import { useLoaderData } from 'react-router-dom';
+import { useLoaderData, useNavigation } from 'react-router-dom';
 
 import styles from './home.module.css';
 import ActivityCard from '../../components/ActivityCard/ActivityCard';
@@ -72,6 +72,7 @@ function activeRecordsReducer(draft, action) {
 }
 
 export default function Home() {
+  const navigation = useNavigation();
   const loaderData = useLoaderData();
   const [activities, setActivities] = useState(
     loaderData.activitiesData.activities
@@ -80,6 +81,75 @@ export default function Home() {
     activeRecordsReducer,
     loaderData.recordsData.records
   );
+
+  async function handleDelete(activity) {
+    setActivities((prev) => {
+      const deepCopy = JSON.parse(JSON.stringify(prev));
+      return deepCopy.map((a) =>
+        a.id === activity.id ? { ...a, loading: true } : a
+      );
+    });
+
+    const res = await fetch(
+      `http://localhost:8000/api/v1/activities/${activity.name}`,
+      {
+        method: 'DELETE',
+        credentials: 'include',
+      }
+    );
+    if (!res.ok) {
+      setActivities((prev) => {
+        const deepCopy = JSON.parse(JSON.stringify(prev));
+        return deepCopy.map((a) =>
+          a.id === activity.id ? { ...a, loading: false } : a
+        );
+      });
+      throw new Error('Failed to delete activity with name ' + activity.name);
+    }
+
+    setActivities((prev) => {
+      const deepCopy = JSON.parse(JSON.stringify(prev));
+      return deepCopy.filter((a) => a.id !== activity.id);
+    });
+  }
+
+  async function handleRestore(activity) {
+    setActivities((prev) => {
+      const deepCopy = JSON.parse(JSON.stringify(prev));
+      return deepCopy.map((a) =>
+        a.id === activity.id ? { ...a, loading: true } : a
+      );
+    });
+
+    const res = await fetch(
+      `http://localhost:8000/api/v1/activities/${activity.name}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ archived: false }),
+      }
+    );
+
+    if (!res.ok) {
+      setActivities((prev) => {
+        const deepCopy = JSON.parse(JSON.stringify(prev));
+        return deepCopy.map((a) =>
+          a.id === activity.id ? { ...a, loading: false, archived: true } : a
+        );
+      });
+      throw new Error(`Failed to restore activity`);
+    }
+
+    setActivities((prev) => {
+      const deepCopy = JSON.parse(JSON.stringify(prev));
+      return deepCopy.map((a) =>
+        a.id === activity.id ? { ...a, archived: false, loading: false } : a
+      );
+    });
+  }
 
   async function handleRecordClick(record) {
     const stoppedAt = new Date();
@@ -175,7 +245,7 @@ export default function Home() {
   }
 
   return (
-    <>
+    <div className={navigation.state === 'loading' && styles.loading}>
       {activeRecords.length > 0 && (
         <>
           <HorizontalSeparator text="Tracking" className={styles.separator} />
@@ -211,15 +281,24 @@ export default function Home() {
           ))}
         <CreateActivityCard />
       </div>
-      <HorizontalSeparator text="Archived" className={styles.separator} />
-      <div className={styles.activitesContainer}>
-        {activities
-          .filter((activity) => activity.archived)
-          .map((activity) => (
-            <ArchivedActivityCard key={activity.id} activity={activity} />
-          ))}
-      </div>
-    </>
+      {activities.some((activity) => activity.archived) && (
+        <>
+          <HorizontalSeparator text="Archived" className={styles.separator} />
+          <div className={styles.activitesContainer}>
+            {activities
+              .filter((activity) => activity.archived)
+              .map((activity) => (
+                <ArchivedActivityCard
+                  key={activity.id}
+                  activity={activity}
+                  onRestore={handleRestore}
+                  onDelete={handleDelete}
+                />
+              ))}
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 
