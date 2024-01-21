@@ -1,8 +1,7 @@
 import { useLoaderData } from 'react-router-dom';
 import styles from './goal.module.css';
 import HorizontalSeparator from '../../components/HorizontalSeparator/HorizontalSeparator';
-import { FaClockRotateLeft } from 'react-icons/fa6';
-import { FaCheckCircle } from 'react-icons/fa';
+import { FaCheckCircle, FaStopwatch } from 'react-icons/fa';
 import useTimer from '../../hooks/useTimer';
 
 export async function loader() {
@@ -28,7 +27,9 @@ export default function Goal() {
 
   return (
     <div className={styles.h}>
-      <HorizontalSeparator className={styles.separator} text={'Today'} />
+      {dayGoals.length > 0 && (
+        <HorizontalSeparator className={styles.separator} text={'Today'} />
+      )}
       <div className={styles.goalsContainer}>
         {dayGoals.map((goal) =>
           goal.hasActiveRecord ? (
@@ -42,7 +43,10 @@ export default function Goal() {
           )
         )}
       </div>
-      <HorizontalSeparator className={styles.separator} text={'This week'} />
+
+      {weekGoals.length > 0 && (
+        <HorizontalSeparator className={styles.separator} text={'This week'} />
+      )}
       <div className={styles.goalsContainer}>
         {weekGoals.map((goal) =>
           goal.hasActiveRecord ? (
@@ -56,7 +60,9 @@ export default function Goal() {
           )
         )}
       </div>
-      <HorizontalSeparator className={styles.separator} text={'This month'} />
+      {monthGoals.length > 0 && (
+        <HorizontalSeparator className={styles.separator} text={'This month'} />
+      )}
       <div className={styles.goalsContainer}>
         {monthGoals.map((goal) =>
           goal.hasActiveRecord ? (
@@ -134,7 +140,7 @@ function GoalCard({ data }) {
       style={{ backgroundColor: '#' + data.color }}
     >
       <div className={styles.nameContainer}>
-        {data.hasActiveRecord && <FaClockRotateLeft />}
+        {data.hasActiveRecord && <FaStopwatch />}
         <span>{data.name}</span>
       </div>
       <div className={styles.statsContainer}>
