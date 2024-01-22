@@ -1,5 +1,6 @@
 import {
   useLoaderData,
+  useNavigate,
   useNavigation,
   useSearchParams,
   useSubmit,
@@ -45,6 +46,7 @@ export async function loader({ request }) {
 }
 
 export default function Records() {
+  const navigate = useNavigate();
   const navigationLoading = useNavigationLoading();
   const { records } = useLoaderData();
   const [searchParams] = useSearchParams();
@@ -86,6 +88,10 @@ export default function Records() {
     setDate(date);
   }
 
+  function handleClick(record) {
+    navigate(record.recordId, { state: { from: '/records' } });
+  }
+
   return (
     <div className={styles.pageWrapper}>
       <div className={styles.dateContainer}>
@@ -123,6 +129,7 @@ export default function Records() {
                     key={record.recordId}
                     record={record}
                     forDate={currentDate}
+                    onClick={() => handleClick(record)}
                   />
                 );
               }
@@ -131,6 +138,7 @@ export default function Records() {
                   record={record}
                   key={record.recordId}
                   showStopwatch
+                  onClick={() => handleClick(record)}
                 />
               );
             })
@@ -145,7 +153,7 @@ export default function Records() {
   );
 }
 
-function RecordCard({ record, forDate }) {
+export function RecordCard({ record, forDate, onClick }) {
   const startDate = new Date(record.startedAt);
   const stopDate = record.stoppedAt ? new Date(record.stoppedAt) : null;
   const startTime = hasRecordStartedOnDate(record, forDate)
@@ -162,7 +170,7 @@ function RecordCard({ record, forDate }) {
     <div
       style={{ backgroundColor: '#' + record.color }}
       className={styles.card}
-      onClick={handleClick}
+      onClick={() => onClick(record)}
     >
       <div className={styles.left}>
         <div className={styles.name}>{record.activityName}</div>
@@ -186,10 +194,6 @@ function RecordCard({ record, forDate }) {
       </div>
     </div>
   );
-
-  async function handleClick() {
-    console.log('edit pls');
-  }
 }
 
 //

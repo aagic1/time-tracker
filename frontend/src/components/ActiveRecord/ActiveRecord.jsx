@@ -1,17 +1,20 @@
 import styles from './active-record.module.css';
 import { FaEdit, FaCheckCircle, FaStopwatch } from 'react-icons/fa';
 import useTimer from '../../hooks/useTimer';
+import { useNavigate } from 'react-router-dom';
 
 export default function ActiveRecord({
   record,
-  showEdit,
   showStopwatch,
+  showEdit,
   onClick,
+  showSessionDetails,
 }) {
+  const navigate = useNavigate();
   const timer = useTimer(new Date(record.startedAt));
 
   const elapsedHours = Math.trunc(timer / (1000 * 60 * 60));
-  let { startDateFormated, startTimeFormated } = formatStartDateAndTime(
+  let { startTimeFormated } = formatStartDateAndTime(
     new Date(record.startedAt),
     elapsedHours
   );
@@ -36,12 +39,6 @@ export default function ActiveRecord({
         <div className={styles.recordDetails}>
           <div className={styles.name}>{record.activityName}</div>
           <div className={styles.startedAtContainer}>
-            {elapsedHours >= 24 && (
-              <>
-                <span className={styles.startDate}>{startDateFormated}</span>
-                <span className={styles.separator}>-</span>
-              </>
-            )}
             <span className={styles.startTime}>{startTimeFormated}</span>
           </div>
         </div>
@@ -49,35 +46,37 @@ export default function ActiveRecord({
       <div className={styles.right}>
         <div className={styles.timesContainer}>
           <div className={styles.elapsedTime}>{formatTimeHMS(timer)}</div>
-          {record.sessionGoal != null && (
+          {showSessionDetails && record.sessionGoal != null && (
             <div className={styles.sessionGoalContainer}>
               <div className={styles.sessionGoal}>
-                <span>Session goal: </span>
-                <span>{formatIntervalHMS(record.sessionGoal)}</span>
+                <span>Goal: </span>
+                <span>{formatIntervalConcise(record.sessionGoal)}</span>
               </div>
               <div className={styles.sessionRemaining}>
                 <span>{remainingTime > 0 ? 'Remaining: ' : 'Completed '}</span>
-                <span>
-                  {remainingTime > 0 ? (
-                    formatTimeHMS(remainingTime)
-                  ) : (
-                    <FaCheckCircle />
-                  )}
-                </span>
+
+                {remainingTime > 0 ? (
+                  <span>{formatTimeConcise(remainingTime)}</span>
+                ) : (
+                  <FaCheckCircle />
+                )}
               </div>
             </div>
           )}
         </div>
         {showEdit && (
-          <FaEdit onClick={handleEdit} className={styles.editIcon} />
+          <FaEdit
+            onClick={(e) => handleEdit(e, record)}
+            className={styles.editIcon}
+          />
         )}
       </div>
     </div>
   );
 
-  function handleEdit(event) {
+  function handleEdit(event, record) {
     event.stopPropagation();
-    console.log('edit');
+    navigate(`/records/${record.recordId}`, { state: { from: '/' } });
   }
 }
 
@@ -131,4 +130,23 @@ function formatTimeHMS(miliseconds) {
   // moze pokazati 1s vise ili manje, dodatno obraditi
 
   return formatIntervalHMS({ hours, minutes, seconds });
+}
+
+function formatTimeConcise(miliseconds) {
+  const hours = Math.trunc(miliseconds / (1000 * 60 * 60));
+  const minutes = Math.trunc((miliseconds % (1000 * 60 * 60)) / (60 * 1000));
+  const seconds = Math.round((miliseconds % (1000 * 60)) / 1000);
+  return formatIntervalConcise({ hours, minutes, seconds });
+}
+
+function formatIntervalConcise(interval) {
+  let formated = '';
+  if (interval.hours) {
+    formated += interval.hours + 'h ' + interval.minutes + 'm';
+  } else if (interval.minutes) {
+    formated += interval.minutes + 'm ' + interval.seconds + 's';
+  } else {
+    formated += interval.seconds + 's';
+  }
+  return formated;
 }

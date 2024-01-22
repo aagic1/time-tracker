@@ -247,6 +247,7 @@ export default function Home() {
                     record={record}
                     showEdit
                     onClick={handleRecordClick}
+                    showSessionDetails
                   />
                 ))}
             </div>
