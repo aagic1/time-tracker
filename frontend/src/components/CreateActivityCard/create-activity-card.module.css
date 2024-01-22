@@ -21,3 +21,12 @@
 .cardContainer:hover {
     transform: scale(1.06);
 }
+
+@media only screen and (max-width: 480px)  {
+    .cardContainer {
+        padding: 8px;
+        font-size: 15px;
+        width: 63px;
+        height: 88px;
+    }
+}

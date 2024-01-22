@@ -113,7 +113,7 @@ export default function Records() {
         <FaChevronRight className={styles.arrow} onClick={handleNext} />
       </div>
       <div
-        className={`${styles.pageWrapper} ${
+        className={`${styles.recordsContainer} ${
           navigationLoading ? styles.loading : ''
         }`}
       >

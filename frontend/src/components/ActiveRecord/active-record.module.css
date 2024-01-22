@@ -5,6 +5,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
 }
 
 .card:hover {
@@ -20,15 +22,15 @@
 .recordDetails {
     display: flex;
     flex-direction: column;
+    gap: 4px;
 }
 
 .name {
     font-weight: 600;
-    /* font-size: 18px; */
 }
 
 .startedAtContainer {
-    font-size: 15px;
+    font-size: 13px;
     display: flex;
     gap: 6px;
 }
@@ -43,6 +45,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    gap: 4px;
 }
 
 .elapsedTime {
@@ -53,7 +56,8 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    font-size: 15px;
+    font-size: 13px;
+    gap: 2px;
 }
 
 .sessionRemaining {
@@ -63,7 +67,6 @@
 }
 
 .editIcon {
-    /* font-size: 20px; */
     padding: 10px;
     background-color: #3333;
     border-radius: 8px;
@@ -86,7 +89,7 @@
     }
 
     .right {
-        gap: 15px;
+        gap: 12px;
     }
 
     .startedAtContainer {
@@ -111,9 +114,6 @@
     }
 
     .right {
-        flex-direction: column-reverse;
-        align-items: flex-end;
-        gap: 5px;
-        
+        gap: 12px;
     }
 }

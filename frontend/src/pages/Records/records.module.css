@@ -103,6 +103,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
 }
 
 .name {
@@ -112,10 +114,11 @@
 .left {
     display: flex;
     flex-direction: column;
+    gap: 4px;
 }
 
 .startedAtContainer {
-    font-size: 15px;
+    font-size: 13px;
     display: flex;
     flex-direction: column;
 }
@@ -132,19 +135,19 @@
     /* flex-direction: column;
     align-items: flex-end; */
 }
-
+/* 
 .sessionGoalContainer {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    font-size: 15px;
+    font-size: 14px;
 }
 
 .sessionRemaining {
     display: flex;
     align-items: center;
     gap: 5px;
-}
+} */
 
 .elapsedTime {
     font-weight: 600;

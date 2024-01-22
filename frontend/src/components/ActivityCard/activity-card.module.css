@@ -50,3 +50,17 @@
     filter: blur(2px) grayscale(50%);
     opacity: 0.5;
 }
+
+@media only screen and (max-width: 480px)  {
+    .cardContainer {
+        padding: 8px;
+        font-size: 15px;
+        width: 63px;
+        height: 88px;
+    }
+
+    .editContainer {
+        font-size: 13px;
+        padding: 3px;
+    }
+}
