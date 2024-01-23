@@ -15,7 +15,7 @@ export default function ArchivedActivityCard({
       }`}
     >
       <div
-        className={`${styles.cardContainer} ${editing && styles.editing}`}
+        className={`${styles.cardContainer} ${editing ? styles.editing : ''}`}
         style={{
           backgroundColor: activity.color,
         }}
