@@ -231,7 +231,7 @@ export default function Home() {
   }
 
   return (
-    <div className={navigation.state === 'loading' && styles.loading}>
+    <div className={navigation.state === 'loading' ? styles.loading : ''}>
       {activeRecords.length > 0 && (
         <>
           <HorizontalSeparator text="Tracking" className={styles.separator} />
