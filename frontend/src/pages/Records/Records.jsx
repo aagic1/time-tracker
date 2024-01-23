@@ -4,6 +4,7 @@ import {
   useNavigation,
   useSearchParams,
   useSubmit,
+  useLocation,
 } from 'react-router-dom';
 import styles from './records.module.css';
 import { FaPlusCircle, FaStopwatch } from 'react-icons/fa';
@@ -46,6 +47,7 @@ export async function loader({ request }) {
 }
 
 export default function Records() {
+  const location = useLocation();
   const navigate = useNavigate();
   const navigationLoading = useNavigationLoading();
   const { records } = useLoaderData();
@@ -89,7 +91,9 @@ export default function Records() {
   }
 
   function handleClick(record) {
-    navigate(record.recordId, { state: { from: '/records' } });
+    navigate(record.recordId, {
+      state: { from: location.pathname + location.search },
+    });
   }
 
   return (
@@ -145,7 +149,16 @@ export default function Records() {
         )}
       </div>
       <div className={styles.addContainer}>
-        <div className={styles.addButton} onClick={() => console.log('+')}>
+        <div
+          className={styles.addButton}
+          onClick={() =>
+            navigate(`create?date=${extractDateWithoutTime(currentDate)}`, {
+              state: {
+                from: location.pathname + location.search,
+              },
+            })
+          }
+        >
           <FaPlusCircle className={styles.addIcon} />
         </div>
       </div>
