@@ -4,7 +4,8 @@ import nodemailer from 'nodemailer';
 
 import userDAO from '../user/user.dao';
 import { NewAccount } from '../../db/types';
-import { NotFoundError } from '../../errors/not-found.error';
+import { EmailError } from '../../errors/email-error';
+import { NotFoundError } from '../../errors/not-found-error';
 import { validateAuthJwt } from './auth.validator';
 
 async function login(email: string, password: string) {

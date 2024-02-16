@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import { AnyZodObject, ZodError, z } from 'zod';
-import { BadRequestError } from '../errors/bad-request.error';
+import { BadRequestError } from '../errors/bad-request-error';
 
 export async function validateRequest<T extends AnyZodObject>(
   schema: T,
