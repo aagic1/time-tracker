@@ -10,13 +10,9 @@ export async function changePassword(req: Request, res: Response) {
   } = await validateRequest(
     changePasswordRequestSchema,
     req,
-    'Invalid change password request data'
+    'Invalid request data: PATCH /users/change-password'
   );
 
-  await userService.changePassword(
-    req.session.user!.id,
-    oldPassword,
-    newPassword
-  );
+  await userService.changePassword(req.session.user!.id, oldPassword, newPassword);
   return res.status(200).send('Password updated successfully');
 }

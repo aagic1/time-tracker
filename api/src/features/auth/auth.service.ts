@@ -9,7 +9,7 @@ import { NotFoundError } from '../../errors/not-found-error';
 import { validateAuthJwt } from './auth.validator';
 
 async function login(email: string, password: string) {
-  const user = await userDAO.findByEmail(email);
+  const user = await userDAO.findOneByEmail(email);
   if (!user) {
     throw new NotFoundError('Wrong email or password');
   }
@@ -82,7 +82,7 @@ async function verifyEmail(token: string) {
       throw 'Invalid verification code';
     }
 
-    const user = await userDAO.findByEmail(email);
+    const user = await userDAO.findOneByEmail(email);
     if (!user) {
       // this should never be true. Again, jwt.verify should fail
       throw "Email doesn't exist. Unexpected jwt email. JWT should contain only valid email, that is, registered emails. This should not happen... Server error";
@@ -113,7 +113,7 @@ async function verifyEmail(token: string) {
 }
 
 async function sendVerificationCode(email: string) {
-  const user = await userDAO.findByEmail(email);
+  const user = await userDAO.findOneByEmail(email);
   if (!user) {
     throw new NotFoundError(`User with email: ${email} does not exist.`);
   }
@@ -126,7 +126,7 @@ async function sendVerificationCode(email: string) {
 }
 
 async function sendResetPasswordCode(email: string) {
-  const user = await userDAO.findByEmail(email);
+  const user = await userDAO.findOneByEmail(email);
   if (!user) {
     throw new NotFoundError(`User with email: ${email} does not exist.`);
   }
@@ -146,7 +146,7 @@ async function verifyRecoveryCode(token: string) {
       throw 'Invalid verification code';
     }
 
-    const user = await userDAO.findByEmail(email);
+    const user = await userDAO.findOneByEmail(email);
     if (!user) {
       // this should never be true. Again, jwt.verify should fail
       throw "Email doesn't exist. Unexpected jwt email. JWT should contain only valid email, that is, registered emails. This should not happen... Server error";
@@ -177,7 +177,7 @@ async function resetPassword(token: string, newPassword: string) {
   try {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET!);
     const parsedToken = validateAuthJwt(decodedToken);
-    const user = await userDAO.findByEmail(parsedToken.email);
+    const user = await userDAO.findOneByEmail(parsedToken.email);
     if (!user?.verified) {
       throw new Error('You have not verified your email');
     }
