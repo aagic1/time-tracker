@@ -1,4 +1,4 @@
-import { infer, z } from 'zod';
+import { z } from 'zod';
 
 export const intervalSchema = z
   .object({
@@ -17,13 +17,13 @@ export const colorSchema = z
   .regex(/^#[A-Fa-f0-9]{6}$/, 'String must match hexadecimal color code')
   .transform((reg) => reg.slice(1));
 
-export const stringNonEmptySchema = z.string().trim().min(1, 'Required');
+export const stringNonEmptySchema = z.string().trim().min(1, 'Required and must be non-empty');
 
 export const bigintStringSchema = stringNonEmptySchema.transform((val, ctx) => {
   try {
     const id = BigInt(val);
     if (id <= 0) {
-      throw '';
+      throw 'Negative ID error';
     }
     return id;
   } catch (err) {
@@ -35,8 +35,6 @@ export const bigintStringSchema = stringNonEmptySchema.transform((val, ctx) => {
     return z.NEVER;
   }
 });
-
-// boolean as string "true" or "false"
 
 export const dateWithoutTimeSchema = z
   .string()
@@ -53,10 +51,11 @@ export const dateWithoutTimeSchema = z
     return date;
   });
 
+// boolean as string has to be either "true" or "false"
 export const booleanStringSchema = z
   .enum(['true', 'false'], {
     errorMap: () => ({
-      message: 'Archived has to be either true or false.',
+      message: 'Value has to be either true or false.',
     }),
   })
   .transform((archived) => archived === 'true');
