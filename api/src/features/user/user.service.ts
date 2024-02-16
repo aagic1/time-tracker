@@ -1,21 +1,20 @@
 import bcrypt from 'bcrypt';
 
 import userDAO from './user.dao';
+import { NotFoundError } from '../../errors/not-found-error';
+import { WrongPasswordError } from '../../errors/wrong-password-error';
+import { UpdateError } from '../../errors/update-error';
 
-async function changePassword(
-  accountId: bigint,
-  oldPassword: string,
-  newPassword: string
-) {
-  const user = await userDAO.findById(accountId);
-  // throw something more concrete, maybe 5xx error, server error
+async function changePassword(accountId: bigint, oldPassword: string, newPassword: string) {
+  const user = await userDAO.findOne(accountId);
   if (!user) {
-    throw "This shouldn't happen. User id should exist and be valid if user is loged in";
+    console.log("This shouldn't happen. User id should exist and be valid if user is logged in");
+    throw new NotFoundError('Your session expired or account does not exist.');
   }
+
   const match = await bcrypt.compare(oldPassword, user.password);
-  // throw something more concrete (some custom error maybe)
   if (!match) {
-    throw 'Incorrect password.';
+    throw new WrongPasswordError('Incorrect password');
   }
 
   const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -23,10 +22,8 @@ async function changePassword(
     password: hashedPassword,
   });
 
-  // throw something more concrete
-  // (some custom error maybe or dberror or server error or nothing)
   if (!updatedUser) {
-    throw 'Password update failed';
+    throw new UpdateError('Password update failed');
   }
 
   return updatedUser;
