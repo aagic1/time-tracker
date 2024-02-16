@@ -1,42 +1,42 @@
 import { z } from 'zod';
 
 import { toStringFromInterval } from './activity.utils';
-import { colorSchema, intervalSchema } from '../../utils/schemas';
+import {
+  colorSchema,
+  intervalSchema,
+  booleanStringSchema,
+  stringNonEmptySchema,
+} from '../../utils/schemas';
 
-// ZOD schema definitions for validating incoming HTTP request data (body, params and query) and
+// ZOD schema definitions for validating incoming HTTP request data (body, params and query)
+// and
 // types infered from given definitions
 
 const getAllRequestObject = {
   query: z
     .object({
-      archived: z
-        .enum(['true', 'false'], {
-          errorMap: () => ({
-            message: 'Archived has to be either true or false.',
-          }),
-        })
-        .transform((archived) => archived === 'true'),
+      archived: booleanStringSchema,
     })
     .partial(),
 };
 const getAllRequestSchema = z.object(getAllRequestObject);
-type ActivityFilters = z.infer<typeof getAllRequestObject.query>;
+type FiltersActivities = z.infer<typeof getAllRequestObject.query>;
 
 const getRequestObject = {
   params: z.object({
-    activityName: z.string().trim().min(1),
+    activityName: stringNonEmptySchema,
   }),
 };
 const getRequestSchema = z.object(getRequestObject);
 
 const createRequestObject = {
   body: z.object({
-    name: z.string().min(1),
+    name: stringNonEmptySchema,
     color: colorSchema,
-    sessionGoal: intervalSchema.transform((val) => toStringFromInterval(val)).nullish(),
-    dayGoal: intervalSchema.transform((val) => toStringFromInterval(val)).nullish(),
-    weekGoal: intervalSchema.transform((val) => toStringFromInterval(val)).nullish(),
-    monthGoal: intervalSchema.transform((val) => toStringFromInterval(val)).nullish(),
+    sessionGoal: intervalSchema.nullish().transform((val) => toStringFromInterval(val)),
+    dayGoal: intervalSchema.nullish().transform((val) => toStringFromInterval(val)),
+    weekGoal: intervalSchema.nullish().transform((val) => toStringFromInterval(val)),
+    monthGoal: intervalSchema.nullish().transform((val) => toStringFromInterval(val)),
   }),
 };
 const createRequestSchema = z.object(createRequestObject);
@@ -45,7 +45,7 @@ type ActivityCreate = z.infer<typeof createRequestObject.body>;
 const updateRequestObject = {
   body: createRequestObject.body.partial().merge(z.object({ archived: z.boolean().optional() })),
   params: z.object({
-    activityName: z.string().trim().min(1),
+    activityName: stringNonEmptySchema,
   }),
 };
 const updateRequestSchema = z.object(updateRequestObject);
@@ -65,5 +65,5 @@ export {
   // types
   ActivityCreate,
   ActivityUpdate,
-  ActivityFilters,
+  FiltersActivities,
 };

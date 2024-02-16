@@ -1,10 +1,10 @@
 import { objectToSnake } from 'ts-case-convert';
-import { NotFoundError } from '../../errors/not-found.error';
+import { NotFoundError } from '../../errors/not-found-error';
 import activityDAO from './activity.dao';
-import { ActivityCreate, ActivityFilters, ActivityUpdate } from './activity.validator';
+import { ActivityCreate, FiltersActivities, ActivityUpdate } from './activity.validator';
+import { CreationError } from '../../errors/creation-error';
 
-async function getAllActivities(userId: bigint, filters: ActivityFilters) {
-  // try catch
+async function getAllActivities(userId: bigint, filters: FiltersActivities) {
   const activities = await activityDAO.findAll(userId, filters);
   return activities;
 }
@@ -12,7 +12,7 @@ async function getAllActivities(userId: bigint, filters: ActivityFilters) {
 async function getActivity(userId: bigint, activityName: string) {
   const activity = await activityDAO.findOneByName(userId, activityName);
   if (!activity) {
-    throw new NotFoundError(`Activity with id ${activityName} not found`);
+    throw new NotFoundError(`Activity with name ${activityName} not found`);
   }
   return activity;
 }
@@ -20,8 +20,7 @@ async function getActivity(userId: bigint, activityName: string) {
 async function createActivity(userId: bigint, activity: ActivityCreate) {
   const newActivity = await activityDAO.create(objectToSnake({ ...activity, accountId: userId }));
   if (!newActivity) {
-    // better error handling
-    throw `Failed to create activity. Server error`;
+    throw new CreationError('Failed to create activity.');
   }
   return newActivity;
 }
@@ -33,7 +32,9 @@ async function updateActivity(userId: bigint, activityName: string, activityData
     objectToSnake(activityData)
   );
   if (!updatedActivity) {
-    throw `Failed to update activity. Server error`;
+    throw new NotFoundError(
+      `Failed to update activity. Activity with name ${activityName} not found.`
+    );
   }
   return updatedActivity;
 }

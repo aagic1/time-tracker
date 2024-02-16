@@ -14,7 +14,7 @@ export async function getAllActivities(req: Request, res: Response) {
   const { query: filters } = await validateRequest(
     getAllRequestSchema,
     req,
-    'Invalid get all request data'
+    'Invalid request data: GET /activities'
   );
   const activities = await activityService.getAllActivities(req.session.user!.id, filters);
   res.status(200).json({ activities });
@@ -23,7 +23,11 @@ export async function getAllActivities(req: Request, res: Response) {
 export async function getActivity(req: Request, res: Response) {
   const {
     params: { activityName },
-  } = await validateRequest(getRequestSchema, req, 'Invalid get request data');
+  } = await validateRequest(
+    getRequestSchema,
+    req,
+    'Invalid request data: GET /activities/:activityName'
+  );
 
   const activity = await activityService.getActivity(req.session.user!.id, activityName);
   res.status(200).json({ activity });
@@ -33,7 +37,7 @@ export async function createActivity(req: Request, res: Response) {
   const { body: activityData } = await validateRequest(
     createRequestSchema,
     req,
-    'Invalid create request data'
+    'Invalid request data: POST /activities'
   );
 
   const newActivity = await activityService.createActivity(req.session.user!.id, activityData);
@@ -44,22 +48,29 @@ export async function updateActivity(req: Request, res: Response) {
   const {
     body: activityData,
     params: { activityName },
-  } = await validateRequest(updateRequestSchema, req, 'Invalid update request data');
+  } = await validateRequest(
+    updateRequestSchema,
+    req,
+    'Invalid request data: PATCH /activities/:activityName'
+  );
   const updatedActivity = await activityService.updateActivity(
     req.session.user!.id,
     activityName,
     activityData
   );
-  if (!updatedActivity) {
-    throw `Failed to update activity. Server error`;
-  }
+
   res.status(200).json({ activity: updatedActivity });
 }
 
 export async function deleteActivity(req: Request, res: Response) {
   const {
     params: { activityName },
-  } = await validateRequest(deleteRequestSchema, req, 'Invalid delete request data');
-  const result = await activityService.deleteActivity(req.session.user!.id, activityName);
+  } = await validateRequest(
+    deleteRequestSchema,
+    req,
+    'Invalid request data: DELETE /activities/:activityName'
+  );
+  await activityService.deleteActivity(req.session.user!.id, activityName);
+
   res.sendStatus(204);
 }
