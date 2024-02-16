@@ -14,7 +14,7 @@ const columnsToReturn = [
   'month_goal as monthGoal',
 ] as const;
 
-async function findByAccountId(account_id: bigint, filters: QueryString) {
+async function findAll(account_id: bigint, filters: QueryString) {
   return db
     .selectFrom('activity')
     .select(columnsToReturn)
@@ -24,7 +24,7 @@ async function findByAccountId(account_id: bigint, filters: QueryString) {
     .execute();
 }
 
-async function findByIdAndAccountId(id: bigint, account_id: bigint) {
+async function findOne(account_id: bigint, id: bigint) {
   return db
     .selectFrom('activity')
     .select(columnsToReturn)
@@ -33,7 +33,7 @@ async function findByIdAndAccountId(id: bigint, account_id: bigint) {
     .executeTakeFirst();
 }
 
-async function findByNameAndAccountId(name: string, account_id: bigint) {
+async function findOneByName(account_id: bigint, name: string) {
   return db
     .selectFrom('activity')
     .select(columnsToReturn)
@@ -42,19 +42,12 @@ async function findByNameAndAccountId(name: string, account_id: bigint) {
     .executeTakeFirst();
 }
 
+// mozda i ovdje kao parametar poslati userId umjesto da bude unutar activitya
 async function create(activity: NewActivity) {
-  return db
-    .insertInto('activity')
-    .values(activity)
-    .returning(columnsToReturn)
-    .executeTakeFirst();
+  return db.insertInto('activity').values(activity).returning(columnsToReturn).executeTakeFirst();
 }
 
-async function update(
-  name: string,
-  account_id: bigint,
-  activity: ActivityUpdate
-) {
+async function update(account_id: bigint, name: string, activity: ActivityUpdate) {
   return db
     .updateTable('activity')
     .set(activity)
@@ -64,7 +57,7 @@ async function update(
     .executeTakeFirst();
 }
 
-function remove(name: string, account_id: bigint) {
+function remove(account_id: bigint, name: string) {
   return db
     .deleteFrom('activity')
     .where('name', '=', name)
@@ -73,9 +66,9 @@ function remove(name: string, account_id: bigint) {
 }
 
 export default {
-  findByAccountId,
-  findByNameAndAccountId,
-  findByIdAndAccountId,
+  findAll,
+  findOne,
+  findOneByName,
   create,
   update,
   remove,
