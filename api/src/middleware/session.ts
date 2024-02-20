@@ -1,5 +1,11 @@
 import session from 'express-session';
 
+declare module 'express-session' {
+  interface SessionData {
+    user: { id: bigint; email: string };
+  }
+}
+
 export default session({
   secret: process.env.EXPRESS_SESSION_SECRET as string,
   saveUninitialized: false,
