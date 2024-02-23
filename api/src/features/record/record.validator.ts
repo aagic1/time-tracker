@@ -1,51 +1,6 @@
 import { z } from 'zod';
 
-const MAX_BIGINT_POSTGRES = 9223372036854775807n;
-
-const stringNonEmptySchema = z.string().trim().min(1, 'Required');
-
-const dateWithoutTimeSchema = z
-  .string()
-  .regex(
-    /^\d{4}-\d{2}-\d{2}$/,
-    'Invalid date format. Enter the date in the format YYYY-MM-DD'
-  )
-  .transform((dateString, ctx) => {
-    const date = new Date(dateString);
-    if (isNaN(date.getDate())) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Invalid date',
-      });
-      return z.NEVER;
-    }
-    return date;
-  });
-
-const bigintStringSchema = stringNonEmptySchema.transform((val, ctx) => {
-  try {
-    const id = BigInt(val);
-    if (id <= 0) {
-      throw '';
-    }
-    return id;
-  } catch (err) {
-    console.log('zooooooooooooooooood', err);
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'Provide positive whole number',
-    });
-    return z.NEVER;
-  }
-});
-
-const booleanStringSchema = z
-  .enum(['true', 'false'], {
-    errorMap: () => ({
-      message: 'Archived has to be either true or false.',
-    }),
-  })
-  .transform((archived) => archived === 'true');
+import { stringNonEmptySchema, bigintStringSchema, booleanStringSchema } from '../../utils/schemas';
 
 const getRequestObject = {
   params: z.object({
@@ -59,14 +14,12 @@ const getAllRequestObject = {
     .object({
       active: booleanStringSchema,
       comment: stringNonEmptySchema,
-      activityId: bigintStringSchema
-        .or(z.array(bigintStringSchema))
-        .transform((val) => {
-          if (typeof val === 'bigint') {
-            return [val];
-          }
-          return val;
-        }),
+      activityId: bigintStringSchema.or(z.array(bigintStringSchema)).transform((val) => {
+        if (typeof val === 'bigint') {
+          return [val];
+        }
+        return val;
+      }),
       dateFrom: z
         .string()
         .datetime()
@@ -95,9 +48,9 @@ const createRequestObject = {
   body: z
     .object({
       activityId: bigintStringSchema,
-      comment: stringNonEmptySchema.nullable().optional(),
+      comment: stringNonEmptySchema.nullish(),
       startedAt: z.string().datetime(),
-      stoppedAt: z.string().datetime().nullable().optional(),
+      stoppedAt: z.string().datetime().nullish(),
     })
     .refine(
       ({ stoppedAt, startedAt }) => {
@@ -128,9 +81,9 @@ const updateRequestObject = {
   body: z
     .object({
       activityId: bigintStringSchema,
-      comment: stringNonEmptySchema.nullable().optional(),
+      comment: stringNonEmptySchema.nullish(),
       startedAt: z.string().datetime(),
-      stoppedAt: z.string().datetime().nullable().optional(),
+      stoppedAt: z.string().datetime().nullish(),
     })
     .partial()
     .refine(
@@ -188,14 +141,12 @@ const getStatisticsRequestObject = {
         .string()
         .datetime()
         .transform((date) => new Date(date)),
-      activityId: bigintStringSchema
-        .or(z.array(bigintStringSchema))
-        .transform((val) => {
-          if (typeof val === 'bigint') {
-            return [val];
-          }
-          return val;
-        }),
+      activityId: bigintStringSchema.or(z.array(bigintStringSchema)).transform((val) => {
+        if (typeof val === 'bigint') {
+          return [val];
+        }
+        return val;
+      }),
     })
     .partial({ from: true, to: true, activityId: true })
     .refine(
