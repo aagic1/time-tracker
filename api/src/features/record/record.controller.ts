@@ -18,7 +18,7 @@ import { NotFoundError } from '../../errors/not-found.error';
 export async function getRecord(req: Request, res: Response) {
   const {
     params: { recordId },
-  } = await validateRequest(getRequestSchema, req, 'Invalid get request data');
+  } = await validateRequest(getRequestSchema, req, 'Invalid request data: GET /records/:recordId');
 
   const record = await recordDAO.findById(req.session.user!.id, recordId);
   if (!record) {
@@ -31,7 +31,7 @@ export async function getAllRecords(req: Request, res: Response) {
   const { query } = await validateRequest(
     getAllRequestSchema,
     req,
-    'Invalid get all records request data'
+    'Invalid request data: GET /records'
   );
   const records = await recordDAO.find(req.session.user!.id, query);
   res.status(200).json({ records });
@@ -43,7 +43,7 @@ export async function deleteRecord(req: Request, res: Response) {
   } = await validateRequest(
     deleteRequestSchema,
     req,
-    'Invalid delete request data'
+    'Invalid request data: DELETE /records/:recordId'
   );
   const result = await recordDAO.remove(req.session.user!.id, recordId);
   if (result.numDeletedRows === 0n) {
@@ -58,7 +58,7 @@ export async function createRecord(req: Request, res: Response) {
   const { body } = await validateRequest(
     createRequestSchema,
     req,
-    'Invalid create request data'
+    'Invalid request data: POST /records'
   );
   const newRecord = await recordDAO.create(
     req.session.user!.id,
@@ -79,7 +79,7 @@ export async function updateRecord(req: Request, res: Response) {
   } = await validateRequest(
     updateRequestSchema,
     req,
-    'Invalid update request data'
+    'Invalid request data: PATCH /records/:recordId'
   );
 
   const updatedRecord = await recordDAO.update(
@@ -100,7 +100,7 @@ export async function getCurrentGoals(req: Request, res: Response) {
   } = await validateRequest(
     getCurrentGoalsRequestSchema,
     req,
-    'invalid goal request query string 2'
+    'Invalid request data: GET /records/goals'
   );
 
   const data = await recordService.getCurrentGoals(
@@ -117,7 +117,7 @@ export async function getStatistics(req: Request, res: Response) {
   const { query } = await validateRequest(
     getStatisticsRequestSchema,
     req,
-    'bad get statistics request'
+    'Invalid request data: GET /records/statistics'
   );
   console.log('hi');
   const data = await recordService.getStatistics(req.session.user!.id, query);
