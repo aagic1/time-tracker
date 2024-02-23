@@ -1,22 +1,18 @@
 import { Request, Response } from 'express';
 import authService from './auth.service';
 import {
-  forgotPasswordSchema,
+  passwordRecoverySchema,
   loginSchema,
   registerSchema,
   resendVerificationCodeSchema,
   resetPasswordSchema,
   verifyEmailSchema,
-  verifyRecoveryCodeSchema,
+  verifyPasswordRecoverySchema,
 } from './auth.validator';
 import { validateRequest } from '../../utils/validation.util';
 
 export async function login(req: Request, res: Response) {
-  const { body } = await validateRequest(
-    loginSchema,
-    req,
-    'Invalid login request data'
-  );
+  const { body } = await validateRequest(loginSchema, req, 'Invalid request data: POST /login');
   const user = await authService.login(body.email, body.password);
   req.session.user = { ...user, email: body.email };
   res.status(200).send('Logged in succesfully');
@@ -40,7 +36,7 @@ export async function register(req: Request, res: Response) {
   const { body } = await validateRequest(
     registerSchema,
     req,
-    'Invalid register request data'
+    'Invalid request data: POST /register'
   );
   await authService.register(body);
   res.status(201).json('User created successfully');
@@ -50,17 +46,13 @@ export async function verifyEmail(req: Request, res: Response) {
   const { body } = await validateRequest(
     verifyEmailSchema,
     req,
-    'Invalid verify email payload'
+    'Invalid request data: PATCH /verify-email'
   );
   const result = await authService.verifyEmail(body.token);
   if (result.status === 'Success') {
-    res.status(200).json({ msg: result.message });
-  } else if (result.status === 'Failure') {
-    res.status(409).json({ msg: result.message });
+    res.status(200).json(result.message);
   } else {
-    res
-      .status(400)
-      .json({ msg: 'Some server error in verifyEmail controller' });
+    res.status(409).json(result.message);
   }
 }
 
@@ -68,18 +60,22 @@ export async function resendVerificationCode(req: Request, res: Response) {
   const { body } = await validateRequest(
     resendVerificationCodeSchema,
     req,
-    'Invalid email'
+    'Invalid request data: PATCH /verify-email/resend'
   );
 
-  const message = await authService.sendVerificationCode(body.email);
-  res.status(200).send(message);
+  const result = await authService.sendVerificationCode(body.email);
+  if (result.status === 'Success') {
+    res.status(200).send(result.message);
+  } else {
+    res.status(409).send(result.message);
+  }
 }
 
 export async function sendPasswordRecoveryCode(req: Request, res: Response) {
   const { body } = await validateRequest(
-    forgotPasswordSchema,
+    passwordRecoverySchema,
     req,
-    'Invalid email'
+    'Invalid request data: PATCH /forgot-password/initiate'
   );
   const message = await authService.sendResetPasswordCode(body.email);
   res.status(200).send(message);
@@ -87,26 +83,21 @@ export async function sendPasswordRecoveryCode(req: Request, res: Response) {
 
 export async function verifyPasswordRecoveryCode(req: Request, res: Response) {
   const { body } = await validateRequest(
-    verifyRecoveryCodeSchema,
+    verifyPasswordRecoverySchema,
     req,
-    'Invalid password recovery code'
+    'Invalid request data: PATCH /forgot-password/code'
   );
-  const result = await authService.verifyRecoveryCode(body.token);
-  if (result.status === 'Success') {
-    res.status(200).json(result);
-  } else {
-    res
-      .status(400)
-      .json({ msg: 'Some server error in verify password recovery code' });
-  }
+  await authService.verifyRecoveryCode(body.token);
+
+  res.status(200).json('Password recovery code verified successfully');
 }
 
 export async function resetPassword(req: Request, res: Response) {
   const { body } = await validateRequest(
     resetPasswordSchema,
     req,
-    'Invalid email or password'
+    'Invalid request data: PATCH /forgot-password/password'
   );
-  const result = await authService.resetPassword(body.token, body.newPassword);
-  res.status(200).json({ msg: result.message });
+  await authService.resetPassword(body.token, body.newPassword);
+  res.status(200).json('Password reset successfully');
 }

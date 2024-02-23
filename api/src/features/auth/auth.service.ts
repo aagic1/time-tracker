@@ -1,12 +1,17 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
 
 import userDAO from '../user/user.dao';
 import { NewAccount } from '../../db/types';
 import { EmailError } from '../../errors/email-error';
 import { NotFoundError } from '../../errors/not-found-error';
 import { validateAuthJwt } from './auth.validator';
+import { sendEmail } from './mailer';
+import { generateToken } from './auth.utils';
+import { UnauthenticatedError } from '../../errors/not-authenticated-error';
+import { BadRequestError } from '../../errors/bad-request-error';
+import { UpdateError } from '../../errors/update-error';
+import { CreationError } from '../../errors/creation-error';
 
 async function login(email: string, password: string) {
   const user = await userDAO.findOneByEmail(email);
@@ -18,7 +23,7 @@ async function login(email: string, password: string) {
     throw new NotFoundError('Wrong email or password');
   }
   if (!user.verified) {
-    throw new Error('You have not verified your email.');
+    throw new UnauthenticatedError('You have not verified your email.');
   }
 
   return { id: user.id };
@@ -32,84 +37,53 @@ async function register(account: NewAccount) {
     password: hashedPassword,
   });
 
-  try {
-    // is this try catch needed
-    const info = await sendEmailTo(account.email, 'Email verification');
-    console.log(`Email sent successfully.`);
-    return user;
-  } catch (err) {
-    // maybe better error handling
-    console.log(err);
-    console.log('Email could not be sent. Error');
-    throw err;
+  if (!user) {
+    throw new CreationError('Failed to register user');
   }
-}
 
-function generateToken(
-  email: string,
-  type: 'Email verification' | 'Reset password'
-) {
-  return jwt.sign({ email, type }, process.env.JWT_SECRET!, {
-    expiresIn: '30m',
-  });
-}
-
-async function sendEmailTo(
-  email: string,
-  type: 'Email verification' | 'Reset password'
-) {
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.GMAIL_EMAIL,
-      pass: process.env.GMAIL_PASSWORD,
-    },
-  });
-
-  return transporter.sendMail({
-    from: process.env.GMAIL_EMAIL,
-    to: email,
-    subject: type,
-    text: `Your ${type} code:\n${generateToken(email, type)}`,
-  });
+  const verificationToken = generateToken(account.email, 'Email verification');
+  try {
+    await sendEmail(account.email, 'Email verification', verificationToken);
+  } catch (error) {
+    console.log('Failed to send email');
+    console.log(error);
+    // don't throw this error because the user can ask to receive another code
+    // throw new EmailError('Failed to send email');
+  }
+  return user;
 }
 
 async function verifyEmail(token: string) {
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    const { email, type } = validateAuthJwt(decoded);
-    if (type !== 'Email verification') {
-      throw 'Invalid verification code';
-    }
-
-    const user = await userDAO.findOneByEmail(email);
-    if (!user) {
-      // this should never be true. Again, jwt.verify should fail
-      throw "Email doesn't exist. Unexpected jwt email. JWT should contain only valid email, that is, registered emails. This should not happen... Server error";
-    }
-
-    if (user.verified) {
-      return {
-        status: 'Failure',
-        message: 'Email is already verified',
-      };
-    }
-
-    // check for error? or manybe not
-    const updatedUser = await userDAO.update(email, { verified: true });
-    if (!updatedUser) {
-      throw 'Something went wrong while updating user to verified user';
-    }
-    return {
-      status: 'Success',
-      message: 'Email verified successfully',
-      user: { id: updatedUser.id },
-    };
-  } catch (err) {
-    // check different types of verify errors
-    // expired, not valid jwt...
-    throw err;
+  const payload = jwt.verify(token, process.env.JWT_SECRET!);
+  const { email, type } = validateAuthJwt(payload);
+  if (type !== 'Email verification') {
+    throw new BadRequestError('Wrong verification code');
   }
+
+  const user = await userDAO.findOneByEmail(email);
+  if (!user) {
+    // this can happen if the user gets deleted while trying to verify email
+    throw new NotFoundError(
+      'User not found. Invalid email in JWT. JWT should contain only valid email (registered emails). Server error.'
+    );
+  }
+
+  if (user.verified) {
+    return {
+      status: 'Failure',
+      message: 'Email is already verified',
+    };
+  }
+
+  const updatedUser = await userDAO.update(email, { verified: true });
+  if (!updatedUser) {
+    throw new UpdateError('Something went wrong. Could not verify user');
+  }
+
+  return {
+    status: 'Success',
+    message: 'Email verified successfully',
+  };
 }
 
 async function sendVerificationCode(email: string) {
@@ -118,11 +92,18 @@ async function sendVerificationCode(email: string) {
     throw new NotFoundError(`User with email: ${email} does not exist.`);
   }
   if (user.verified) {
-    return 'Email is already verified';
+    return { status: 'Failure', message: 'Email is already verified' };
   }
-  await sendEmailTo(email, 'Email verification');
-  console.log(`Verification email sent successfully.`);
-  return 'Confirmation code successfully sent to your email';
+
+  const verificationToken = generateToken(email, 'Email verification');
+  try {
+    await sendEmail(email, 'Email verification', verificationToken);
+    console.log(`Verification email sent successfully.`);
+  } catch (error) {
+    throw new EmailError('Failed to send email');
+  }
+
+  return { status: 'Success', message: 'Confirmation code successfully sent to your email' };
 }
 
 async function sendResetPasswordCode(email: string) {
@@ -130,74 +111,48 @@ async function sendResetPasswordCode(email: string) {
   if (!user) {
     throw new NotFoundError(`User with email: ${email} does not exist.`);
   }
-  // if (!user.verified) {
-  //   throw new Error('You have not verified your email');
-  // }
-  await sendEmailTo(email, 'Reset password');
-  console.log(`Reset email sent successfully.`);
-  return 'Reset password code successfully sent to your email';
+
+  const resetToken = generateToken(email, 'Reset password');
+  try {
+    await sendEmail(email, 'Reset password', resetToken);
+  } catch (error) {
+    throw new EmailError('Failed to send email');
+  }
+
+  return 'Reset password email sent successfully';
 }
 
 async function verifyRecoveryCode(token: string) {
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    const { email, type } = validateAuthJwt(decoded);
-    if (type !== 'Reset password') {
-      throw 'Invalid verification code';
-    }
+  const payload = jwt.verify(token, process.env.JWT_SECRET!);
+  const { email, type } = validateAuthJwt(payload);
+  if (type !== 'Reset password') {
+    throw new BadRequestError('Invalid verification code');
+  }
 
-    const user = await userDAO.findOneByEmail(email);
-    if (!user) {
-      // this should never be true. Again, jwt.verify should fail
-      throw "Email doesn't exist. Unexpected jwt email. JWT should contain only valid email, that is, registered emails. This should not happen... Server error";
-    }
-
-    return {
-      status: 'Success',
-      message: 'Password recovery code verified',
-      token: jwt.sign(
-        { email, type: 'Change password' },
-        process.env.JWT_SECRET!,
-        {
-          expiresIn: '10m',
-        }
-      ),
-    };
-  } catch (err) {
-    // check different types of verify errors
-    // expired, not valid jwt...
-    return {
-      status: 'Failure',
-    };
-    // throw err;
+  const user = await userDAO.findOneByEmail(email);
+  if (!user) {
+    // this can happen if account gets deleted in the process of recovering password
+    throw new NotFoundError(
+      'User not found. Invalid email in JWT. JWT should contain only valid email (registered emails). Server error.'
+    );
   }
 }
 
 async function resetPassword(token: string, newPassword: string) {
-  try {
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET!);
-    const parsedToken = validateAuthJwt(decodedToken);
-    const user = await userDAO.findOneByEmail(parsedToken.email);
-    if (!user?.verified) {
-      throw new Error('You have not verified your email');
-    }
+  const payload = jwt.verify(token, process.env.JWT_SECRET!);
+  const parsedPayload = validateAuthJwt(payload);
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    const updatedUser = await userDAO.update(parsedToken.email, {
-      password: hashedPassword,
-    });
-    if (!updatedUser) {
-      throw 'Failed to update password. Server error';
-    }
-    return {
-      status: 'Success',
-      message: 'Password changed successfully',
-    };
-  } catch (err) {
-    throw err;
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  const updatedUser = await userDAO.update(parsedPayload.email, {
+    password: hashedPassword,
+  });
+  if (!updatedUser) {
+    throw new UpdateError('Something went wrong. Failed to reset password.');
   }
 }
 
+// ________
+// Public API
 export default {
   login,
   register,
