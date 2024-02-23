@@ -31,7 +31,14 @@ async function createRecord(userId: bigint, recordData: RecordCreate) {
 async function updateRecord(userId: bigint, recordId: bigint, recordData: RecordUpdate) {
   const updatedRecord = await recordDAO.update(userId, recordId, objectToSnake(recordData));
   if (!updatedRecord) {
-    throw new NotFoundError(`Failed to update - some reason`);
+    // this should be more specific.
+    // does the recordId or activityId cause the error. Find appropriate solution
+    let message = `Failed to update record. Record with recordId=${recordId}`;
+    if (recordData.activityId) {
+      message += ` or activityId=${recordData.activityId}`;
+    }
+    message += ' not found';
+    throw new NotFoundError(message);
   }
   return updatedRecord;
 }
