@@ -76,6 +76,7 @@ const getAllRequestObject = {
         .string()
         .datetime()
         .transform((date) => new Date(date)),
+      archived: z.boolean(),
     })
     .partial()
     .refine(
