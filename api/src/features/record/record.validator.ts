@@ -52,8 +52,7 @@ const getRequestObject = {
     recordId: bigintStringSchema,
   }),
 };
-export const getRequestSchema = z.object(getRequestObject);
-export type GetRequest = z.infer<typeof getRequestSchema>;
+const getRequestSchema = z.object(getRequestObject);
 
 const getAllRequestObject = {
   query: z
@@ -89,9 +88,8 @@ const getAllRequestObject = {
       () => ({ message: 'dateTo has to be after dateFrom', path: ['dateTo'] })
     ),
 };
-export const getAllRequestSchema = z.object(getAllRequestObject);
-export type GetAllRequest = z.infer<typeof getAllRequestSchema>;
-export type QueryParams = z.infer<typeof getAllRequestObject.query>;
+const getAllRequestSchema = z.object(getAllRequestObject);
+type QueryParams = z.infer<typeof getAllRequestObject.query>;
 
 const createRequestObject = {
   body: z
@@ -123,8 +121,8 @@ const createRequestObject = {
       })
     ),
 };
-export const createRequestSchema = z.object(createRequestObject);
-export type CreateRequest = z.infer<typeof createRequestSchema>;
+const createRequestSchema = z.object(createRequestObject);
+type RecordCreate = z.infer<typeof createRequestObject.body>;
 
 const updateRequestObject = {
   body: z
@@ -159,12 +157,11 @@ const updateRequestObject = {
     recordId: bigintStringSchema,
   }),
 };
-export const updateRequestSchema = z.object(updateRequestObject);
-export type UpdateRequest = z.infer<typeof updateRequestSchema>;
+const updateRequestSchema = z.object(updateRequestObject);
+type RecordUpdate = z.infer<typeof updateRequestObject.body>;
 
 const deleteRequestObject = getRequestObject;
-export const deleteRequestSchema = z.object(deleteRequestObject);
-export type DeleteRequest = z.infer<typeof deleteRequestSchema>;
+const deleteRequestSchema = z.object(deleteRequestObject);
 
 const getCurrentGoalsRequestObject = {
   query: z.object({
@@ -178,12 +175,7 @@ const getCurrentGoalsRequestObject = {
     // maybe set upper and lower limit for offset?
   }),
 };
-export const getCurrentGoalsRequestSchema = z.object(
-  getCurrentGoalsRequestObject
-);
-export type getCurrentGoalsRequest = z.infer<
-  typeof getCurrentGoalsRequestSchema
->;
+const getCurrentGoalsRequestSchema = z.object(getCurrentGoalsRequestObject);
 
 const getStatisticsRequestObject = {
   query: z
@@ -216,6 +208,22 @@ const getStatisticsRequestObject = {
       () => ({ message: 'dateTo has to be after dateFrom', path: ['dateTo'] })
     ),
 };
-export const getStatisticsRequestSchema = z.object(getStatisticsRequestObject);
-export type GetStatisticsRequest = z.infer<typeof getStatisticsRequestSchema>;
-export type StatisticsQuery = z.infer<typeof getStatisticsRequestObject.query>;
+const getStatisticsRequestSchema = z.object(getStatisticsRequestObject);
+type StatisticsQuery = z.infer<typeof getStatisticsRequestObject.query>;
+
+export {
+  // schemas
+  getAllRequestSchema,
+  getRequestSchema,
+  getCurrentGoalsRequestSchema,
+  getStatisticsRequestSchema,
+  createRequestSchema,
+  updateRequestSchema,
+  deleteRequestSchema,
+
+  // types
+  StatisticsQuery,
+  QueryParams,
+  RecordCreate,
+  RecordUpdate,
+};
