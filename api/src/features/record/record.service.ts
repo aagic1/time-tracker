@@ -1,6 +1,48 @@
+import { objectToSnake } from 'ts-case-convert';
+
 import recordDAO from './record.dao';
+import { NotFoundError } from '../../errors/not-found-error';
 import { DateWithTimezone } from './record.helpers';
-import { StatisticsQuery } from './record.validator';
+import { RecordCreate, RecordUpdate, StatisticsQuery, QueryParams } from './record.validator';
+
+async function getRecord(userId: bigint, recordId: bigint) {
+  const record = await recordDAO.findOne(userId, recordId);
+  if (!record) {
+    throw new NotFoundError(`Record with id=${recordId} not found`);
+  }
+  return record;
+}
+
+async function getAllRecords(userId: bigint, filters: QueryParams) {
+  const records = await recordDAO.findAll(userId, filters);
+  return records;
+}
+
+async function createRecord(userId: bigint, recordData: RecordCreate) {
+  const newRecord = await recordDAO.create(userId, objectToSnake(recordData));
+  if (!newRecord) {
+    throw new NotFoundError(
+      `Failed to create record for specified activity. Activity with id=${recordData.activityId} not found.`
+    );
+  }
+  return newRecord;
+}
+
+async function updateRecord(userId: bigint, recordId: bigint, recordData: RecordUpdate) {
+  const updatedRecord = await recordDAO.update(userId, recordId, objectToSnake(recordData));
+  if (!updatedRecord) {
+    throw new NotFoundError(`Failed to update - some reason`);
+  }
+  return updatedRecord;
+}
+
+async function deleteRecord(userId: bigint, recordId: bigint) {
+  const result = await recordDAO.remove(userId, recordId);
+  if (result.numDeletedRows === 0n) {
+    throw new NotFoundError(`Failed to delete record. Record with id=${recordId} not found.`);
+  }
+  return true;
+}
 
 async function getStatistics(accountId: bigint, filters: StatisticsQuery) {
   const { from, to, activityId } = filters;
@@ -79,7 +121,15 @@ function calculateElapsedTime(
   return upperBound.getTime() - lowerBound.getTime();
 }
 
+// _________
+// Public API
+
 export default {
+  getRecord,
+  getAllRecords,
+  createRecord,
+  updateRecord,
+  deleteRecord,
   getStatistics,
   getCurrentGoals,
 };
