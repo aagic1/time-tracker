@@ -7,7 +7,7 @@ import { DateWithTimezone } from './record.helpers';
 
 // columns to return from DB queries
 // (record columns + activity columns that match given record)
-const columnsToSelect = [
+const COLUMNS_TO_SELECT = [
   'record.id as recordId',
   'record.comment as comment',
   'record.started_at as startedAt',
@@ -26,7 +26,7 @@ async function findOne(accountId: bigint, recordId: bigint) {
   return db
     .selectFrom('record')
     .innerJoin('activity', 'record.activity_id', 'activity.id')
-    .select(columnsToSelect)
+    .select(COLUMNS_TO_SELECT)
     .where('activity.account_id', '=', accountId)
     .where('record.id', '=', recordId)
     .executeTakeFirst();
@@ -36,7 +36,7 @@ async function findAll(accountId: bigint, queryParams?: QueryParams) {
   return db
     .selectFrom('record')
     .innerJoin('activity', 'activity.id', 'record.activity_id')
-    .select(columnsToSelect)
+    .select(COLUMNS_TO_SELECT)
     .where('activity.account_id', '=', accountId)
     .where(getFilters(queryParams))
     .execute();
@@ -103,7 +103,7 @@ async function update(accountId: bigint, record_id: bigint, record: RecordUpdate
       // 2. step - join updated record with appropriate activity
       .selectFrom('updateResult as record')
       .innerJoin('activity', 'record.activity_id', 'activity.id')
-      .select(columnsToSelect)
+      .select(COLUMNS_TO_SELECT)
       .executeTakeFirst()
   );
 }
@@ -118,8 +118,9 @@ async function findCurrentGoalsByType(
 
   return db
     .selectFrom('activity as a')
-    .leftJoin(getRecordsBetween(dateTZ.getStartOf(type), dateTZ.getEndOf(type)).as('r'), (join) =>
-      join.onRef('r.activity_id', '=', 'a.id')
+    .leftJoin(
+      selectRecordsBetween(dateTZ.getStartOf(type), dateTZ.getEndOf(type)).as('r'),
+      (join) => join.onRef('r.activity_id', '=', 'a.id')
     )
     .select((eb) => [
       'a.id',
@@ -128,44 +129,7 @@ async function findCurrentGoalsByType(
       eb.val(`${type}Goal`).as('goalName'),
       `a.${type}_goal as goalTime`,
       sql<boolean>`(COUNT(r.started_at) - COUNT(r.stopped_at)) > 0`.as('hasActiveRecord'),
-      sql<IPostgresInterval>`SUM(
-        CASE
-          WHEN r.started_at IS NULL THEN '0s'::interval
-          WHEN r.stopped_at IS NOT NULL THEN
-            CASE
-              WHEN r.started_at >= ${startOfPeriod} 
-                AND r.stopped_at <= ${endOfPeriod}
-                THEN r.stopped_at - r.started_at
-
-              WHEN r.started_at >= ${startOfPeriod} 
-                  AND r.started_at <= ${endOfPeriod} 
-                  AND r.stopped_at >= ${endOfPeriod}
-                THEN ${endOfPeriod} - r.started_at
-
-              WHEN r.started_at <= ${startOfPeriod} 
-                  AND r.stopped_at >= ${startOfPeriod}
-                  AND r.stopped_at <= ${endOfPeriod}
-                THEN r.stopped_at - ${startOfPeriod}
-
-              WHEN r.started_at <= ${startOfPeriod} 
-                  AND r.stopped_at >= ${endOfPeriod}
-                THEN ${endOfPeriod}::timestamptz - ${startOfPeriod}
-
-              ELSE '0s'::interval
-            END
-          ELSE
-            CASE
-              WHEN r.started_at >= ${startOfPeriod} 
-                  AND r.started_at <= ${endOfPeriod}
-                THEN ${dateTZ.toDate()} - r.started_at
-                
-              WHEN r.started_at < ${startOfPeriod}
-                THEN ${dateTZ.toDate()}::timestamptz - ${startOfPeriod}
-                
-              ELSE '0s'::interval
-            END
-        END
-    )`.as('totalTime'),
+      sumElapsedGoalTime(startOfPeriod, endOfPeriod, dateTZ.toDate()),
     ])
     .where('account_id', '=', accountId)
     .where(`a.${type}_goal`, 'is not', null)
@@ -233,7 +197,7 @@ function getFilters(queryParams: QueryParams | undefined) {
   return eb.and(filters);
 }
 
-function getRecordsBetween(startOfPeriod: Date, endOfPeriod: Date) {
+function selectRecordsBetween(startDate: Date, endDate: Date) {
   const eb = expressionBuilder<DB, 'record'>();
 
   return eb
@@ -241,12 +205,9 @@ function getRecordsBetween(startOfPeriod: Date, endOfPeriod: Date) {
     .selectAll()
     .where((eb) =>
       eb.or([
-        eb.and([
-          eb('record.started_at', '>=', startOfPeriod),
-          eb('record.started_at', '<=', endOfPeriod),
-        ]),
-        eb('record.started_at', '<=', startOfPeriod).and(
-          eb.or([eb('record.stopped_at', '>=', startOfPeriod), eb('record.stopped_at', 'is', null)])
+        eb('record.started_at', '>=', startDate).and('record.started_at', '<=', endDate),
+        eb('record.started_at', '<=', startDate).and(
+          eb('record.stopped_at', '>=', startDate).or('record.stopped_at', 'is', null)
         ),
       ])
     );
@@ -259,18 +220,16 @@ function filterRecordsBetweenDates(startDate: Date, stopDate: Date) {
   return eb.or([
     eb.and([
       eb('started_at', '<=', startDate),
-      eb.or([
-        eb('stopped_at', '>=', startDate),
-        eb('stopped_at', 'is', null).and(sql.val(startDate), '<', dateNow),
-      ]),
+      eb('stopped_at', '>=', startDate).or(
+        eb('stopped_at', 'is', null).and(sql.val(startDate), '<', dateNow)
+      ),
     ]),
     eb.and([
       eb('started_at', '>=', startDate),
       eb('started_at', '<=', stopDate),
-      eb.or([
-        eb('stopped_at', 'is not', null),
-        eb('stopped_at', 'is', null).and(sql.val(startDate), '<', dateNow),
-      ]),
+      eb('stopped_at', 'is not', null).or(
+        eb('stopped_at', 'is', null).and(sql.val(startDate), '<', dateNow)
+      ),
     ]),
   ]);
 }
@@ -293,4 +252,47 @@ function belongsActivityToAccount(accountId: bigint, activityId: bigint) {
   return eb.exists((eb) =>
     eb.selectFrom('activity').where('account_id', '=', accountId).where('id', '=', activityId)
   );
+}
+
+function sumElapsedGoalTime(startOfPeriod: Date, endOfPeriod: Date, dateNow: Date) {
+  // what if r.started_at > dateNow? It doesnt make sense to query goal progress that is in the future (progress that has not yet happened).
+  // currently there exists no API endpoint to access future goal data, so it is not handled currently.
+  return sql<IPostgresInterval>`SUM(
+    CASE
+      WHEN r.started_at IS NULL THEN '0s'::interval
+      WHEN r.stopped_at IS NOT NULL THEN
+        CASE
+          WHEN r.started_at >= ${startOfPeriod} 
+              AND r.stopped_at <= ${endOfPeriod}
+            THEN r.stopped_at - r.started_at
+
+          WHEN r.started_at >= ${startOfPeriod} 
+              AND r.started_at <= ${endOfPeriod} 
+              AND r.stopped_at >= ${endOfPeriod}
+            THEN ${endOfPeriod} - r.started_at
+
+          WHEN r.started_at <= ${startOfPeriod} 
+              AND r.stopped_at >= ${startOfPeriod}
+              AND r.stopped_at <= ${endOfPeriod}
+            THEN r.stopped_at - ${startOfPeriod}
+
+          WHEN r.started_at <= ${startOfPeriod} 
+              AND r.stopped_at >= ${endOfPeriod}
+            THEN ${endOfPeriod}::timestamptz - ${startOfPeriod}
+
+          ELSE '0s'::interval
+        END
+      ELSE
+        CASE
+          WHEN r.started_at >= ${startOfPeriod} 
+              AND r.started_at <= ${endOfPeriod}
+            THEN ${dateNow} - r.started_at    
+            
+          WHEN r.started_at < ${startOfPeriod}
+            THEN ${dateNow}::timestamptz - ${startOfPeriod}
+            
+          ELSE '0s'::interval
+        END
+    END
+  )`.as('totalTime');
 }
