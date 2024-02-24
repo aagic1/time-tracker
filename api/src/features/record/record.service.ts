@@ -4,7 +4,11 @@ import recordDAO from './record.dao';
 import { NotFoundError } from '../../errors/not-found-error';
 import { DateWithTimezone } from './record.helpers';
 import { RecordCreate, RecordUpdate, StatisticsQuery, QueryParams } from './record.validator';
-import { ActivityRecord, Statistics } from './record.types';
+import { Statistics } from './record.types';
+import { calculateElapsedTime } from './record.utils';
+
+// __________
+// Public API
 
 async function getRecord(userId: bigint, recordId: bigint) {
   const record = await recordDAO.findOne(userId, recordId);
@@ -81,17 +85,9 @@ async function getStatistics(accountId: bigint, filters: StatisticsQuery) {
 async function getCurrentGoals(accountId: bigint, timezoneOffset: number) {
   const dateNowTZ = new DateWithTimezone(timezoneOffset);
 
-  const dayGoals = recordDAO.getCurrentGoalsByType(accountId, dateNowTZ, 'day');
-  const weekGoals = recordDAO.getCurrentGoalsByType(
-    accountId,
-    dateNowTZ,
-    'week'
-  );
-  const monthGoals = recordDAO.getCurrentGoalsByType(
-    accountId,
-    dateNowTZ,
-    'month'
-  );
+  const dayGoals = recordDAO.findCurrentGoalsByType(accountId, dateNowTZ, 'day');
+  const weekGoals = recordDAO.findCurrentGoalsByType(accountId, dateNowTZ, 'week');
+  const monthGoals = recordDAO.findCurrentGoalsByType(accountId, dateNowTZ, 'month');
   try {
     const allGoals = await Promise.all([dayGoals, weekGoals, monthGoals]);
     return { goals: allGoals.flat(), measuredAt: dateNowTZ.toDate() };
@@ -100,44 +96,8 @@ async function getCurrentGoals(accountId: bigint, timezoneOffset: number) {
   }
 }
 
-function calculateElapsedTime(
-  record: ActivityRecord,
-  dateFrom: Date | undefined,
-  dateTo: Date | undefined
-) {
-  let currentDateTime = new Date();
-
-  let lowerBound: Date;
-  let upperBound: Date;
-
-  // this code is bad, make it easier to understand
-  if (!dateFrom) {
-    lowerBound = record.startedAt;
-  } else if (record.startedAt < dateFrom) {
-    lowerBound = dateFrom;
-  } else {
-    lowerBound = record.startedAt;
-  }
-
-  if (!record.stoppedAt) {
-    if (!dateTo || dateTo > currentDateTime) {
-      upperBound = currentDateTime;
-    } else {
-      upperBound = dateTo;
-    }
-  } else {
-    if (!dateTo) {
-      upperBound = record.stoppedAt;
-    } else {
-      upperBound = dateTo;
-    }
-  }
-
-  return upperBound.getTime() - lowerBound.getTime();
-}
-
 // _________
-// Public API
+// Public API export
 
 export default {
   getRecord,
