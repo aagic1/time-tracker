@@ -1,11 +1,3 @@
-export type DateObject = {
-  year: number;
-  month: number;
-  dayOfMonth: number;
-  dayOfWeek: number;
-  timezoneOffset: number;
-};
-
 import { IPostgresInterval } from 'postgres-interval';
 
 export type ActivityRecord = {
