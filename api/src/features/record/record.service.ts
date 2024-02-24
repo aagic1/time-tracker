@@ -4,6 +4,7 @@ import recordDAO from './record.dao';
 import { NotFoundError } from '../../errors/not-found-error';
 import { DateWithTimezone } from './record.helpers';
 import { RecordCreate, RecordUpdate, StatisticsQuery, QueryParams } from './record.validator';
+import { ActivityRecord, Statistics } from './record.types';
 
 async function getRecord(userId: bigint, recordId: bigint) {
   const record = await recordDAO.findOne(userId, recordId);
@@ -53,23 +54,27 @@ async function deleteRecord(userId: bigint, recordId: bigint) {
 
 async function getStatistics(accountId: bigint, filters: StatisticsQuery) {
   const { from, to, activityId } = filters;
-  let dateFrom: Date | undefined;
-  let dateTo: Date | undefined;
 
-  const result = await recordDAO.find(accountId, {
+  const records = await recordDAO.findAll(accountId, {
     activityId,
     dateFrom: from,
     dateTo: to,
   });
-  const activityStats = new Map<string, number>();
-  result.forEach((record) => {
-    let elapsedTime = calculateElapsedTime(record, dateFrom, dateTo);
-    let activityId = '' + record.activityId;
+
+  const activityStats = new Map<string, Statistics>();
+  records.forEach((record) => {
+    let elapsedTime = calculateElapsedTime(record, from, to);
+    let activityId = record.activityId.toString();
     if (!activityStats.get(activityId)) {
-      activityStats.set(activityId, 0);
+      activityStats.set(activityId, { totalTime: 0, hasActive: false, records: [] });
     }
-    activityStats.set(activityId, activityStats.get(activityId)! + elapsedTime);
+
+    const stats = activityStats.get(activityId)!;
+    stats.totalTime += elapsedTime;
+    stats.hasActive = stats.hasActive || record.stoppedAt != null;
+    stats.records.push(record);
   });
+
   return activityStats;
 }
 
@@ -96,7 +101,7 @@ async function getCurrentGoals(accountId: bigint, timezoneOffset: number) {
 }
 
 function calculateElapsedTime(
-  record: any,
+  record: ActivityRecord,
   dateFrom: Date | undefined,
   dateTo: Date | undefined
 ) {
@@ -105,6 +110,7 @@ function calculateElapsedTime(
   let lowerBound: Date;
   let upperBound: Date;
 
+  // this code is bad, make it easier to understand
   if (!dateFrom) {
     lowerBound = record.startedAt;
   } else if (record.startedAt < dateFrom) {
@@ -113,16 +119,18 @@ function calculateElapsedTime(
     lowerBound = record.startedAt;
   }
 
-  if (!dateTo) {
-    if (!record.stoppedAt || record.stoppedAt > currentDateTime) {
+  if (!record.stoppedAt) {
+    if (!dateTo || dateTo > currentDateTime) {
       upperBound = currentDateTime;
     } else {
-      upperBound = record.stoppedAt;
+      upperBound = dateTo;
     }
-  } else if (!record.stoppedAt || record.stoppedAt > dateTo) {
-    upperBound = dateTo;
   } else {
-    upperBound = record.stoppedAt;
+    if (!dateTo) {
+      upperBound = record.stoppedAt;
+    } else {
+      upperBound = dateTo;
+    }
   }
 
   return upperBound.getTime() - lowerBound.getTime();
