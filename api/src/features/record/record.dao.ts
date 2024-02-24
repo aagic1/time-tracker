@@ -180,17 +180,29 @@ async function getCurrentGoalsByType(
     .execute();
 }
 
+// ________
+// Public API export
+export default {
+  findOne,
+  findAll,
+  remove,
+  create,
+  update,
+  findCurrentGoalsByType,
+};
+
+// ________
 // Private helper functions
 
 function getFilters(queryParams: QueryParams | undefined) {
-  const eb = expressionBuilder<DB, 'record'>();
+  const eb = expressionBuilder<DB, 'record' | 'activity'>();
 
   if (!queryParams) {
     return eb.and([]);
   }
 
   const filters: Expression<SqlBool>[] = [];
-  const { active, activityId, comment, dateFrom, dateTo } = queryParams;
+  const { active, activityId, comment, archived, dateFrom, dateTo } = queryParams;
 
   if (active === true) {
     filters.push(eb('record.stopped_at', 'is', null));
@@ -204,6 +216,10 @@ function getFilters(queryParams: QueryParams | undefined) {
 
   if (comment) {
     filters.push(eb('record.comment', 'ilike', `%${comment}%`));
+  }
+
+  if (archived) {
+    filters.push(eb('activity.archived', '=', false));
   }
 
   // maybe: if dateFrom > dateTo throw some error to signalize invalid data
