@@ -5,7 +5,9 @@ import { QueryParams } from './record.validator';
 import type { IPostgresInterval } from 'postgres-interval';
 import { DateWithTimezone } from './record.helpers';
 
-const recordColumnsToSelect = [
+// columns to return from DB queries
+// (record columns + activity columns that match given record)
+const columnsToSelect = [
   'record.id as recordId',
   'record.comment as comment',
   'record.started_at as startedAt',
@@ -17,23 +19,24 @@ const recordColumnsToSelect = [
   'activity.session_goal as sessionGoal',
 ] as const;
 
+// ________
 // Public API
 
-async function findById(accountId: bigint, recordId: bigint) {
+async function findOne(accountId: bigint, recordId: bigint) {
   return db
     .selectFrom('record')
     .innerJoin('activity', 'record.activity_id', 'activity.id')
-    .select(recordColumnsToSelect)
+    .select(columnsToSelect)
     .where('activity.account_id', '=', accountId)
     .where('record.id', '=', recordId)
     .executeTakeFirst();
 }
 
-async function find(accountId: bigint, queryParams?: QueryParams) {
+async function findAll(accountId: bigint, queryParams?: QueryParams) {
   return db
     .selectFrom('record')
     .innerJoin('activity', 'activity.id', 'record.activity_id')
-    .select(recordColumnsToSelect)
+    .select(columnsToSelect)
     .where('activity.account_id', '=', accountId)
     .where(getFilters(queryParams))
     .execute();
@@ -47,10 +50,7 @@ async function remove(accountId: bigint, recordId: bigint) {
       eb(
         'record.activity_id',
         'in',
-        eb
-          .selectFrom('activity')
-          .where('account_id', '=', accountId)
-          .select('activity.id')
+        eb.selectFrom('activity').where('account_id', '=', accountId).select('activity.id')
       )
     )
     .executeTakeFirst();
@@ -76,41 +76,39 @@ async function create(accountId: bigint, record: NewRecord) {
     .executeTakeFirst();
 }
 
-async function update(
-  accountId: bigint,
-  record_id: bigint,
-  record: RecordUpdate
-) {
-  return db
-    .with('updateResult', (db) =>
-      db
-        .updateTable('record')
-        .set(record)
-        .where('id', '=', record_id)
-        .where(({ eb, selectFrom }) =>
-          eb(
-            'record.activity_id',
-            'in',
-            selectFrom('activity')
-              .select('id')
-              .where('account_id', '=', accountId)
+async function update(accountId: bigint, record_id: bigint, record: RecordUpdate) {
+  return (
+    db
+      // 1. step - update record
+      .with('updateResult', (db) =>
+        db
+          .updateTable('record')
+          .set(record)
+          .where('id', '=', record_id)
+          .where(({ eb, selectFrom }) =>
+            eb(
+              'record.activity_id',
+              'in',
+              selectFrom('activity').select('id').where('account_id', '=', accountId)
+            )
           )
-        )
-        .where((eb) => {
-          if (!record.activity_id) {
-            return eb.and([]);
-          }
-          return belongsActivityToAccount(accountId, record.activity_id);
-        })
-        .returningAll()
-    )
-    .selectFrom('updateResult as record')
-    .innerJoin('activity', 'record.activity_id', 'activity.id')
-    .select(recordColumnsToSelect)
-    .executeTakeFirst();
+          .where((eb) => {
+            if (!record.activity_id) {
+              return eb.and([]);
+            }
+            return belongsActivityToAccount(accountId, record.activity_id);
+          })
+          .returningAll()
+      )
+      // 2. step - join updated record with appropriate activity
+      .selectFrom('updateResult as record')
+      .innerJoin('activity', 'record.activity_id', 'activity.id')
+      .select(columnsToSelect)
+      .executeTakeFirst()
+  );
 }
 
-async function getCurrentGoalsByType(
+async function findCurrentGoalsByType(
   accountId: bigint,
   dateTZ: DateWithTimezone,
   type: 'day' | 'week' | 'month'
@@ -120,9 +118,8 @@ async function getCurrentGoalsByType(
 
   return db
     .selectFrom('activity as a')
-    .leftJoin(
-      getRecordsBetween(dateTZ.getStartOf(type), dateTZ.getEndOf(type)).as('r'),
-      (join) => join.onRef('r.activity_id', '=', 'a.id')
+    .leftJoin(getRecordsBetween(dateTZ.getStartOf(type), dateTZ.getEndOf(type)).as('r'), (join) =>
+      join.onRef('r.activity_id', '=', 'a.id')
     )
     .select((eb) => [
       'a.id',
@@ -130,9 +127,7 @@ async function getCurrentGoalsByType(
       'a.color',
       eb.val(`${type}Goal`).as('goalName'),
       `a.${type}_goal as goalTime`,
-      sql<boolean>`(COUNT(r.started_at) - COUNT(r.stopped_at)) > 0`.as(
-        'hasActiveRecord'
-      ),
+      sql<boolean>`(COUNT(r.started_at) - COUNT(r.stopped_at)) > 0`.as('hasActiveRecord'),
       sql<IPostgresInterval>`SUM(
         CASE
           WHEN r.started_at IS NULL THEN '0s'::interval
@@ -251,10 +246,7 @@ function getRecordsBetween(startOfPeriod: Date, endOfPeriod: Date) {
           eb('record.started_at', '<=', endOfPeriod),
         ]),
         eb('record.started_at', '<=', startOfPeriod).and(
-          eb.or([
-            eb('record.stopped_at', '>=', startOfPeriod),
-            eb('record.stopped_at', 'is', null),
-          ])
+          eb.or([eb('record.stopped_at', '>=', startOfPeriod), eb('record.stopped_at', 'is', null)])
         ),
       ])
     );
@@ -299,20 +291,6 @@ function filterRecordsTo(dateTo: Date): Expression<SqlBool> {
 function belongsActivityToAccount(accountId: bigint, activityId: bigint) {
   const eb = expressionBuilder<DB, 'activity'>();
   return eb.exists((eb) =>
-    eb
-      .selectFrom('activity')
-      .where('account_id', '=', accountId)
-      .where('id', '=', activityId)
+    eb.selectFrom('activity').where('account_id', '=', accountId).where('id', '=', activityId)
   );
 }
-
-// Public API export
-
-export default {
-  findById,
-  find,
-  remove,
-  create,
-  update,
-  getCurrentGoalsByType,
-};
