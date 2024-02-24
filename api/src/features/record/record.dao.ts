@@ -214,7 +214,7 @@ function getFilters(queryParams: QueryParams | undefined) {
   }
 
   if (archived) {
-    filters.push(eb('activity.archived', '=', false));
+    filters.push(eb('activity.archived', '=', archived));
   }
 
   // maybe: if dateFrom > dateTo throw some error to signalize invalid data
