@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { CustomApiError } from '../errors/custom-api-error';
 import { DatabaseError } from 'pg';
+import { JsonWebTokenError } from 'jsonwebtoken';
+
+// __________
+// Public API
 
 export function errorHandler(
   error: CustomApiError | DatabaseError | Error | string,
@@ -8,28 +12,35 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ) {
+  console.log('error handler');
   console.log(error);
   if (error instanceof CustomApiError) {
     console.log('custom error');
-    res
-      .status(error.statusCode)
-      .json({ error: { ...error, message: error.message } });
+    res.status(error.statusCode).json({ error: { ...error, message: error.message } });
   } else if (error instanceof DatabaseError) {
     console.log('DB error');
     const dbError = parseDatabaseError(error);
-    res.status(409).json({ error: dbError });
+    if (!dbError) {
+      console.log('some unhandled db error');
+      return res.status(500).json('Server error');
+    }
+    res.status(dbError.statusCode).json({ error: dbError });
+  } else if (error instanceof JsonWebTokenError) {
+    console.log('JWT error');
+    res.status(422).json({ error: error });
   } else if (error instanceof Error) {
     console.log('error');
-    res.send(error.message);
+    res.status(500).send(error.message);
   } else if (typeof error === 'string') {
     console.log('string');
-    res.send(error);
+    res.status(500).send(error);
   } else {
     console.log('unknown error');
-    res.send('unknown error');
+    res.status(500).send('Server error');
   }
 }
 
+// Database error handler helpers
 const dbErrorCodes = {
   unique: '23505',
   foreignKey: '23503',
@@ -52,20 +63,23 @@ function parseDatabaseError(error: DatabaseError) {
     const { domainName, sources, values } = parseDatabaseErrorContents(error);
     return {
       type: 'ConflictError',
+      statusCode: 409,
       message: `${domainName} with value(s) (${sources})=(${values}) already exists`,
     };
   } else if (error.code === dbErrorCodes.foreignKey) {
     const { domainName, sources, values } = parseDatabaseErrorContents(error);
     return {
       type: 'NotFoundError',
+      statusCode: 404,
       message: `Key (${sources}): (${values}) doesn't exist`,
     };
   } else if (error.code === dbErrorCodes.outOfRangeNumeric) {
     return {
       type: 'NumericOutOfRangeError',
+      statusCode: 500,
       message: `Some numeric value is out of range. This message is bad, should be more specific. But error doesn't give any info`,
     };
   } else {
-    return 'Unhandled db error';
+    return null;
   }
 }
