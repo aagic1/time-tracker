@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 // hook that starts a stopwatch and measures the elapsed time while keeping
 // ticking seconds in sync
-export default function useTimer(startedAt) {
+export default function useStopwatch(startedAt) {
   const [timer, setTimer] = useState(new Date() - startedAt);
   const startEpoch = startedAt.valueOf();
 

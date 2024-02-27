@@ -1,6 +1,6 @@
 import styles from './active-record.module.css';
 import { FaEdit, FaCheckCircle, FaStopwatch } from 'react-icons/fa';
-import useTimer from '../../hooks/useTimer';
+import useStopwatch from '../../hooks/useStopwatch';
 import { useNavigate } from 'react-router-dom';
 
 export default function ActiveRecord({
@@ -11,13 +11,10 @@ export default function ActiveRecord({
   showSessionDetails,
 }) {
   const navigate = useNavigate();
-  const timer = useTimer(new Date(record.startedAt));
+  const timer = useStopwatch(new Date(record.startedAt));
 
   const elapsedHours = Math.trunc(timer / (1000 * 60 * 60));
-  let { startTimeFormated } = formatStartDateAndTime(
-    new Date(record.startedAt),
-    elapsedHours
-  );
+  let { startTimeFormated } = formatStartDateAndTime(new Date(record.startedAt), elapsedHours);
 
   let remainingTime = 0;
   if (record.sessionGoal) {
@@ -64,12 +61,7 @@ export default function ActiveRecord({
             </div>
           )}
         </div>
-        {showEdit && (
-          <FaEdit
-            onClick={(e) => handleEdit(e, record)}
-            className={styles.editIcon}
-          />
-        )}
+        {showEdit && <FaEdit onClick={(e) => handleEdit(e, record)} className={styles.editIcon} />}
       </div>
     </div>
   );

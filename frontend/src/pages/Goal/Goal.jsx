@@ -2,7 +2,7 @@ import { useLoaderData } from 'react-router-dom';
 import styles from './goal.module.css';
 import HorizontalSeparator from '../../components/HorizontalSeparator/HorizontalSeparator';
 import { FaCheckCircle, FaStopwatch } from 'react-icons/fa';
-import useTimer from '../../hooks/useTimer';
+import useStopwatch from '../../hooks/useStopwatch';
 
 export async function loader() {
   const result = await fetch(
@@ -27,17 +27,11 @@ export default function Goal() {
 
   return (
     <div className={styles.h}>
-      {dayGoals.length > 0 && (
-        <HorizontalSeparator className={styles.separator} text={'Today'} />
-      )}
+      {dayGoals.length > 0 && <HorizontalSeparator className={styles.separator} text={'Today'} />}
       <div className={styles.goalsContainer}>
         {dayGoals.map((goal) =>
           goal.hasActiveRecord ? (
-            <ActiveGoalCard
-              key={goal.id + goal.goalName}
-              data={goal}
-              measuredAt={measuredAt}
-            />
+            <ActiveGoalCard key={goal.id + goal.goalName} data={goal} measuredAt={measuredAt} />
           ) : (
             <GoalCard key={goal.id + goal.goalName} data={goal} />
           )
@@ -50,11 +44,7 @@ export default function Goal() {
       <div className={styles.goalsContainer}>
         {weekGoals.map((goal) =>
           goal.hasActiveRecord ? (
-            <ActiveGoalCard
-              key={goal.id + goal.goalName}
-              data={goal}
-              measuredAt={measuredAt}
-            />
+            <ActiveGoalCard key={goal.id + goal.goalName} data={goal} measuredAt={measuredAt} />
           ) : (
             <GoalCard key={goal.id + goal.goalName} data={goal} />
           )
@@ -66,11 +56,7 @@ export default function Goal() {
       <div className={styles.goalsContainer}>
         {monthGoals.map((goal) =>
           goal.hasActiveRecord ? (
-            <ActiveGoalCard
-              key={goal.id + goal.goalName}
-              data={goal}
-              measuredAt={measuredAt}
-            />
+            <ActiveGoalCard key={goal.id + goal.goalName} data={goal} measuredAt={measuredAt} />
           ) : (
             <GoalCard key={goal.id + goal.goalName} data={goal} />
           )
@@ -119,7 +105,7 @@ function getIntervalFromSeconds(totalSeconds) {
 
 function ActiveGoalCard({ data, measuredAt }) {
   const totalTime = intervalToMiliseconds(data.totalTime);
-  const timer = useTimer(new Date(measuredAt));
+  const timer = useStopwatch(new Date(measuredAt));
   const elapsedTime = Math.round((totalTime + timer) / 1000);
   const elapsedInterval = getIntervalFromSeconds(elapsedTime);
 
@@ -135,10 +121,7 @@ function GoalCard({ data }) {
   const goalTimeString = intervalToString(data.goalTime);
 
   return (
-    <div
-      className={styles.goalCardContainer}
-      style={{ backgroundColor: '#' + data.color }}
-    >
+    <div className={styles.goalCardContainer} style={{ backgroundColor: '#' + data.color }}>
       <div className={styles.nameContainer}>
         {data.hasActiveRecord && <FaStopwatch />}
         <span>{data.name}</span>
@@ -147,9 +130,7 @@ function GoalCard({ data }) {
         <div className={styles.timeContainer}>
           <div className={styles.elapsedTimeContainer}>{totalTimeString}</div>
           <div className={styles.goalTimeContainer}>
-            <div className={styles.goalTimeString}>
-              {'goal - ' + goalTimeString}
-            </div>
+            <div className={styles.goalTimeString}>{'goal - ' + goalTimeString}</div>
 
             {/* <div className={styles.remaining}></div> */}
           </div>
