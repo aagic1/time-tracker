@@ -101,3 +101,10 @@ export async function resetPassword(req: Request, res: Response) {
   await authService.resetPassword(body.token, body.newPassword);
   res.status(200).json('Password reset successfully');
 }
+
+export async function whoami(req: Request, res: Response) {
+  if (!req.session || !req.session.user) {
+    return res.json(null);
+  }
+  return res.json(req.session.user!.email);
+}
