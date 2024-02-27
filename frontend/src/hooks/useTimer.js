@@ -1,26 +1,26 @@
 import { useEffect, useState } from 'react';
 
+// hook that starts a stopwatch and measures the elapsed time while keeping
+// ticking seconds in sync
 export default function useTimer(startedAt) {
-  const [timer, setTimer] = useState(() => {
-    return new Date() - startedAt;
-  });
+  const [timer, setTimer] = useState(new Date() - startedAt);
   const startEpoch = startedAt.valueOf();
 
+  // synchronize seconds and start measuring time
   useEffect(() => {
-    setTimer(Date.now() - startEpoch);
-    const now = new Date();
-    const ms = now.getMilliseconds();
-    const timeout = 1000 - ms;
-    let intervalID;
-    const timeoutID = setTimeout(() => {
-      setTimer(Date.now() - startEpoch);
-      intervalID = setInterval(() => {
+    let intervalStopwatchID;
+    const timeoutSyncSeconds = 1000 - new Date().getMilliseconds();
+    const timeoutSyncSecondsID = setTimeout(() => {
+      intervalStopwatchID = setInterval(() => {
         setTimer(Date.now() - startEpoch);
       }, 1000);
-    }, timeout);
+
+      setTimer(Date.now() - startEpoch);
+    }, timeoutSyncSeconds);
+
     return () => {
-      clearTimeout(timeoutID);
-      clearInterval(intervalID);
+      clearTimeout(timeoutSyncSecondsID);
+      clearInterval(intervalStopwatchID);
     };
   }, [startEpoch]);
 
