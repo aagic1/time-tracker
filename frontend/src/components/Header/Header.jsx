@@ -1,16 +1,18 @@
 import styles from './header.module.css';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../pages/Auth/AuthProvider';
-import {
-  FaBullseye,
-  FaRegClock,
-  FaTasks,
-  FaChartBar,
-  FaSignOutAlt,
-} from 'react-icons/fa';
+import { FaRegClock, FaTasks, FaChartBar, FaSignOutAlt } from 'react-icons/fa';
+import { FaBullseye as Fa6Bullseye } from 'react-icons/fa6';
+
+const headerNavigationLinks = [
+  { id: 1, name: 'Activities', to: '/', Icon: FaRegClock },
+  { id: 2, name: 'Records', to: '/records', Icon: FaTasks },
+  { id: 3, name: 'Goals', to: '/goals', Icon: Fa6Bullseye },
+  { id: 4, name: 'Statistics', to: '/statistics', Icon: FaChartBar },
+];
 
 export default function Header() {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
 
   async function handleLogout() {
     const res = await fetch('http://localhost:8000/api/v1/auth/logout', {
@@ -23,8 +25,7 @@ export default function Header() {
       return await res.json();
     }
 
-    return logout();
-    // return navigate('/login');
+    logout();
   }
 
   return (
@@ -32,72 +33,37 @@ export default function Header() {
       <div className={styles.logo}>
         <span className={styles.logoText}>Time tracker</span>
       </div>
-      {/* {user !== null && (
-        <> */}
       <div className={styles.navigation}>
-        <NavLink
-          className={({ isActive }) =>
-            `${isActive ? styles.active : ''} ${styles.navLink}`
-          }
-          to="/"
-        >
-          <span className={styles.navText}>Activities</span>
-          <span className={styles.navIcon}>
-            <FaRegClock />
-          </span>
-        </NavLink>
-        <NavLink
-          className={({ isActive }) =>
-            `${isActive ? styles.active : ''} ${styles.navLink}`
-          }
-          to="/records"
-        >
-          <span className={styles.navText}>Records</span>
-          <span className={styles.navIcon}>
-            <FaTasks />
-          </span>
-        </NavLink>
-        <NavLink
-          className={({ isActive }) =>
-            `${isActive ? styles.active : ''} ${styles.navLink}`
-          }
-          to="goals"
-        >
-          <span className={styles.navText}>Goals</span>
-          <span className={styles.navIcon}>
-            <FaBullseye />
-          </span>
-        </NavLink>
-        <NavLink
-          className={({ isActive }) =>
-            `${isActive ? styles.active : ''} ${styles.navLink}`
-          }
-          to="statistics"
-        >
-          <span className={styles.navText}>Statistics</span>
-          <span className={styles.navIcon}>
-            <FaChartBar />
-          </span>
-        </NavLink>
+        {headerNavigationLinks.map((link) => (
+          <NavLinkHeader key={link.id} {...link} />
+        ))}
       </div>
       <div className={styles.signOutContainer}>
         <div className={styles.verticalSeparatorContainer}>
           <div className={styles.verticalSeparator}></div>
         </div>
 
-        <button
-          className={styles.signOutButton}
-          type="button"
-          onClick={handleLogout}
-        >
+        <button className={styles.signOutButton} type="button" onClick={handleLogout}>
           <span className={styles.navText}>Log out</span>
           <span className={styles.navIcon}>
             <FaSignOutAlt />
           </span>
         </button>
       </div>
-      {/* </>
-      )} */}
     </header>
+  );
+}
+
+function NavLinkHeader({ name, to, Icon }) {
+  return (
+    <NavLink
+      className={({ isActive }) => `${isActive ? styles.active : ''} ${styles.navLink}`}
+      to={to}
+    >
+      <span className={styles.navText}>{name}</span>
+      <span className={styles.navIcon}>
+        <Icon />
+      </span>
+    </NavLink>
   );
 }
