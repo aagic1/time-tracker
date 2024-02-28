@@ -46,11 +46,15 @@ Visit [Time tracker](https://google.com) and try it out now!
 ## Roadmap
 
 - [ ] Add Statistics page
-- [ ] Add Goal History page
 - [ ] Add OAuth
-- [ ] Add Installation section to README
-- [ ] Add Push Notifications and reminders
 - [ ] Add i18n
+- [ ] Add client side caching
+- [ ] Migrate frontend to TypeScript
+- [ ] Testing
+- [ ] Add Goal History page
+- [ ] Add Push Notifications and reminders
+- [ ] Add Installation section to README
+- [ ] Add categories to activites
 
 ## Technologies
 
