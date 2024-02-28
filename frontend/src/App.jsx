@@ -1,15 +1,9 @@
-import {
-  createBrowserRouter,
-  RouterProvider,
-  useRouteError,
-} from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, useRouteError } from 'react-router-dom';
 
 import Layout from './pages/Layout/Layout.jsx';
 import AuthLayout from './pages/Auth/AuthLayout/AuthLayout.jsx';
 import Login from './pages/Auth/Login/Login.jsx';
-import Register, {
-  action as registerAction,
-} from './pages/Auth/Register/Register.jsx';
+import Register, { action as registerAction } from './pages/Auth/Register/Register.jsx';
 import ForgotPassword, {
   action as forgotPasswordAction,
 } from './pages/Auth/ForgotPassword/ForgotPassword.jsx';
@@ -17,9 +11,7 @@ import ForgotPasswordConfirmation, {
   action as forgotPasswordConfirmationAction,
 } from './pages/Auth/ForgotPasswordConfirmation/ForgotPasswordConfirmation.jsx';
 import ResetPassword from './pages/Auth/ResetPassword/ResetPassword.jsx';
-import VerifyEmail, {
-  action as verifyEmailAction,
-} from './pages/Auth/VerifyEmail/VerifyEmail.jsx';
+import VerifyEmail, { action as verifyEmailAction } from './pages/Auth/VerifyEmail/VerifyEmail.jsx';
 import Home, { loader as homeLoader } from './pages/Home/Home.jsx';
 
 import AuthProvider from './pages/Auth/AuthProvider.jsx';
@@ -30,6 +22,11 @@ import ActivityEditor, {
 } from './pages/ActivityEditor/ActivityEditor.jsx';
 import Goal, { loader as goalLoader } from './pages/Goal/Goal.jsx';
 import Records, { loader as recordsLoader } from './pages/Records/Records.jsx';
+import RecordEditor, {
+  loaderCreate as recordEditorCreateLoader,
+  loaderUpdate as recordEditorUpdateLoader,
+  action as recordEditorAction,
+} from './pages/RecordEditor/RecordEditor.jsx';
 
 const router = createBrowserRouter([
   {
@@ -110,13 +107,17 @@ const router = createBrowserRouter([
           },
           {
             path: '/records/create',
-            element: <div>Record Editor</div>,
+            element: <RecordEditor />,
             errorElement: <ErrorElement />,
+            loader: recordEditorCreateLoader,
+            action: recordEditorAction,
           },
           {
             path: '/records/:recordId',
-            element: <div>Record Editor</div>,
+            element: <RecordEditor />,
             errorElement: <ErrorElement />,
+            loader: recordEditorUpdateLoader,
+            action: recordEditorAction,
           },
           {
             path: '/statistics',
