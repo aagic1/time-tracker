@@ -20,39 +20,11 @@
     margin-left: 20px;
 }
 
-.separator {
-    border-top: 1px solid black;
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-
 .buttonContainer {
     margin-top: 10px;
     display: flex;
     flex-direction: column;
     gap: 5px;
-}
-
-.deleteButton {
-    background-color: #ff5e5e;
-}
-
-.archiveButton {
-    margin-top: 10px;
-    /* background-color: #ffef5e;
-    border: 1px solid #888;
-    border-radius: 3px; */
-}
-
-.editArchivedHeader {
-    padding: 5px;
-    border-radius: 5px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    max-width: 100px;
-    border: 1px solid black;
-    margin-bottom: 20px;
 }
 
 .hidden {
