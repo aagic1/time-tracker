@@ -297,7 +297,7 @@ function createFakeRecord(activity) {
     activityId: activity.id,
     activityName: activity.name,
     color: activity.color.slice(1),
-    sessionGoal: activity.session,
+    sessionGoal: activity.sessionGoal,
     dayGoal: activity.dayGoal,
     weekGoal: activity.weekGoal,
     monthGoal: activity.monthGoal,
