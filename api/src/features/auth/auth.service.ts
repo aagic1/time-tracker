@@ -136,6 +136,8 @@ async function verifyPasswordRecoveryCode(token: string) {
       'User not found. Invalid email in JWT. JWT should contain only valid email (registered emails). Server error.'
     );
   }
+
+  return generateToken(email, 'Reset password', '5m');
 }
 
 async function resetPassword(token: string, newPassword: string) {

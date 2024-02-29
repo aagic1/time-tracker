@@ -89,7 +89,9 @@ export async function verifyPasswordRecoveryCode(req: Request, res: Response) {
   );
   const passwordResetToken = await authService.verifyPasswordRecoveryCode(body.token);
 
-  res.status(200).json('Password recovery code verified successfully');
+  res
+    .status(200)
+    .json({ message: 'Password recovery code verified successfully', token: passwordResetToken });
 }
 
 export async function resetPassword(req: Request, res: Response) {
