@@ -142,6 +142,10 @@ async function resetPassword(token: string, newPassword: string) {
   const payload = jwt.verify(token, process.env.JWT_SECRET!);
   const parsedPayload = validateAuthJwt(payload);
 
+  if (parsedPayload.type !== 'Reset password') {
+    throw new BadRequestError('Wrong code');
+  }
+
   const hashedPassword = await bcrypt.hash(newPassword, 10);
   const updatedUser = await userDAO.update(parsedPayload.email, {
     password: hashedPassword,
