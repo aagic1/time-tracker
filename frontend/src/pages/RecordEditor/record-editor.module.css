@@ -67,7 +67,6 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-family: Arial, Helvetica, sans-serif;
         font-size: 15px;
 }
 
@@ -134,21 +133,21 @@
     }
 
     .datePicker {
-        width: 120px;
+        width: 155px;
     }
 
 }
 
 @media only screen and (max-width: 390px)  { 
     .datePicker {
-        width: 100px;
+        width: 135px;
     }
 
 }
 
 @media only screen and (max-width: 350px)  { 
     .datePicker {
-        width: 80px;
+        width: 125px;
     }
 
 }
