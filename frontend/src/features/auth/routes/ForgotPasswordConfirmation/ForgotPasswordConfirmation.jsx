@@ -1,11 +1,4 @@
-import {
-  Form,
-  Navigate,
-  redirect,
-  useActionData,
-  useNavigate,
-  useSearchParams,
-} from 'react-router-dom';
+import { Form, Navigate, useActionData, useNavigate, useSearchParams } from 'react-router-dom';
 // import styles from './forgot-password-confirmation.module.css';
 import styles from '../auth-form.module.css';
 
@@ -27,8 +20,7 @@ export async function action({ request }) {
       return await res.json();
     }
     const data = await res.json();
-    console.log({ data });
-    return { status: 'Success', token: data };
+    return { status: 'Success', token: data.token };
   } else if (type == 'resend') {
     const url = new URL(request.url);
     const email = url.searchParams.get('email');
