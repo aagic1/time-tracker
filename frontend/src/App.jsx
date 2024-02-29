@@ -2,31 +2,35 @@ import { createBrowserRouter, RouterProvider, useRouteError } from 'react-router
 
 import Layout from './pages/Layout/Layout.jsx';
 import AuthLayout from './pages/Auth/AuthLayout/AuthLayout.jsx';
-import Login from './pages/Auth/Login/Login.jsx';
-import Register, { action as registerAction } from './pages/Auth/Register/Register.jsx';
+import Login from './features/auth/routes/Login/Login.jsx';
+import Register, { action as registerAction } from './features/auth/routes/Register/Register.jsx';
 import ForgotPassword, {
   action as forgotPasswordAction,
-} from './pages/Auth/ForgotPassword/ForgotPassword.jsx';
+} from './features/auth/routes/ForgotPassword/ForgotPassword.jsx';
 import ForgotPasswordConfirmation, {
   action as forgotPasswordConfirmationAction,
-} from './pages/Auth/ForgotPasswordConfirmation/ForgotPasswordConfirmation.jsx';
-import ResetPassword from './pages/Auth/ResetPassword/ResetPassword.jsx';
-import VerifyEmail, { action as verifyEmailAction } from './pages/Auth/VerifyEmail/VerifyEmail.jsx';
-import Home, { loader as homeLoader } from './pages/Home/Home.jsx';
+} from './features/auth/routes/ForgotPasswordConfirmation/ForgotPasswordConfirmation.jsx';
+import ResetPassword from './features/auth/routes/ResetPassword/ResetPassword.jsx';
+import VerifyEmail, {
+  action as verifyEmailAction,
+} from './features/auth/routes/VerifyEmail/VerifyEmail.jsx';
+import Activities, {
+  loader as activitiesLoader,
+} from './features/activities/routes/Activities/Activities.jsx';
 
-import AuthProvider from './pages/Auth/AuthProvider.jsx';
+import AuthProvider from './features/auth/routes/AuthProvider.jsx';
 import ProtectedRoutes from './components/ProtectedRoutes.jsx';
 import AuthRoutes from './components/AuthRoutes.jsx';
 import ActivityEditor, {
   loader as activityEditorLoader,
-} from './pages/ActivityEditor/ActivityEditor.jsx';
-import Goal, { loader as goalLoader } from './pages/Goal/Goal.jsx';
-import Records, { loader as recordsLoader } from './pages/Records/Records.jsx';
+} from './features/activities/routes/ActivityEditor/ActivityEditor.jsx';
+import Goal, { loader as goalLoader } from './features/goals/routes/Goal/Goal.jsx';
+import Records, { loader as recordsLoader } from './features/records/routes/Records/Records.jsx';
 import RecordEditor, {
   loaderCreate as recordEditorCreateLoader,
   loaderUpdate as recordEditorUpdateLoader,
   action as recordEditorAction,
-} from './pages/RecordEditor/RecordEditor.jsx';
+} from './features/records/routes/RecordEditor/RecordEditor.jsx';
 
 const router = createBrowserRouter([
   {
@@ -77,8 +81,8 @@ const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Home />,
-            loader: homeLoader,
+            element: <Activities />,
+            loader: activitiesLoader,
             errorElement: <ErrorElement />,
           },
           {

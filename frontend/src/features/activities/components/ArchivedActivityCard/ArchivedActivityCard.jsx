@@ -1,19 +1,11 @@
 import styles from './archived-activity-card.module.css';
 import { useState } from 'react';
 
-export default function ArchivedActivityCard({
-  activity,
-  onRestore,
-  onDelete,
-}) {
+export default function ArchivedActivityCard({ activity, onRestore, onDelete }) {
   const [editing, setEditing] = useState(false);
 
   return (
-    <div
-      className={`${styles.outerContainer} ${
-        activity.loading ? styles.loading : ''
-      }`}
-    >
+    <div className={`${styles.outerContainer} ${activity.loading ? styles.loading : ''}`}>
       <div
         className={`${styles.cardContainer} ${editing ? styles.editing : ''}`}
         style={{
@@ -30,11 +22,7 @@ export default function ArchivedActivityCard({
           <button type="button" onClick={() => onRestore(activity)}>
             Restore
           </button>
-          <button
-            type="button"
-            onClick={() => onDelete(activity)}
-            className={styles.deleteButton}
-          >
+          <button type="button" onClick={() => onDelete(activity)} className={styles.deleteButton}>
             Delete
           </button>
           <button type="button" onClick={() => setEditing(false)}>

@@ -1,6 +1,6 @@
 import styles from './active-record.module.css';
 import { FaEdit, FaCheckCircle, FaStopwatch } from 'react-icons/fa';
-import useStopwatch from '../../hooks/useStopwatch';
+import useStopwatch from '../../../../hooks/useStopwatch';
 import { useNavigate } from 'react-router-dom';
 
 export default function ActiveRecord({

@@ -2,25 +2,22 @@ import { useReducer } from 'react';
 import { useImmerReducer } from 'use-immer';
 import { useLoaderData, useNavigation } from 'react-router-dom';
 
-import styles from './home.module.css';
+import styles from './activities.module.css';
 import ActivityCard from '../../components/ActivityCard/ActivityCard';
 import CreateActivityCard from '../../components/CreateActivityCard/CreateActivityCard';
 import ArchivedActivityCard from '../../components/ArchivedActivityCard/ArchivedActivityCard';
-import ActiveRecord from '../../components/ActiveRecord/ActiveRecord';
-import HorizontalSeparator from '../../components/HorizontalSeparator/HorizontalSeparator';
+import ActiveRecord from '../../../records/components/ActiveRecord/ActiveRecord';
+import HorizontalSeparator from '../../../../components/HorizontalSeparator/HorizontalSeparator';
 
 export async function loader() {
   const promiseActivities = fetch('http://localhost:8000/api/v1/activities', {
     method: 'GET',
     credentials: 'include',
   });
-  const promiseActiveRecords = fetch(
-    'http://localhost:8000/api/v1/records?active=true',
-    {
-      method: 'GET',
-      credentials: 'include',
-    }
-  );
+  const promiseActiveRecords = fetch('http://localhost:8000/api/v1/records?active=true', {
+    method: 'GET',
+    credentials: 'include',
+  });
   const [responseActivities, responseActiveRecords] = await Promise.all([
     promiseActivities,
     promiseActiveRecords,
@@ -47,16 +44,12 @@ function activeRecordsReducer(draft, action) {
       break;
     case 'deleteFake': {
       return draft.filter(
-        (record) =>
-          !record.recordId.includes('fake') &&
-          record.activityId !== action.activityId
+        (record) => !record.recordId.includes('fake') && record.activityId !== action.activityId
       );
     }
     case 'swapFakeWithReal': {
       const fake = draft.find(
-        (record) =>
-          record.recordId.includes('fake') &&
-          record.activityId === action.activityId
+        (record) => record.recordId.includes('fake') && record.activityId === action.activityId
       );
       fake.recordId = action.recordId;
       delete fake.fake;
@@ -76,17 +69,13 @@ function activitesReducer(activities, action) {
     case 'setLoading': {
       const deepCopy = structuredClone(activities);
       return deepCopy.map((activity) =>
-        activity.id === action.activityId
-          ? { ...activity, loading: true }
-          : activity
+        activity.id === action.activityId ? { ...activity, loading: true } : activity
       );
     }
     case 'setNotLoading': {
       const deepCopy = structuredClone(activities);
       return deepCopy.map((activity) =>
-        activity.id === action.activityId
-          ? { ...activity, loading: false }
-          : activity
+        activity.id === action.activityId ? { ...activity, loading: false } : activity
       );
     }
     case 'restore': {
@@ -104,7 +93,7 @@ function activitesReducer(activities, action) {
   }
 }
 
-export default function Home() {
+export default function Activities() {
   const navigation = useNavigation();
   const loaderData = useLoaderData();
   const [activities, dispatchActivities] = useReducer(
@@ -119,13 +108,10 @@ export default function Home() {
   async function handleDelete(activity) {
     dispatchActivities({ type: 'setLoading', activityId: activity.id });
 
-    const res = await fetch(
-      `http://localhost:8000/api/v1/activities/${activity.name}`,
-      {
-        method: 'DELETE',
-        credentials: 'include',
-      }
-    );
+    const res = await fetch(`http://localhost:8000/api/v1/activities/${activity.name}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
 
     if (!res.ok) {
       dispatchActivities({ type: 'setNotLoading', activityId: activity.id });
@@ -138,17 +124,14 @@ export default function Home() {
   async function handleRestore(activity) {
     dispatchActivities({ type: 'setLoading', activityId: activity.id });
 
-    const res = await fetch(
-      `http://localhost:8000/api/v1/activities/${activity.name}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ archived: false }),
-      }
-    );
+    const res = await fetch(`http://localhost:8000/api/v1/activities/${activity.name}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ archived: false }),
+    });
 
     if (!res.ok) {
       dispatchActivities({ type: 'setNotLoading', activityId: activity.id });
@@ -164,19 +147,16 @@ export default function Home() {
     dispatchActivities({ type: 'setLoading', activityId: record.activityId });
 
     // extract fetch calls to api layer/file
-    const res = await fetch(
-      `http://localhost:8000/api/v1/records/${record.recordId}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          stoppedAt: stoppedAt.toISOString(),
-        }),
-      }
-    );
+    const res = await fetch(`http://localhost:8000/api/v1/records/${record.recordId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        stoppedAt: stoppedAt.toISOString(),
+      }),
+    });
 
     dispatchActivities({
       type: 'setNotLoading',
@@ -190,9 +170,7 @@ export default function Home() {
   }
 
   async function handleActivityClick(activity, activeRecords) {
-    const activeRecord = activeRecords.find(
-      (r) => r.activityId === activity.id
-    );
+    const activeRecord = activeRecords.find((r) => r.activityId === activity.id);
 
     if (activeRecord) {
       return handleRecordClick(activeRecord);

@@ -13,7 +13,7 @@ import styles from './record-editor.module.css';
 import DatePicker from 'react-datepicker';
 // make css modules work instead of regular css file
 import 'react-datepicker/dist/react-datepicker.css';
-import useStopwatch from '../../hooks/useStopwatch.js';
+import useStopwatch from '../../../../hooks/useStopwatch.js';
 
 export async function loaderUpdate({ params }) {
   const recordId = params.recordId;

@@ -1,8 +1,8 @@
 import { useLoaderData } from 'react-router-dom';
 import styles from './goal.module.css';
-import HorizontalSeparator from '../../components/HorizontalSeparator/HorizontalSeparator';
+import HorizontalSeparator from '../../../../components/HorizontalSeparator/HorizontalSeparator';
 import { FaCheckCircle, FaStopwatch } from 'react-icons/fa';
-import useStopwatch from '../../hooks/useStopwatch';
+import useStopwatch from '../../../../hooks/useStopwatch';
 
 export async function loader() {
   const result = await fetch(

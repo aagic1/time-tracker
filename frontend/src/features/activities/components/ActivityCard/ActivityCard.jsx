@@ -5,9 +5,7 @@ import styles from './activity-card.module.css';
 export default function ActivityCard({ activity, activeRecords, onClick }) {
   return (
     <div
-      className={`${styles.cardContainer} ${
-        activity.loading ? styles.loading : ''
-      }`}
+      className={`${styles.cardContainer} ${activity.loading ? styles.loading : ''}`}
       style={{
         backgroundColor: activity.color,
       }}

@@ -1,4 +1,4 @@
-import { Form, redirect, useLoaderData, useNavigate } from 'react-router-dom';
+import { useLoaderData, useNavigate } from 'react-router-dom';
 import styles from './activity-editor.module.css';
 import { useState } from 'react';
 import { useImmer } from 'use-immer';
@@ -13,16 +13,11 @@ export async function loader({ params, request }) {
     return { type: 'create', activity: null };
   } else {
     const activityName = params.activityName;
-    const res = await fetch(
-      `http://localhost:8000/api/v1/activities/${activityName}`,
-      {
-        credentials: 'include',
-      }
-    );
+    const res = await fetch(`http://localhost:8000/api/v1/activities/${activityName}`, {
+      credentials: 'include',
+    });
     if (!res.ok) {
-      throw new Error(
-        'Activity editor: Failed to fetch activity with id ' + activityName
-      );
+      throw new Error('Activity editor: Failed to fetch activity with id ' + activityName);
     }
     const { activity } = await res.json();
     return { type: 'edit', activity };
@@ -35,9 +30,7 @@ export default function ActivityEditor() {
   4;
 
   const [name, setName] = useState(type === 'create' ? '' : activity.name);
-  const [color, setColor] = useState(
-    type === 'create' ? '#888888' : activity.color
-  );
+  const [color, setColor] = useState(type === 'create' ? '#888888' : activity.color);
   const [goalData, updateGoalData] = useImmer({
     sessionGoal: type === 'create' ? null : activity.sessionGoal,
     dayGoal: type === 'create' ? null : activity.dayGoal,
@@ -91,24 +84,19 @@ export default function ActivityEditor() {
         body: JSON.stringify(body),
       });
     } else {
-      res = await fetch(
-        `http://localhost:8000/api/v1/activities/${activity.name}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify(body),
-        }
-      );
+      res = await fetch(`http://localhost:8000/api/v1/activities/${activity.name}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(body),
+      });
     }
     if (!res.ok) {
-      throw new Error(
-        `Failed to ${type === 'create' ? 'create' : 'update'} activity`
-      );
+      throw new Error(`Failed to ${type === 'create' ? 'create' : 'update'} activity`);
     }
-    const data = await res.json();
+    // const data = await res.json();
     navigate('..');
   }
 
@@ -116,17 +104,14 @@ export default function ActivityEditor() {
     const body = {
       archived: !activity.archived,
     };
-    const res = await fetch(
-      `http://localhost:8000/api/v1/activities/${activity.name}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(body),
-      }
-    );
+    const res = await fetch(`http://localhost:8000/api/v1/activities/${activity.name}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(body),
+    });
 
     if (!res.ok) {
       throw new Error(`Failed to archive activity`);
@@ -212,11 +197,7 @@ export default function ActivityEditor() {
               Cancel
             </button>
             {type !== 'create' && (
-              <button
-                type="button"
-                onClick={handleArchive}
-                className={styles.archiveButton}
-              >
+              <button type="button" onClick={handleArchive} className={styles.archiveButton}>
                 Archive
               </button>
             )}

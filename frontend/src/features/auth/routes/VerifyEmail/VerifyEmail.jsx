@@ -22,16 +22,13 @@ export async function action({ request }) {
   } else {
     const url = new URL(request.url);
     const email = url.searchParams.get('email');
-    const res = await fetch(
-      'http://localhost:8000/api/v1/auth/verify-email/resend',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      }
-    );
+    const res = await fetch('http://localhost:8000/api/v1/auth/verify-email/resend', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
 
     if (!res.ok) {
       return await res.json();
@@ -60,9 +57,7 @@ export default function VerifyEmail() {
       </Form>
       <Form method="post">
         <div className={styles.resendButtonContainer}>
-          <button className={styles.confirmButton}>
-            Resend verification code
-          </button>
+          <button className={styles.confirmButton}>Resend verification code</button>
         </div>
       </Form>
     </>

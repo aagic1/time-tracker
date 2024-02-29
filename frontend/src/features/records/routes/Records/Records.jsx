@@ -31,13 +31,10 @@ export async function loader({ request }) {
   endOfDay.setHours(23, 59, 59, 999);
 
   const searchString = `dateFrom=${startOfDay.toISOString()}&dateTo=${endOfDay.toISOString()}`;
-  const res = await fetch(
-    `http://localhost:8000/api/v1/records?${searchString}`,
-    {
-      method: 'GET',
-      credentials: 'include',
-    }
-  );
+  const res = await fetch(`http://localhost:8000/api/v1/records?${searchString}`, {
+    method: 'GET',
+    credentials: 'include',
+  });
 
   if (!res.ok) {
     console.log('error while loading records');
@@ -56,10 +53,9 @@ export default function Records() {
   const [date, setDate] = useState(
     searchParams.has('date') ? new Date(searchParams.get('date')) : new Date()
   );
+  console.log(records);
 
-  const currentDate = searchParams.has('date')
-    ? new Date(searchParams.get('date'))
-    : new Date();
+  const currentDate = searchParams.has('date') ? new Date(searchParams.get('date')) : new Date();
 
   function handleNext() {
     setDate((d) => {
@@ -116,11 +112,7 @@ export default function Records() {
         />
         <FaChevronRight className={styles.arrow} onClick={handleNext} />
       </div>
-      <div
-        className={`${styles.recordsContainer} ${
-          navigationLoading ? styles.loading : ''
-        }`}
-      >
+      <div className={`${styles.recordsContainer} ${navigationLoading ? styles.loading : ''}`}>
         {records.length === 0 ? (
           <div className={styles.noData}>No data</div>
         ) : (
@@ -173,9 +165,7 @@ export function RecordCard({ record, forDate, onClick }) {
     ? formatTimeFromDate(startDate)
     : '00:00';
 
-  const stopTime = hasRecordStoppedOnDate(record, forDate)
-    ? formatTimeFromDate(stopDate)
-    : '00:00';
+  const stopTime = hasRecordStoppedOnDate(record, forDate) ? formatTimeFromDate(stopDate) : '00:00';
 
   const duration = formatDuration(startDate, stopDate, forDate);
 
@@ -284,12 +274,12 @@ function formatDuration(startedAt, stoppedAt, forDate) {
   const subtractFromEndDate =
     stoppedAt < endOfDay ? subtractFrom(stoppedAt) : subtractFrom(endOfDay);
   const elapsedTime =
-    startedAt > startOfDay
-      ? subtractFromEndDate(startedAt)
-      : subtractFromEndDate(startOfDay);
+    startedAt > startOfDay ? subtractFromEndDate(startedAt) : subtractFromEndDate(startOfDay);
+
+  const MILISECONDS_PER_DAY = 86400000;
 
   let { hours, minutes, seconds } = toIntervalFromTime(elapsedTime);
-  if (hours >= 24) {
+  if (hours >= 24 || MILISECONDS_PER_DAY - elapsedTime <= 1) {
     return '24h 0m';
   }
 

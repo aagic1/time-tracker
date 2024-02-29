@@ -1,6 +1,7 @@
 import {
   Form,
   Navigate,
+  redirect,
   useActionData,
   useNavigate,
   useSearchParams,
@@ -15,31 +16,30 @@ export async function action({ request }) {
   if (type == 'confirm') {
     const token = formData.get('code');
 
-    const res = await fetch(
-      'http://localhost:8000/api/v1/auth/forgot-password/code',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token }),
-      }
-    );
-    return await res.json();
+    const res = await fetch('http://localhost:8000/api/v1/auth/forgot-password/code', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token }),
+    });
+    if (!res.ok) {
+      return await res.json();
+    }
+    const data = await res.json();
+    console.log({ data });
+    return { status: 'Success', token: data };
   } else if (type == 'resend') {
     const url = new URL(request.url);
     const email = url.searchParams.get('email');
 
-    const res = await fetch(
-      'http://localhost:8000/api/v1/auth/forgot-password/initiate',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      }
-    );
+    const res = await fetch('http://localhost:8000/api/v1/auth/forgot-password/initiate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
     if (!res.ok) {
       return await res.json();
     }
@@ -73,27 +73,13 @@ export default function ForgotPasswordConfirmation() {
           <input type="text" name="code" id="code" />
         </div>
         <div className={styles.buttonContainer}>
-          <button
-            type="submit"
-            name="intent"
-            value="confirm"
-            className={styles.confirmButton}
-          >
+          <button type="submit" name="intent" value="confirm" className={styles.confirmButton}>
             Confirm
           </button>
-          <button
-            type="submit"
-            name="intent"
-            value="resend"
-            className={styles.confirmButton}
-          >
+          <button type="submit" name="intent" value="resend" className={styles.confirmButton}>
             Resend code
           </button>
-          <button
-            type="button"
-            className={styles.confirmButton}
-            onClick={() => navigate('/login')}
-          >
+          <button type="button" className={styles.confirmButton} onClick={() => navigate('/login')}>
             Cancel
           </button>
         </div>

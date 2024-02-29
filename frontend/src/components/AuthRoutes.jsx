@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useNavigate } from 'react-router-dom';
-import { useAuth } from '../pages/Auth/AuthProvider';
+import { useAuth } from '../features/auth/routes/AuthProvider';
 
 export default function AuthRoutes() {
   const { user, isLoggedIn } = useAuth();
