@@ -77,7 +77,7 @@ export async function sendPasswordRecoveryCode(req: Request, res: Response) {
     req,
     'Invalid request data: PATCH /forgot-password/initiate'
   );
-  const message = await authService.sendResetPasswordCode(body.email);
+  const message = await authService.sendPasswordRecoveryCode(body.email);
   res.status(200).send(message);
 }
 
@@ -87,7 +87,7 @@ export async function verifyPasswordRecoveryCode(req: Request, res: Response) {
     req,
     'Invalid request data: PATCH /forgot-password/code'
   );
-  await authService.verifyRecoveryCode(body.token);
+  const passwordResetToken = await authService.verifyPasswordRecoveryCode(body.token);
 
   res.status(200).json('Password recovery code verified successfully');
 }

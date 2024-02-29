@@ -106,7 +106,7 @@ async function sendVerificationCode(email: string) {
   return { status: 'Success', message: 'Confirmation code successfully sent to your email' };
 }
 
-async function sendResetPasswordCode(email: string) {
+async function sendPasswordRecoveryCode(email: string) {
   const user = await userDAO.findOneByEmail(email);
   if (!user) {
     throw new NotFoundError(`User with email: ${email} does not exist.`);
@@ -122,7 +122,7 @@ async function sendResetPasswordCode(email: string) {
   return 'Reset password email sent successfully';
 }
 
-async function verifyRecoveryCode(token: string) {
+async function verifyPasswordRecoveryCode(token: string) {
   const payload = jwt.verify(token, process.env.JWT_SECRET!);
   const { email, type } = validateAuthJwt(payload);
   if (type !== 'Reset password') {
@@ -158,7 +158,7 @@ export default {
   register,
   verifyEmail,
   sendVerificationCode,
-  sendResetPasswordCode,
-  verifyRecoveryCode,
+  sendPasswordRecoveryCode,
+  verifyPasswordRecoveryCode,
   resetPassword,
 };
