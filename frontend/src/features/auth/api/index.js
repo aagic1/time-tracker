@@ -31,4 +31,19 @@ async function register(email, password) {
   return { succes: true, data: await response.json() };
 }
 
-export { login, register };
+async function forgotPassword(email) {
+  const response = await fetch(BASE_URL + '/auth/forgot-password/initiate', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    return { succes: false, error: await response.json() };
+  }
+  return { succes: true, data: await response.json() };
+}
+
+export { login, register, forgotPassword };
