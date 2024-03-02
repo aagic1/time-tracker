@@ -3,29 +3,22 @@ import { Link } from 'react-router-dom';
 import styles from '../auth-form.module.css';
 import { useAuth } from '../AuthProvider';
 import { useState } from 'react';
+import { login as loginAPI } from '../../api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login } = useAuth();
+  const { login: loginClient } = useAuth();
 
   async function handleLogin(event) {
     event.preventDefault();
-    const res = await fetch('http://localhost:8000/api/v1/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-      credentials: 'include',
-    });
 
-    if (!res.ok) {
-      console.log(res);
-      return await res.json();
+    const loginResult = await loginAPI(email, password);
+    if (!loginResult.succes) {
+      return loginResult.error;
     }
 
-    return login(email);
+    return loginClient(email);
   }
 
   function handleChangeEmail(event) {
