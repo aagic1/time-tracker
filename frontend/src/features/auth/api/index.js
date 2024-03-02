@@ -1,5 +1,7 @@
+const BASE_URL = 'http://localhost:8000/api/v1';
+
 async function login(email, password) {
-  const response = await fetch('http://localhost:8000/api/v1/auth/login', {
+  const response = await fetch(BASE_URL + '/auth/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -14,4 +16,19 @@ async function login(email, password) {
   return { succes: true, data: await response.json() };
 }
 
-export { login };
+async function register(email, password) {
+  const response = await fetch(BASE_URL + '/auth/register', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!response.ok) {
+    return { succes: false, error: await response.json() };
+  }
+  return { succes: true, data: await response.json() };
+}
+
+export { login, register };

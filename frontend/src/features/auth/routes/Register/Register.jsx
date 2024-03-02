@@ -1,25 +1,19 @@
 import { Form, redirect, useActionData } from 'react-router-dom';
 // import styles from './register.module.css';
 import styles from '../auth-form.module.css';
+import { register as registerAPI } from '../../api';
 
 export async function action({ request }) {
   const formData = await request.formData();
   const email = formData.get('email');
   const password = formData.get('password');
-  const repeatPassword = formData.get('repeatPassword');
+  // check if passwords match before sending request to server
+  // const repeatPassword = formData.get('repeatPassword');
 
-  const res = await fetch('http://localhost:8000/api/v1/auth/register', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email, password }),
-  });
-
-  if (!res.ok) {
-    return await res.json();
+  const registerResult = await registerAPI(email, password);
+  if (!registerResult.success) {
+    return registerResult.error;
   }
-
   return redirect(`../verify-email?email=${email}`);
 }
 
