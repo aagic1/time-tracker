@@ -1,10 +1,4 @@
-import type {
-  ColumnType,
-  Generated,
-  Insertable,
-  Selectable,
-  Updateable,
-} from 'kysely';
+import type { ColumnType, Generated, Insertable, Selectable, Updateable } from 'kysely';
 import type { IPostgresInterval } from 'postgres-interval';
 
 export type Int8 = ColumnType<bigint, bigint, bigint>;
@@ -38,10 +32,18 @@ export interface RecordTable {
   stopped_at: Timestamp | null;
 }
 
+export interface VerificationCodeTable {
+  id: Generated<number>;
+  account_id: Int8;
+  code: string;
+  created_at: Generated<Timestamp>;
+}
+
 export interface DB {
   account: AccountTable;
   activity: ActivityTable;
   record: RecordTable;
+  verificationCode: VerificationCodeTable;
 }
 
 export type Account = Selectable<AccountTable>;
@@ -52,12 +54,6 @@ export type NewAccount = Omit<Insertable<AccountTable>, 'id'>;
 export type NewActivity = Omit<Insertable<ActivityTable>, 'id'>;
 export type NewRecord = Omit<Insertable<RecordTable>, 'id'>;
 
-export type AccounUpdate = Omit<
-  Updateable<AccountTable>,
-  'id' | 'email' | 'username'
->;
-export type ActivityUpdate = Omit<
-  Updateable<ActivityTable>,
-  'id' | 'account_id'
->;
+export type AccounUpdate = Omit<Updateable<AccountTable>, 'id' | 'email' | 'username'>;
+export type ActivityUpdate = Omit<Updateable<ActivityTable>, 'id' | 'account_id'>;
 export type RecordUpdate = Omit<Updateable<RecordTable>, 'id'>;
