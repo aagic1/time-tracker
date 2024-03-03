@@ -7,7 +7,7 @@ import { EmailError } from '../../errors/email-error';
 import { NotFoundError } from '../../errors/not-found-error';
 import { validateAuthJwt } from './auth.validator';
 import { sendEmail } from './mailer';
-import { generateToken } from './auth.utils';
+import { generateJWT } from './auth.utils';
 import { UnauthenticatedError } from '../../errors/not-authenticated-error';
 import { BadRequestError } from '../../errors/bad-request-error';
 import { UpdateError } from '../../errors/update-error';
@@ -41,7 +41,7 @@ async function register(account: NewAccount) {
     throw new CreationError('Failed to register user');
   }
 
-  const verificationToken = generateToken(account.email, 'Email verification');
+  const verificationToken = generateJWT(account.email, 'Email verification');
   try {
     await sendEmail(account.email, 'Email verification', verificationToken);
   } catch (error) {
@@ -95,7 +95,7 @@ async function sendVerificationCode(email: string) {
     return { status: 'Failure', message: 'Email is already verified' };
   }
 
-  const verificationToken = generateToken(email, 'Email verification');
+  const verificationToken = generateJWT(email, 'Email verification');
   try {
     await sendEmail(email, 'Email verification', verificationToken);
     console.log(`Verification email sent successfully.`);
@@ -112,7 +112,7 @@ async function sendPasswordRecoveryCode(email: string) {
     throw new NotFoundError(`User with email: ${email} does not exist.`);
   }
 
-  const resetToken = generateToken(email, 'Reset password');
+  const resetToken = generateJWT(email, 'Reset password');
   try {
     await sendEmail(email, 'Reset password', resetToken);
   } catch (error) {
@@ -137,7 +137,7 @@ async function verifyPasswordRecoveryCode(token: string) {
     );
   }
 
-  return generateToken(email, 'Reset password', '5m');
+  return generateJWT(email, 'Reset password', '5m');
 }
 
 async function resetPassword(token: string, newPassword: string) {

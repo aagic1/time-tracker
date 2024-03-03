@@ -4,11 +4,7 @@ import jwt from 'jsonwebtoken';
 
 import { Message } from './auth.types';
 
-export function generateToken(
-  email: string,
-  type: 'Email verification' | 'Reset password',
-  expiresIn = '30m'
-) {
+export function generateJWT(email: string, type: Message, expiresIn = '30m') {
   return jwt.sign({ email, type }, process.env.JWT_SECRET!, {
     expiresIn,
   });
