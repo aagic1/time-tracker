@@ -22,6 +22,15 @@ async function update(accountEmail: string, accountData: AccounUpdate) {
     .executeTakeFirst();
 }
 
+async function createVerificationCode(accountId: bigint, code: string) {
+  return db
+    .insertInto('verification_code')
+    .columns(['account_id', 'code'])
+    .values({ account_id: accountId, code })
+    .returningAll()
+    .executeTakeFirst();
+}
+
 // ________
 // public API
 export default {
@@ -29,4 +38,5 @@ export default {
   findOneByEmail,
   create,
   update,
+  createVerificationCode,
 };

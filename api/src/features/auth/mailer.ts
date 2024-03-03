@@ -6,7 +6,7 @@ const PASSWORD = process.env.GMAIL_PASSWORD;
 export async function sendEmail(
   to: string,
   type: 'Email verification' | 'Reset password',
-  token: string
+  message: string
 ) {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -20,6 +20,6 @@ export async function sendEmail(
     from: EMAIL,
     to: to,
     subject: type,
-    text: `Your ${type} code:\n\n${token}`,
+    html: message,
   });
 }

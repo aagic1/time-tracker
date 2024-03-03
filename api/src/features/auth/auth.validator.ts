@@ -11,7 +11,11 @@ const loginSchema = z.object({
   body: z.object({ email: emailSchema, password: passwordSchema }),
 });
 
-const registerSchema = loginSchema;
+const registerObject = {
+  body: z.object({ email: emailSchema, password: passwordSchema }),
+};
+const registerSchema = z.object(registerObject);
+type Register = z.infer<typeof registerObject.body>;
 
 const verifyEmailSchema = z.object({
   body: z.object({
@@ -68,6 +72,9 @@ export {
   passwordRecoverySchema,
   verifyPasswordRecoverySchema,
   resetPasswordSchema,
+
+  // types
+  Register,
 
   // functions
   validateAuthJwt,

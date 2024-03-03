@@ -5,13 +5,16 @@ import userDAO from '../user/user.dao';
 import { NewAccount } from '../../db/types';
 import { EmailError } from '../../errors/email-error';
 import { NotFoundError } from '../../errors/not-found-error';
-import { validateAuthJwt } from './auth.validator';
+import { Register, validateAuthJwt } from './auth.validator';
 import { sendEmail } from './mailer';
-import { generateJWT } from './auth.utils';
+import { generateEmailMessage, generateJWT, generateUUID } from './auth.utils';
 import { UnauthenticatedError } from '../../errors/not-authenticated-error';
 import { BadRequestError } from '../../errors/bad-request-error';
 import { UpdateError } from '../../errors/update-error';
 import { CreationError } from '../../errors/creation-error';
+
+// extract on .env
+const verifyEmailURL = 'http://localhost:5173/verify-email';
 
 async function login(email: string, password: string) {
   const user = await userDAO.findOneByEmail(email);
@@ -29,11 +32,11 @@ async function login(email: string, password: string) {
   return { id: user.id };
 }
 
-async function register(account: NewAccount) {
-  const hashedPassword = await bcrypt.hash(account.password, 10);
+async function register(account: Register) {
+  const hashedPassword = await bcrypt.hash(account.password, 12);
 
   const user = await userDAO.create({
-    ...account,
+    email: account.email,
     password: hashedPassword,
   });
 
@@ -41,9 +44,21 @@ async function register(account: NewAccount) {
     throw new CreationError('Failed to register user');
   }
 
-  const verificationToken = generateJWT(account.email, 'Email verification');
+  const verificationID = generateUUID();
+  const hashedVerificationID = await bcrypt.hash(verificationID, 12);
+
+  const codeCreationResult = await userDAO.createVerificationCode(user.id, hashedVerificationID);
+  if (!codeCreationResult) {
+    console.log('failed to create verification code in database. handle better?');
+  }
+
+  const redirectURL = verifyEmailURL + '?id=' + verificationID;
   try {
-    await sendEmail(account.email, 'Email verification', verificationToken);
+    await sendEmail(
+      account.email,
+      'Email verification',
+      generateEmailMessage('Email verification', redirectURL)
+    );
   } catch (error) {
     console.log('Failed to send email');
     console.log(error);
