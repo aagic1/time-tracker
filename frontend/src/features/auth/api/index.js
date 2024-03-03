@@ -13,7 +13,7 @@ async function login(email, password) {
   if (!response.ok) {
     return { success: false, error: await response.json() };
   }
-  return { succes: true, data: await response.json() };
+  return { success: true, data: await response.json() };
 }
 
 async function register(email, password) {
@@ -26,9 +26,9 @@ async function register(email, password) {
   });
 
   if (!response.ok) {
-    return { succes: false, error: await response.json() };
+    return { success: false, error: await response.json() };
   }
-  return { succes: true, data: await response.json() };
+  return { success: true, data: await response.json() };
 }
 
 async function forgotPassword(email) {
@@ -41,9 +41,9 @@ async function forgotPassword(email) {
   });
 
   if (!response.ok) {
-    return { succes: false, error: await response.json() };
+    return { success: false, error: await response.json() };
   }
-  return { succes: true, data: await response.json() };
+  return { success: true, data: await response.json() };
 }
 
 export { login, register, forgotPassword };
