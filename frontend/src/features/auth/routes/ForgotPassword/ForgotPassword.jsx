@@ -9,7 +9,7 @@ export async function action({ request }) {
 
   const forgotPasswordResult = await forgotPasswordAPI(email);
 
-  if (!forgotPasswordResult.succes) {
+  if (!forgotPasswordResult.success) {
     return forgotPasswordResult.error;
   }
   return redirect(`../forgot-password-confirmation?email=${email}`);
