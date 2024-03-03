@@ -9,7 +9,7 @@ import { checkAuthenticated } from './middleware/authenticate';
 const apiRouter = express.Router();
 
 apiRouter.get('/', (req: Request, res: Response) => {
-  res.send('Time Tracker API');
+  res.json('Time Tracker API');
 });
 
 apiRouter.use('/auth', authRouter);
@@ -21,7 +21,7 @@ apiRouter.use('/records', checkAuthenticated, recordsRouter);
 
 // NOT FOUND route
 apiRouter.use('*', (req: Request, res: Response) => {
-  res.status(404).send('Not Found');
+  res.status(404).json('Not Found');
 });
 
 export default apiRouter;

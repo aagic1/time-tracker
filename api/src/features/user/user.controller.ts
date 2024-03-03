@@ -14,5 +14,5 @@ export async function changePassword(req: Request, res: Response) {
   );
 
   await userService.changePassword(req.session.user!.id, oldPassword, newPassword);
-  return res.status(200).send('Password updated successfully');
+  return res.status(200).json('Password updated successfully');
 }

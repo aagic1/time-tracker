@@ -15,7 +15,7 @@ export async function login(req: Request, res: Response) {
   const { body } = await validateRequest(loginSchema, req, 'Invalid request data: POST /login');
   const user = await authService.login(body.email, body.password);
   req.session.user = { ...user, email: body.email };
-  res.status(200).send('Logged in succesfully');
+  res.status(200).json('Logged in succesfully');
 }
 
 export async function logout(req: Request, res: Response) {
@@ -28,7 +28,7 @@ export async function logout(req: Request, res: Response) {
       throw err;
     }
     res.clearCookie('sessionId');
-    res.status(200).send('Logged out successfully');
+    res.status(200).json('Logged out successfully');
   });
 }
 
@@ -65,9 +65,9 @@ export async function resendVerificationCode(req: Request, res: Response) {
 
   const result = await authService.sendVerificationCode(body.email);
   if (result.status === 'Success') {
-    res.status(200).send(result.message);
+    res.status(200).json(result.message);
   } else {
-    res.status(409).send(result.message);
+    res.status(409).json(result.message);
   }
 }
 
@@ -78,7 +78,7 @@ export async function sendPasswordRecoveryCode(req: Request, res: Response) {
     'Invalid request data: PATCH /forgot-password/initiate'
   );
   const message = await authService.sendPasswordRecoveryCode(body.email);
-  res.status(200).send(message);
+  res.status(200).json(message);
 }
 
 export async function verifyPasswordRecoveryCode(req: Request, res: Response) {

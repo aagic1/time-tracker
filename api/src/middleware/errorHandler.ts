@@ -30,13 +30,13 @@ export function errorHandler(
     res.status(422).json({ error: error });
   } else if (error instanceof Error) {
     console.log('error');
-    res.status(500).send(error.message);
+    res.status(500).json(error.message);
   } else if (typeof error === 'string') {
     console.log('string');
-    res.status(500).send(error);
+    res.status(500).json(error);
   } else {
     console.log('unknown error');
-    res.status(500).send('Server error');
+    res.status(500).json('Server error');
   }
 }
 
