@@ -36,7 +36,7 @@ export interface VerificationCodeTable {
   id: Generated<number>;
   account_id: Int8;
   code: string;
-  created_at: Generated<Timestamp>;
+  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
 export interface DB {
