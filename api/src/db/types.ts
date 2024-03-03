@@ -54,6 +54,6 @@ export type NewAccount = Omit<Insertable<AccountTable>, 'id'>;
 export type NewActivity = Omit<Insertable<ActivityTable>, 'id'>;
 export type NewRecord = Omit<Insertable<RecordTable>, 'id'>;
 
-export type AccounUpdate = Omit<Updateable<AccountTable>, 'id' | 'email' | 'username'>;
+export type AccounUpdate = Omit<Updateable<AccountTable>, 'id' | 'email'>;
 export type ActivityUpdate = Omit<Updateable<ActivityTable>, 'id' | 'account_id'>;
 export type RecordUpdate = Omit<Updateable<RecordTable>, 'id'>;
