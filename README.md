@@ -48,12 +48,13 @@ Visit [Time tracker](https://google.com) and try it out now!
 - [ ] Add Statistics page
 - [ ] Add OAuth
 - [ ] Add i18n
-- [ ] Add client side caching
+- [ ] Add application state management and caching
+- [ ] Add Home/Landing page
 - [ ] Migrate frontend to TypeScript
 - [ ] Testing
+- [ ] SEO
 - [ ] Add Goal History page
 - [ ] Add Push Notifications and reminders
-- [ ] Add Installation section to README
 - [ ] Add categories to activites
 
 ## Technologies
