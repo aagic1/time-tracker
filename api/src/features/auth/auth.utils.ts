@@ -14,7 +14,7 @@ function generateUUID() {
   return crypto.randomUUID();
 }
 
-function generateEmailMessage(type: Message, redirectURL: string) {
+function generateVerificationLinkMessage(type: Message, redirectURL: string) {
   let message;
   if (type === 'Email verification') {
     message = 'Click on the following link to reset your password:';
@@ -28,4 +28,4 @@ function generateEmailMessage(type: Message, redirectURL: string) {
   `;
 }
 
-export { generateJWT, generateUUID, generateEmailMessage };
+export { generateJWT, generateUUID, generateVerificationLinkMessage };
