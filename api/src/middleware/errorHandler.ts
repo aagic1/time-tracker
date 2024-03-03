@@ -22,21 +22,21 @@ export function errorHandler(
     const dbError = parseDatabaseError(error);
     if (!dbError) {
       console.log('some unhandled db error');
-      return res.status(500).json('Server error');
+      return res.status(500).json({ error: 'Server error' });
     }
     res.status(dbError.statusCode).json({ error: dbError });
   } else if (error instanceof JsonWebTokenError) {
     console.log('JWT error');
-    res.status(422).json({ error: error });
+    res.status(422).json({ error });
   } else if (error instanceof Error) {
     console.log('error');
-    res.status(500).json(error.message);
+    res.status(500).json({ error });
   } else if (typeof error === 'string') {
     console.log('string');
-    res.status(500).json(error);
+    res.status(500).json({ error });
   } else {
     console.log('unknown error');
-    res.status(500).json('Server error');
+    res.status(500).json({ error: 'Server error' });
   }
 }
 
