@@ -24,7 +24,7 @@ function generateEmailMessage(type: Message, redirectURL: string) {
   return `
     <h2>${type}</h2>
     <p>${message}</p>
-    <a href=${redirectURL}>${type}</a>
+    <a href=${redirectURL}>${redirectURL}</a>
   `;
 }
 
