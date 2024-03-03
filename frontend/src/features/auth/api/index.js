@@ -11,7 +11,7 @@ async function login(email, password) {
   });
 
   if (!response.ok) {
-    return { success: false, error: await response.json() };
+    return { success: false, error: (await response.json()).error };
   }
   return { success: true, data: await response.json() };
 }
@@ -26,7 +26,7 @@ async function register(email, password) {
   });
 
   if (!response.ok) {
-    return { success: false, error: await response.json() };
+    return { success: false, error: (await response.json()).error };
   }
   return { success: true, data: await response.json() };
 }
@@ -41,7 +41,7 @@ async function forgotPassword(email) {
   });
 
   if (!response.ok) {
-    return { success: false, error: await response.json() };
+    return { success: false, error: (await response.json()).error };
   }
   return { success: true, data: await response.json() };
 }
