@@ -43,7 +43,7 @@ export interface DB {
   account: AccountTable;
   activity: ActivityTable;
   record: RecordTable;
-  verificationCode: VerificationCodeTable;
+  verification_code: VerificationCodeTable;
 }
 
 export type Account = Selectable<AccountTable>;
