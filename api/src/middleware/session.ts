@@ -2,7 +2,7 @@ import RedisStore from 'connect-redis';
 import session from 'express-session';
 import { createClient } from 'redis';
 
-// ession object
+// Session object
 declare module 'express-session' {
   interface SessionData {
     user: { id: bigint; email: string };
@@ -11,6 +11,10 @@ declare module 'express-session' {
 
 // Initialize client
 let redisClient = createClient({ url: 'redis://127.0.0.1:6379' });
+redisClient
+  .on('connect', () => console.log('redis connected'))
+  .on('error', (error) => console.log('redis error', error));
+
 redisClient.connect().catch(console.error);
 
 // Initialize store
