@@ -14,7 +14,7 @@ export default function Login() {
     event.preventDefault();
 
     const loginResult = await loginAPI(email, password);
-    if (!loginResult.succes) {
+    if (!loginResult.success) {
       return loginResult.error;
     }
 
