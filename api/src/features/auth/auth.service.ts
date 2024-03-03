@@ -50,6 +50,7 @@ async function register(account: Register) {
   const codeCreationResult = await userDAO.createVerificationCode(user.id, hashedVerificationID);
   if (!codeCreationResult) {
     console.log('failed to create verification code in database. handle better?');
+    return user;
   }
 
   const redirectURL = verifyEmailURL + '?id=' + verificationID;
