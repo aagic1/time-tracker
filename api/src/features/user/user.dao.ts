@@ -55,11 +55,10 @@ async function findUserAndVerificationCode(code: string) {
 
 async function deleteVerificationCode(code: string) {
   const VERIFICATION_CODE_MAX_AGE = 3 * 60 * 60 * 1000;
-  const expiredTimestamp = new Date(Date.now() - VERIFICATION_CODE_MAX_AGE);
+  const earliestValidTimestamp = new Date(Date.now() - VERIFICATION_CODE_MAX_AGE);
   return db
     .deleteFrom('verification_code')
-    .where('code', '=', code)
-    .where('created_at', '<', expiredTimestamp);
+    .where((eb) => eb('code', '=', code).or('created_at', '<', earliestValidTimestamp));
 }
 
 // ________

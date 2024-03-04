@@ -58,12 +58,11 @@ async function register(account: Register) {
     return user;
   }
 
-  const redirectURL = `${verifyEmailURL}?id=${verificationCode}`;
   try {
     await sendEmail(
       account.email,
       'Email verification',
-      generateMessageWithLink('Email verification', redirectURL)
+      generateMessageWithCode('Email verification', verificationCode)
     );
   } catch (error) {
     console.log('Failed to send email');
@@ -123,12 +122,11 @@ async function sendVerificationCode(email: string) {
     throw new Error('Failed to send new verification code.');
   }
 
-  const redirectURL = `${verifyEmailURL}?id=${verificationCode}`;
   try {
     await sendEmail(
       email,
       'Email verification',
-      generateMessageWithLink('Email verification', redirectURL)
+      generateMessageWithCode('Email verification', verificationCode)
     );
   } catch (error) {
     throw new EmailError('Failed to send email');
