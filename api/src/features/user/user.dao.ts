@@ -31,6 +31,23 @@ async function createVerificationCode(accountId: bigint, code: string) {
     .executeTakeFirst();
 }
 
+async function updateVerificationCode(accountId: bigint, newCode: string) {
+  return db
+    .updateTable('verification_code')
+    .set({ created_at: new Date(), code: newCode })
+    .where('account_id', '=', accountId)
+    .executeTakeFirst();
+}
+
+async function findUserAndVerificationCode(email: string) {
+  return db
+    .selectFrom('account')
+    .leftJoin('verification_code', 'account.id', 'verification_code.account_id')
+    .select(['verified', 'account.id'])
+    .where('email', '=', email)
+    .executeTakeFirst();
+}
+
 // ________
 // public API
 export default {
@@ -39,4 +56,6 @@ export default {
   create,
   update,
   createVerificationCode,
+  findUserAndVerificationCode,
+  updateVerificationCode,
 };

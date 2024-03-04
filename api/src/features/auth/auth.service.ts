@@ -7,7 +7,12 @@ import { EmailError } from '../../errors/email-error';
 import { NotFoundError } from '../../errors/not-found-error';
 import { Register, validateAuthJwt } from './auth.validator';
 import { sendEmail } from './mailer';
-import { generateMessageWithLink, generateJWT, generateUUID } from './auth.utils';
+import {
+  generateMessageWithLink,
+  generateJWT,
+  generateUUID,
+  generateMessageWithCode,
+} from './auth.utils';
 import { UnauthenticatedError } from '../../errors/not-authenticated-error';
 import { BadRequestError } from '../../errors/bad-request-error';
 import { UpdateError } from '../../errors/update-error';
@@ -103,23 +108,33 @@ async function verifyEmail(token: string) {
 }
 
 async function sendVerificationCode(email: string) {
-  const user = await userDAO.findOneByEmail(email);
+  const user = await userDAO.findUserAndVerificationCode(email);
   if (!user) {
-    throw new NotFoundError(`User with email: ${email} does not exist.`);
+    throw new NotFoundError(`User with email: ${email} does not exist`);
   }
   if (user.verified) {
     return { status: 'Failure', message: 'Email is already verified' };
   }
 
-  const verificationToken = generateJWT(email, 'Email verification');
+  const verificationID = generateUUID();
+  const hashedVerificationID = await bcrypt.hash(verificationID, 12);
+  const updateResult = await userDAO.updateVerificationCode(user.id, hashedVerificationID);
+  if (!updateResult.numChangedRows) {
+    throw new Error('Failed to send new verification code.');
+  }
+
+  const redirectURL = `${verifyEmailURL}?id=${verificationID}&email=${email}`;
   try {
-    await sendEmail(email, 'Email verification', verificationToken);
-    console.log(`Verification email sent successfully.`);
+    await sendEmail(
+      email,
+      'Email verification',
+      generateMessageWithLink('Email verification', redirectURL)
+    );
   } catch (error) {
     throw new EmailError('Failed to send email');
   }
 
-  return { status: 'Success', message: 'Confirmation code successfully sent to your email' };
+  return { status: 'Success', message: 'Verification code sent successfully' };
 }
 
 async function sendPasswordRecoveryCode(email: string) {
