@@ -20,6 +20,7 @@ export async function action({ request }) {
 export default function Register() {
   const actionData = useActionData();
   console.log(actionData);
+  const navigation = useNavigation();
 
   return (
     <Form method="post" className={styles.authForm}>
@@ -42,7 +43,11 @@ export default function Register() {
         <input type="password" name="repeatPassword" id="repeatPassword" />
       </div>
       <div className={styles.buttonContainer}>
-        <button className={styles.confirmButton}>Register</button>
+        {navigation.state === 'submitting' ? (
+          <button className={`${styles.confirmButton} ${styles.submitting}`}>Submitting...</button>
+        ) : (
+          <button className={styles.confirmButton}>Register</button>
+        )}
       </div>
     </Form>
   );
