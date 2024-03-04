@@ -44,9 +44,9 @@ export async function register(req: Request, res: Response) {
 
 export async function verifyEmail(req: Request, res: Response) {
   const {
-    body: { id },
+    body: { code },
   } = await validateRequest(verifyEmailSchema, req, 'Invalid request data: PATCH /verify-email');
-  const result = await authService.verifyEmail(id);
+  const result = await authService.verifyEmail(code);
   if (result.status === 'Success') {
     res.status(200).json(result.message);
   } else {

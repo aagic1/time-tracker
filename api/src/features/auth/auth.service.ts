@@ -74,19 +74,11 @@ async function register(account: Register) {
   return user;
 }
 
-async function verifyEmail(token: string) {
-  const payload = jwt.verify(token, process.env.JWT_SECRET!);
-  const { email, type } = validateAuthJwt(payload);
-  if (type !== 'Email verification') {
-    throw new BadRequestError('Wrong verification code');
-  }
-
-  const user = await userDAO.findOneByEmail(email);
+async function verifyEmail(code: string) {
+  const user = await userDAO.findUserAndVerificationCode(code);
   if (!user) {
     // this can happen if the user gets deleted while trying to verify email
-    throw new NotFoundError(
-      'User not found. Invalid email in JWT. JWT should contain only valid email (registered emails). Server error.'
-    );
+    throw new NotFoundError('User not found.');
   }
 
   if (user.verified) {
@@ -96,10 +88,18 @@ async function verifyEmail(token: string) {
     };
   }
 
-  const updatedUser = await userDAO.update(email, { verified: true });
+  if (!user.codeCreatedAt || hasCodeExpired(user.codeCreatedAt)) {
+    return {
+      status: 'Failure',
+      message: 'Verification code expired',
+    };
+  }
+
+  const updatedUser = await userDAO.update(user.email, { verified: true });
   if (!updatedUser) {
     throw new UpdateError('Something went wrong. Could not verify user');
   }
+  await userDAO.deleteVerificationCode(code);
 
   return {
     status: 'Success',
@@ -199,3 +199,9 @@ export default {
   verifyPasswordRecoveryCode,
   resetPassword,
 };
+
+const VERIFICATION_CODE_MAX_AGE = 3 * 60 * 60 * 1000;
+
+function hasCodeExpired(createdAt: Date) {
+  return new Date().valueOf() - createdAt.valueOf() < VERIFICATION_CODE_MAX_AGE;
+}
