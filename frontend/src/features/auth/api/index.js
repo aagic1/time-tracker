@@ -26,9 +26,9 @@ async function register(email, password) {
   });
 
   if (!response.ok) {
-    return { success: false, error: (await response.json()).error };
+    return { success: false, status: response.status, error: (await response.json()).error };
   }
-  return { success: true, data: await response.json() };
+  return { success: true, status: response.status, data: await response.json() };
 }
 
 async function forgotPassword(email) {
@@ -46,4 +46,19 @@ async function forgotPassword(email) {
   return { success: true, data: await response.json() };
 }
 
-export { login, register, forgotPassword };
+async function verifyPasswordRecoveryCode(code) {
+  const response = await fetch('http://localhost:8000/api/v1/auth/forgot-password/code', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ token: code }),
+  });
+
+  if (!response.ok) {
+    return { success: false, error: (await response.json()).error };
+  }
+  return { success: true, data: await response.json() };
+}
+
+export { login, register, forgotPassword, verifyPasswordRecoveryCode };

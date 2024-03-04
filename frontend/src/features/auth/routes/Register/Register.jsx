@@ -1,4 +1,4 @@
-import { Form, redirect, useActionData } from 'react-router-dom';
+import { Form, redirect, useNavigation } from 'react-router-dom';
 // import styles from './register.module.css';
 import styles from '../auth-form.module.css';
 import { register as registerAPI } from '../../api';
@@ -11,15 +11,15 @@ export async function action({ request }) {
   // const repeatPassword = formData.get('repeatPassword');
 
   const registerResult = await registerAPI(email, password);
-  if (!registerResult.success) {
-    return registerResult.error;
+  if (registerResult.success) {
+    console.log('hheee');
+    return redirect(`/verify-email?email=${email}`);
   }
-  return redirect(`../verify-email?email=${email}`);
+
+  return registerResult;
 }
 
 export default function Register() {
-  const actionData = useActionData();
-  console.log(actionData);
   const navigation = useNavigation();
 
   return (
