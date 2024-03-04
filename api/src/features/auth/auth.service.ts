@@ -107,7 +107,7 @@ async function verifyEmail(code: string) {
 }
 
 async function sendVerificationCode(email: string) {
-  const user = await userDAO.findUserAndVerificationCode(email);
+  const user = await userDAO.findOneByEmail(email);
   if (!user) {
     throw new NotFoundError(`User with email: ${email} does not exist`);
   }
@@ -117,7 +117,7 @@ async function sendVerificationCode(email: string) {
 
   const verificationCode = generateUUID();
   const hashedVerificationCode = await bcrypt.hash(verificationCode, 12);
-  const updateResult = await userDAO.updateVerificationCode(user.accountId, hashedVerificationCode);
+  const updateResult = await userDAO.updateVerificationCode(user.id, hashedVerificationCode);
   if (!updateResult.numChangedRows) {
     throw new Error('Failed to send new verification code.');
   }
