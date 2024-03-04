@@ -7,7 +7,7 @@ import { EmailError } from '../../errors/email-error';
 import { NotFoundError } from '../../errors/not-found-error';
 import { Register, validateAuthJwt } from './auth.validator';
 import { sendEmail } from './mailer';
-import { generateVerificationLinkMessage, generateJWT, generateUUID } from './auth.utils';
+import { generateMessageWithLink, generateJWT, generateUUID } from './auth.utils';
 import { UnauthenticatedError } from '../../errors/not-authenticated-error';
 import { BadRequestError } from '../../errors/bad-request-error';
 import { UpdateError } from '../../errors/update-error';
@@ -58,7 +58,7 @@ async function register(account: Register) {
     await sendEmail(
       account.email,
       'Email verification',
-      generateVerificationLinkMessage('Email verification', redirectURL)
+      generateMessageWithLink('Email verification', redirectURL)
     );
   } catch (error) {
     console.log('Failed to send email');
