@@ -14,6 +14,20 @@ function generateUUID() {
   return crypto.randomUUID();
 }
 
+function generateMessageWithCode(type: Message, code: string) {
+  let message;
+  if (type === 'Email verification') {
+    message = 'Use this code to verify your email: ';
+  } else {
+    message = 'Use this code to reset your password: ';
+  }
+  return `
+    <h2>${type}</h2>
+    <p>${message}</p>
+    <p><b>${code}</b></p>
+  `;
+}
+
 function generateVerificationLinkMessage(type: Message, redirectURL: string) {
   let message;
   if (type === 'Email verification') {
