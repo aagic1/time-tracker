@@ -27,7 +27,6 @@ async function createVerificationCode(accountId: bigint, code: string) {
     .insertInto('verification_code')
     .columns(['account_id', 'code'])
     .values({ account_id: accountId, code })
-    .returningAll()
     .executeTakeFirst();
 }
 
@@ -43,7 +42,13 @@ async function findUserAndVerificationCode(email: string) {
   return db
     .selectFrom('account')
     .leftJoin('verification_code', 'account.id', 'verification_code.account_id')
-    .select(['verified', 'account.id'])
+    .select([
+      'verified',
+      'account.id as accountId',
+      'email',
+      'code as verificationCode',
+      'created_at as codeCreatedAt',
+    ])
     .where('email', '=', email)
     .executeTakeFirst();
 }

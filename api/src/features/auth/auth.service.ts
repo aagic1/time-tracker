@@ -49,16 +49,16 @@ async function register(account: Register) {
     throw new CreationError('Failed to register user');
   }
 
-  const verificationID = generateUUID();
-  const hashedVerificationID = await bcrypt.hash(verificationID, 12);
+  const verificationCode = generateUUID();
+  const hashedVerificationCode = await bcrypt.hash(verificationCode, 12);
 
-  const codeCreationResult = await userDAO.createVerificationCode(user.id, hashedVerificationID);
-  if (!codeCreationResult) {
+  const codeCreationResult = await userDAO.createVerificationCode(user.id, hashedVerificationCode);
+  if (!codeCreationResult.numInsertedOrUpdatedRows) {
     console.log('failed to create verification code in database. handle better?');
     return user;
   }
 
-  const redirectURL = verifyEmailURL + '?id=' + verificationID;
+  const redirectURL = `${verifyEmailURL}?id=${verificationCode}`;
   try {
     await sendEmail(
       account.email,
@@ -116,14 +116,14 @@ async function sendVerificationCode(email: string) {
     return { status: 'Failure', message: 'Email is already verified' };
   }
 
-  const verificationID = generateUUID();
-  const hashedVerificationID = await bcrypt.hash(verificationID, 12);
-  const updateResult = await userDAO.updateVerificationCode(user.id, hashedVerificationID);
+  const verificationCode = generateUUID();
+  const hashedVerificationCode = await bcrypt.hash(verificationCode, 12);
+  const updateResult = await userDAO.updateVerificationCode(user.accountId, hashedVerificationCode);
   if (!updateResult.numChangedRows) {
     throw new Error('Failed to send new verification code.');
   }
 
-  const redirectURL = `${verifyEmailURL}?id=${verificationID}&email=${email}`;
+  const redirectURL = `${verifyEmailURL}?id=${verificationCode}`;
   try {
     await sendEmail(
       email,
