@@ -34,3 +34,8 @@
     pointer-events: none;
     opacity: 0.5;
 }
+
+.errorMessage {
+    font-size: 14px;
+    color: crimson
+}
