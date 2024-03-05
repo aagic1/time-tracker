@@ -126,7 +126,7 @@ async function sendVerificationCode(email: string) {
   const verificationCode = generateUUID();
   const hashedVerificationCode = await bcrypt.hash(verificationCode, 12);
   const updateResult = await userDAO.updateVerificationCode(user.id, hashedVerificationCode);
-  if (!updateResult.numChangedRows) {
+  if (!updateResult.numUpdatedRows) {
     throw new Error('Failed to send new verification code.');
   }
 
