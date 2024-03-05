@@ -73,8 +73,8 @@ async function register(account: Register) {
   return user;
 }
 
-async function verifyEmail(code: string) {
-  const user = await userDAO.findUserAndVerificationCode(code);
+async function verifyEmail(email: string, code: string) {
+  const user = await userDAO.findUserAndVerificationCode(email);
   if (!user) {
     // this can happen if the user gets deleted while trying to verify email
     throw new NotFoundError('User not found.');
@@ -94,11 +94,19 @@ async function verifyEmail(code: string) {
     };
   }
 
+  const codeValid = await bcrypt.compare(code, user.verificationCode!);
+  if (!codeValid) {
+    return {
+      status: 'Failure',
+      message: 'Invalid verification code',
+    };
+  }
+
   const updatedUser = await userDAO.update(user.email, { verified: true });
   if (!updatedUser) {
     throw new UpdateError('Something went wrong. Could not verify user');
   }
-  await userDAO.deleteVerificationCode(code);
+  await userDAO.deleteVerificationCode(user.accountId);
 
   return {
     status: 'Success',

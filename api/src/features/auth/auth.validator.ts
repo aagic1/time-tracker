@@ -20,6 +20,7 @@ type Register = z.infer<typeof registerObject.body>;
 const verifyEmailSchema = z.object({
   body: z.object({
     code: stringNonEmptySchema,
+    email: emailSchema,
   }),
 });
 
