@@ -53,8 +53,8 @@ async function findUserAndVerificationCode(code: string) {
     .executeTakeFirst();
 }
 
-async function deleteVerificationCode(code: string) {
-  return db.deleteFrom('verification_code').where('code', '=', code);
+async function deleteVerificationCode(accountId: bigint) {
+  return db.deleteFrom('verification_code').where('account_id', '=', accountId);
 }
 
 // ________
