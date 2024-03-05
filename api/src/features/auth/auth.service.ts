@@ -209,5 +209,6 @@ export default {
 const VERIFICATION_CODE_MAX_AGE = 3 * 60 * 60 * 1000;
 
 function hasCodeExpired(createdAt: Date) {
-  return new Date().valueOf() - createdAt.valueOf() < VERIFICATION_CODE_MAX_AGE;
+  const expiredTime = new Date().valueOf() - createdAt.valueOf();
+  return expiredTime > VERIFICATION_CODE_MAX_AGE;
 }
