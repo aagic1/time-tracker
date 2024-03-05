@@ -38,7 +38,7 @@ async function updateVerificationCode(accountId: bigint, newCode: string) {
     .executeTakeFirst();
 }
 
-async function findUserAndVerificationCode(code: string) {
+async function findUserAndVerificationCode(email: string) {
   return db
     .selectFrom('account')
     .leftJoin('verification_code', 'account.id', 'verification_code.account_id')
@@ -49,7 +49,7 @@ async function findUserAndVerificationCode(code: string) {
       'code as verificationCode',
       'created_at as codeCreatedAt',
     ])
-    .where('code', '=', code)
+    .where('email', '=', email)
     .executeTakeFirst();
 }
 
