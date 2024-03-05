@@ -1,65 +1,124 @@
-import { Form, redirect, useSearchParams } from 'react-router-dom';
-// import styles from './verify-email.module.css';
+import {
+  useSubmit,
+  useSearchParams,
+  useNavigate,
+  useNavigation,
+  useActionData,
+  Navigate,
+} from 'react-router-dom';
+import { Form, Field, ErrorMessage, Formik } from 'formik';
+import toast, { Toaster } from 'react-hot-toast';
+
 import styles from '../auth-form.module.css';
+import { resendVerificationCode, verifyEmail } from '../../api';
+import { EmailVerificationSchema, validateForm } from '../../utils/validation';
+
+export default function VerifyEmail() {
+  const submit = useSubmit();
+  const navigate = useNavigate();
+  const actionData = useActionData();
+  const [searchParams] = useSearchParams();
+  const email = searchParams.get('email');
+
+  function handleResend() {
+    const formData = new FormData();
+    formData.append('email', email);
+    submit(formData, { method: 'POST' });
+  }
+
+  function handleCancel() {
+    navigate('/login');
+  }
+
+  if (actionData && actionData.success && actionData.type === 'verification') {
+    return <Navigate to="/login" state={{ from: 'verify-email', result: 'success' }} />;
+  }
+
+  return (
+    <Formik
+      initialValues={{ code: '' }}
+      validate={(values) => validateForm(values, EmailVerificationSchema)}
+      onSubmit={(values) => submit(values, { method: 'PATCH' })}
+    >
+      <Form>
+        <p className={styles.message}>An account verification code has been sent to {email}.</p>
+        <p className={styles.message}>Please enter the code below.</p>
+        <div className={styles.inputContainer}>
+          <label htmlFor="code">Verification code:</label>
+          <Field type="text" name="code" id="code" />
+          <ErrorMessage name="code" component="div" className={styles.errorMessage} />
+        </div>
+        <div className={styles.buttonContainer}>
+          <ResponsiveButton
+            className={styles.confirmButton}
+            defaultText={'Verify'}
+            submittingText={'Verifying...'}
+            method="patch"
+          />
+          <ResponsiveButton
+            className={styles.confirmButton}
+            defaultText={'Resend verification code'}
+            submittingText={'Sending...'}
+            method="post"
+            onClick={handleResend}
+            type="button"
+          />
+          <button type="button" onClick={handleCancel} className={styles.confirmButton}>
+            Cancel
+          </button>
+        </div>
+        <Toaster />
+      </Form>
+    </Formik>
+  );
+}
+
+function ResponsiveButton({
+  defaultText,
+  submittingText,
+  method,
+  onClick,
+  type = 'submit',
+  className,
+}) {
+  const navigation = useNavigation();
+
+  if (navigation.state === 'submitting' && method === navigation.formMethod) {
+    return (
+      <button type={type} onClick={onClick} className={`${className} ${styles.submitting}`}>
+        {submittingText}
+      </button>
+    );
+  } else {
+    return (
+      <button type={type} onClick={onClick} className={className}>
+        {defaultText}
+      </button>
+    );
+  }
+}
 
 export async function action({ request }) {
+  const url = new URL(request.url);
+  const email = url.searchParams.get('email');
+
   if (request.method === 'PATCH') {
     const formData = await request.formData();
     const code = formData.get('code');
 
-    const res = await fetch('http://localhost:8000/api/v1/auth/verify-email', {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token: code }),
-    });
-
-    if (!res.ok) {
-      return await res.json();
+    const response = await verifyEmail(email, code);
+    if (!response.ok) {
+      const error = await response.json();
+      return toast.error(error);
     }
-    return redirect('/login');
+    return { success: true, type: 'verification' };
   } else {
-    const url = new URL(request.url);
-    const email = url.searchParams.get('email');
-    const res = await fetch('http://localhost:8000/api/v1/auth/verify-email/resend', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
-    });
+    const response = await resendVerificationCode(email);
 
-    if (!res.ok) {
-      return await res.json();
+    if (!response.ok) {
+      const error = await response.json();
+      return toast.error(error);
     }
-    return true;
+    return toast.success('Verification code sent successfully');
   }
-}
-
-export default function VerifyEmail() {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  return (
-    <>
-      <Form method="patch" className={styles.authForm}>
-        <p className={styles.message}>
-          We sent an email verification code to {searchParams.get('email')}.
-        </p>
-        <p className={styles.message}>Please enter the code below.</p>
-        <div className={styles.inputContainer}>
-          <label htmlFor="code">Verification code:</label>
-          <input type="text" name="code" id="code" />
-        </div>
-        <div className={styles.buttonContainer}>
-          <button className={styles.confirmButton}>Verify</button>
-        </div>
-      </Form>
-      <Form method="post">
-        <div className={styles.resendButtonContainer}>
-          <button className={styles.confirmButton}>Resend verification code</button>
-        </div>
-      </Form>
-    </>
-  );
 }

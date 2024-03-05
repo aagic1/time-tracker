@@ -31,6 +31,26 @@ async function register(email, password) {
   return { success: true, status: response.status, data: await response.json() };
 }
 
+async function verifyEmail(email, code) {
+  return await fetch('http://localhost:8000/api/v1/auth/verify-email', {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ code, email }),
+  });
+}
+
+async function resendVerificationCode(email) {
+  return await fetch('http://localhost:8000/api/v1/auth/verify-email/resend', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  });
+}
+
 async function forgotPassword(email) {
   const response = await fetch(BASE_URL + '/auth/forgot-password/initiate', {
     method: 'POST',
@@ -61,4 +81,11 @@ async function verifyPasswordRecoveryCode(code) {
   return { success: true, data: await response.json() };
 }
 
-export { login, register, forgotPassword, verifyPasswordRecoveryCode };
+export {
+  login,
+  register,
+  forgotPassword,
+  verifyPasswordRecoveryCode,
+  verifyEmail,
+  resendVerificationCode,
+};
