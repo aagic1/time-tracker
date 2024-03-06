@@ -1,11 +1,14 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 // import styles from './login.module.css';
 import styles from '../auth-form.module.css';
 import { useAuth } from '../AuthProvider';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { login as loginAPI } from '../../api';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function Login() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login: loginClient } = useAuth();
@@ -28,8 +31,18 @@ export default function Login() {
     setPassword(event.target.value);
   }
 
+  useEffect(() => {
+    let toastId;
+    if (location.state?.from === 'verify-email' && location.state?.result === 'success') {
+      toastId = toast.success('Verified account successfully');
+      navigate('/login', { replace: true });
+    }
+    return () => toast.remove(toastId);
+  }, [location]);
+
   return (
     <form className={styles.authForm} method="POST" onSubmit={handleLogin}>
+      <Toaster />
       <div className={styles.inputContainer}>
         <label className={styles.label} htmlFor="email">
           Email:
