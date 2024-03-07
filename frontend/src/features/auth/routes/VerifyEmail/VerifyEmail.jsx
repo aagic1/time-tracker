@@ -1,17 +1,11 @@
-import {
-  useSubmit,
-  useSearchParams,
-  useNavigate,
-  useNavigation,
-  useActionData,
-  Navigate,
-} from 'react-router-dom';
+import { useSubmit, useSearchParams, useNavigate, useActionData, Navigate } from 'react-router-dom';
 import { Form, Field, ErrorMessage, Formik } from 'formik';
 import toast, { Toaster } from 'react-hot-toast';
 
 import styles from '../auth-form.module.css';
 import { resendVerificationCode, verifyEmail } from '../../api';
 import { EmailVerificationSchema, validateForm } from '../../utils/validation';
+import SubmitButton from '../../components/SubmitButton/SubmitButton';
 
 export default function VerifyEmail() {
   const submit = useSubmit();
@@ -30,6 +24,7 @@ export default function VerifyEmail() {
     navigate('/login');
   }
 
+  // navigate to login page after successfull email verification
   if (actionData && actionData.success && actionData.type === 'verification') {
     return (
       <Navigate to="/login" replace={true} state={{ from: 'verify-email', result: 'success' }} />
@@ -51,13 +46,13 @@ export default function VerifyEmail() {
           <ErrorMessage name="code" component="div" className={styles.errorMessage} />
         </div>
         <div className={styles.buttonContainer}>
-          <ResponsiveButton
+          <SubmitButton
             className={styles.confirmButton}
             defaultText={'Verify'}
             submittingText={'Verifying...'}
             method="patch"
           />
-          <ResponsiveButton
+          <SubmitButton
             className={styles.confirmButton}
             defaultText={'Resend verification code'}
             submittingText={'Sending...'}
@@ -73,31 +68,6 @@ export default function VerifyEmail() {
       </Form>
     </Formik>
   );
-}
-
-function ResponsiveButton({
-  defaultText,
-  submittingText,
-  method,
-  onClick,
-  type = 'submit',
-  className,
-}) {
-  const navigation = useNavigation();
-
-  if (navigation.state === 'submitting' && method === navigation.formMethod) {
-    return (
-      <button type={type} onClick={onClick} className={`${className} ${styles.submitting}`}>
-        {submittingText}
-      </button>
-    );
-  } else {
-    return (
-      <button type={type} onClick={onClick} className={className}>
-        {defaultText}
-      </button>
-    );
-  }
 }
 
 export async function action({ request }) {
