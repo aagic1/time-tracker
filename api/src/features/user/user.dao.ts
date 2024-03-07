@@ -60,12 +60,12 @@ async function deleteVerificationCode(accountId: bigint) {
 async function findUserAndRecoveryCode(email: string) {
   return db
     .selectFrom('account')
-    .leftJoin('recovery_code', 'account.id', 'recovery_code.account_id')
+    .leftJoin('password_recovery_code', 'account.id', 'password_recovery_code.account_id')
     .select([
       'account.id as accountId',
       'email',
       'code as recoveryCode',
-      'recovery_code.created_at as codeCreatedAt',
+      'password_recovery_code.created_at as codeCreatedAt',
     ])
     .where('email', '=', email)
     .executeTakeFirst();
@@ -73,7 +73,7 @@ async function findUserAndRecoveryCode(email: string) {
 
 async function createOrUpdateRecoveryCode(id: bigint, recoveryCode: string) {
   return db
-    .insertInto('recovery_code')
+    .insertInto('password_recovery_code')
     .values({ account_id: id, code: recoveryCode })
     .onConflict((oc) =>
       oc.column('account_id').doUpdateSet({ code: recoveryCode, created_at: new Date() })
@@ -82,7 +82,10 @@ async function createOrUpdateRecoveryCode(id: bigint, recoveryCode: string) {
 }
 
 async function deleteRecoveryCode(accountId: bigint) {
-  return db.deleteFrom('recovery_code').where('account_id', '=', accountId).executeTakeFirst();
+  return db
+    .deleteFrom('password_recovery_code')
+    .where('account_id', '=', accountId)
+    .executeTakeFirst();
 }
 
 // ________

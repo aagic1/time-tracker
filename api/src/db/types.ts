@@ -51,7 +51,7 @@ export interface DB {
   activity: ActivityTable;
   record: RecordTable;
   verification_code: VerificationCodeTable;
-  recovery_code: RecoveryCodeTable;
+  password_recovery_code: RecoveryCodeTable;
 }
 
 export type Account = Selectable<AccountTable>;
