@@ -1,30 +1,21 @@
-import { useEffect } from 'react';
-import {
-  Link,
-  useActionData,
-  useLocation,
-  useNavigate,
-  useNavigation,
-  useSubmit,
-} from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
+import { Link, redirect, useActionData, useNavigation, useSubmit } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 
 import styles from '../auth-form.module.css';
 import { useAuth } from '../AuthProvider';
-import { login as loginAPI } from '../../api';
+import { login as loginAPI, resendVerificationCode } from '../../api';
 import { LoginSchema, validateForm } from '../../utils/validation';
 
 export default function Login() {
-  const location = useLocation();
-  const navigate = useNavigate();
   const actionData = useActionData();
   const auth = useAuth();
   const submit = useSubmit();
 
-  useSuccessfulVerificationToast(navigate, location);
-  useWrongCredentialsToast(actionData);
-  useLogin(actionData, auth);
+  // client-side login after successful authentication
+  if (actionData?.success) {
+    auth.login(actionData.email);
+  }
 
   return (
     <Formik
@@ -33,7 +24,6 @@ export default function Login() {
       onSubmit={(values) => submit(values, { method: 'post' })}
     >
       <Form>
-        <Toaster />
         <div className={styles.inputContainer}>
           <label className={styles.label} htmlFor="email">
             Email:
@@ -95,39 +85,12 @@ export async function action({ request }) {
   const password = formData.get('password');
 
   const loginResult = await loginAPI(email, password);
+  if (loginResult.status === 401) {
+    resendVerificationCode(email);
+    toast('Please verify your email');
+    return redirect(`/verify-email?email=${email}`);
+  } else if (!loginResult.success) {
+    toast.error('Wrong email or password');
+  }
   return { ...loginResult, email };
-}
-
-function useSuccessfulVerificationToast(navigate, location) {
-  useEffect(() => {
-    if (location.state?.from === 'verify-email' && location.state?.result === 'success') {
-      toast.success('Verified account successfully', { id: 'successful verification' });
-      navigate('/login', { replace: true });
-    }
-    return () => toast.remove('successful verification');
-  }, [location, navigate]);
-}
-
-function useWrongCredentialsToast(actionData) {
-  useEffect(() => {
-    if (!actionData) {
-      return;
-    }
-    if (!actionData.success) {
-      toast.error('Wrong email or password');
-    }
-
-    return () => toast.remove('wrong credentials');
-  }, [actionData]);
-}
-
-function useLogin(actionData, auth) {
-  useEffect(() => {
-    if (!actionData) {
-      return;
-    }
-    if (actionData.success) {
-      auth.login(actionData.email);
-    }
-  }, [actionData, auth]);
 }

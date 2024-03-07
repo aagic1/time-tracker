@@ -1,6 +1,6 @@
-import { useSubmit, useSearchParams, useNavigate, useActionData, Navigate } from 'react-router-dom';
+import { useSubmit, useSearchParams, useNavigate, redirect } from 'react-router-dom';
 import { Form, Field, ErrorMessage, Formik } from 'formik';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 import styles from '../auth-form.module.css';
 import { resendVerificationCode, verifyEmail } from '../../api';
@@ -10,7 +10,6 @@ import SubmitButton from '../../components/SubmitButton/SubmitButton';
 export default function VerifyEmail() {
   const submit = useSubmit();
   const navigate = useNavigate();
-  const actionData = useActionData();
   const [searchParams] = useSearchParams();
   const email = searchParams.get('email');
 
@@ -22,13 +21,6 @@ export default function VerifyEmail() {
 
   function handleCancel() {
     navigate('/login');
-  }
-
-  // navigate to login page after successfull email verification
-  if (actionData && actionData.success && actionData.type === 'verification') {
-    return (
-      <Navigate to="/login" replace={true} state={{ from: 'verify-email', result: 'success' }} />
-    );
   }
 
   return (
@@ -64,7 +56,6 @@ export default function VerifyEmail() {
             Cancel
           </button>
         </div>
-        <Toaster />
       </Form>
     </Formik>
   );
@@ -83,7 +74,8 @@ export async function action({ request }) {
       const error = await response.json();
       return toast.error(error);
     }
-    return { success: true, type: 'verification' };
+    toast.success('Account verified successfully');
+    return redirect('/login');
   } else {
     const response = await resendVerificationCode(email);
 
