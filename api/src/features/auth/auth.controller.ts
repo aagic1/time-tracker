@@ -95,12 +95,14 @@ export async function verifyPasswordRecoveryCode(req: Request, res: Response) {
 }
 
 export async function resetPassword(req: Request, res: Response) {
-  const { body } = await validateRequest(
+  const {
+    body: { email, newPassword, code },
+  } = await validateRequest(
     resetPasswordSchema,
     req,
     'Invalid request data: PATCH /forgot-password/password'
   );
-  await authService.resetPassword(body.token, body.newPassword);
+  await authService.resetPassword(email, code, newPassword);
   res.status(200).json('Password reset successfully');
 }
 

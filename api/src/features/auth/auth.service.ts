@@ -193,21 +193,25 @@ async function verifyPasswordRecoveryCode(email: string, code: string) {
   };
 }
 
-async function resetPassword(token: string, newPassword: string) {
-  const payload = jwt.verify(token, process.env.JWT_SECRET!);
-  const parsedPayload = validateAuthJwt(payload);
-
-  if (parsedPayload.type !== 'Reset password') {
-    throw new BadRequestError('Wrong code');
+async function resetPassword(email: string, code: string, newPassword: string) {
+  const recoveryCodeVerification = await verifyPasswordRecoveryCode(email, code);
+  if (recoveryCodeVerification.status === 'Failure') {
+    return recoveryCodeVerification;
   }
 
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-  const updatedUser = await userDAO.update(parsedPayload.email, {
+  const hashedPassword = await bcrypt.hash(newPassword, 12);
+  const updatedUser = await userDAO.update(email, {
     password: hashedPassword,
   });
+
   if (!updatedUser) {
     throw new UpdateError('Something went wrong. Failed to reset password.');
   }
+  await userDAO.deleteRecoveryCode(updatedUser.id);
+  return {
+    status: 'Success',
+    message: 'Password reset successfully.',
+  };
 }
 
 // ________

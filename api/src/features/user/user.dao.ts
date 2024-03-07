@@ -81,6 +81,10 @@ async function createOrUpdateRecoveryCode(id: bigint, recoveryCode: string) {
     .executeTakeFirst();
 }
 
+async function deleteRecoveryCode(accountId: bigint) {
+  return db.deleteFrom('recovery_code').where('account_id', '=', accountId).executeTakeFirst();
+}
+
 // ________
 // public API
 export default {
@@ -94,4 +98,5 @@ export default {
   deleteVerificationCode,
   findUserAndRecoveryCode,
   createOrUpdateRecoveryCode,
+  deleteRecoveryCode,
 };
