@@ -39,11 +39,19 @@ export interface VerificationCodeTable {
   created_at: ColumnType<Date, Date | string | undefined, Date | string>;
 }
 
+export interface RecoveryCodeTable {
+  id: Generated<number>;
+  account_id: Int8;
+  code: string;
+  created_at: ColumnType<Date, Date | string | undefined, Date | string>;
+}
+
 export interface DB {
   account: AccountTable;
   activity: ActivityTable;
   record: RecordTable;
   verification_code: VerificationCodeTable;
+  recovery_code: RecoveryCodeTable;
 }
 
 export type Account = Selectable<AccountTable>;

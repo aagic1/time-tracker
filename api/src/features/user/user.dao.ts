@@ -57,6 +57,16 @@ async function deleteVerificationCode(accountId: bigint) {
   return db.deleteFrom('verification_code').where('account_id', '=', accountId).executeTakeFirst();
 }
 
+async function createOrUpdateRecoveryCode(id: bigint, recoveryCode: string) {
+  return db
+    .insertInto('recovery_code')
+    .values({ account_id: id, code: recoveryCode })
+    .onConflict((oc) =>
+      oc.column('account_id').doUpdateSet({ code: recoveryCode, created_at: new Date() })
+    )
+    .executeTakeFirst();
+}
+
 // ________
 // public API
 export default {
@@ -68,4 +78,5 @@ export default {
   findUserAndVerificationCode,
   updateVerificationCode,
   deleteVerificationCode,
+  createOrUpdateRecoveryCode,
 };

@@ -149,14 +149,20 @@ async function sendPasswordRecoveryCode(email: string) {
     throw new NotFoundError(`User with email: ${email} does not exist.`);
   }
 
-  const resetToken = generateJWT(email, 'Reset password');
+  const resetCode = generateUUID();
+  const hashedResetCode = await bcrypt.hash(resetCode, 12);
+  const insertOrUpdateResult = await userDAO.createOrUpdateRecoveryCode(user.id, hashedResetCode);
+  if (!insertOrUpdateResult.numInsertedOrUpdatedRows) {
+    return new Error('Failed to create recover code');
+  }
+
   try {
-    await sendEmail(email, 'Reset password', resetToken);
+    await sendEmail(email, 'Reset password', resetCode);
   } catch (error) {
     throw new EmailError('Failed to send email');
   }
 
-  return 'Reset password email sent successfully';
+  return 'Password recovery email sent successfully';
 }
 
 async function verifyPasswordRecoveryCode(token: string) {
