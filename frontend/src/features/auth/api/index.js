@@ -11,9 +11,9 @@ async function login(email, password) {
   });
 
   if (!response.ok) {
-    return { success: false, error: (await response.json()).error };
+    return { success: false, status: response.status, error: (await response.json()).error };
   }
-  return { success: true, data: await response.json() };
+  return { success: true, status: response.status, data: await response.json() };
 }
 
 async function register(email, password) {
