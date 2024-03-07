@@ -9,6 +9,10 @@ const LoginSchema = z.object({
   password: z.string().min(1, 'Required'),
 });
 
+const ForgotPasswordSchema = z.object({
+  email: z.string().email(),
+});
+
 function validateForm(values, schema) {
   try {
     schema.parse(values);
@@ -23,6 +27,7 @@ export {
   // validation schemas
   EmailVerificationSchema,
   LoginSchema,
+  ForgotPasswordSchema,
 
   // functions
   validateForm,
