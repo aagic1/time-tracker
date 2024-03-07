@@ -165,22 +165,32 @@ async function sendPasswordRecoveryCode(email: string) {
   return 'Password recovery email sent successfully';
 }
 
-async function verifyPasswordRecoveryCode(token: string) {
-  const payload = jwt.verify(token, process.env.JWT_SECRET!);
-  const { email, type } = validateAuthJwt(payload);
-  if (type !== 'Reset password') {
-    throw new BadRequestError('Invalid verification code');
-  }
-
-  const user = await userDAO.findOneByEmail(email);
+async function verifyPasswordRecoveryCode(email: string, code: string) {
+  const user = await userDAO.findUserAndRecoveryCode(email);
   if (!user) {
     // this can happen if account gets deleted in the process of recovering password
-    throw new NotFoundError(
-      'User not found. Invalid email in JWT. JWT should contain only valid email (registered emails). Server error.'
-    );
+    throw new NotFoundError('User not found.');
   }
 
-  return generateJWT(email, 'Reset password', '5m');
+  if (!user.codeCreatedAt || hasCodeExpired(user.codeCreatedAt)) {
+    return {
+      status: 'Failure',
+      message: 'Verification code expired',
+    };
+  }
+
+  const codeValid = await bcrypt.compare(code, user.recoveryCode!);
+  if (!codeValid) {
+    return {
+      status: 'Failure',
+      message: 'Invalid verification code',
+    };
+  }
+
+  return {
+    status: 'Success',
+    message: 'Recovery code verified successfully',
+  };
 }
 
 async function resetPassword(token: string, newPassword: string) {

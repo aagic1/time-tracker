@@ -57,6 +57,20 @@ async function deleteVerificationCode(accountId: bigint) {
   return db.deleteFrom('verification_code').where('account_id', '=', accountId).executeTakeFirst();
 }
 
+async function findUserAndRecoveryCode(email: string) {
+  return db
+    .selectFrom('account')
+    .leftJoin('recovery_code', 'account.id', 'recovery_code.account_id')
+    .select([
+      'account.id as accountId',
+      'email',
+      'code as recoveryCode',
+      'recovery_code.created_at as codeCreatedAt',
+    ])
+    .where('email', '=', email)
+    .executeTakeFirst();
+}
+
 async function createOrUpdateRecoveryCode(id: bigint, recoveryCode: string) {
   return db
     .insertInto('recovery_code')
@@ -78,5 +92,6 @@ export default {
   findUserAndVerificationCode,
   updateVerificationCode,
   deleteVerificationCode,
+  findUserAndRecoveryCode,
   createOrUpdateRecoveryCode,
 };

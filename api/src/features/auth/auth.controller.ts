@@ -80,12 +80,14 @@ export async function sendPasswordRecoveryCode(req: Request, res: Response) {
 }
 
 export async function verifyPasswordRecoveryCode(req: Request, res: Response) {
-  const { body } = await validateRequest(
+  const {
+    body: { code, email },
+  } = await validateRequest(
     verifyPasswordRecoverySchema,
     req,
     'Invalid request data: PATCH /forgot-password/code'
   );
-  const passwordResetToken = await authService.verifyPasswordRecoveryCode(body.token);
+  const passwordResetToken = await authService.verifyPasswordRecoveryCode(email, code);
 
   res
     .status(200)

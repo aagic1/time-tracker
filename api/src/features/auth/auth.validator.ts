@@ -34,7 +34,8 @@ const passwordRecoverySchema = z.object({
 
 const verifyPasswordRecoverySchema = z.object({
   body: z.object({
-    token: stringNonEmptySchema,
+    code: stringNonEmptySchema,
+    email: emailSchema,
   }),
 });
 
