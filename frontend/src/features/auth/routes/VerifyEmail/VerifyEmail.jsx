@@ -31,7 +31,9 @@ export default function VerifyEmail() {
   }
 
   if (actionData && actionData.success && actionData.type === 'verification') {
-    return <Navigate to="/login" state={{ from: 'verify-email', result: 'success' }} />;
+    return (
+      <Navigate to="/login" replace={true} state={{ from: 'verify-email', result: 'success' }} />
+    );
   }
 
   return (
