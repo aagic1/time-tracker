@@ -1,8 +1,8 @@
-import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../features/auth/routes/AuthProvider';
 
 export default function ProtectedRoutes() {
-  const { user, isLoggedIn } = useAuth();
+  const { isLoggedIn } = useAuth();
   const location = useLocation();
 
   return (
@@ -12,7 +12,11 @@ export default function ProtectedRoutes() {
       ) : (
         <Navigate to="/login" state={{ from: location.pathname }} />
       )} */}
-      {isLoggedIn ? <Outlet /> : <Navigate to="/login" state={{ from: location.pathname }} />}
+      {isLoggedIn ? (
+        <Outlet />
+      ) : (
+        <Navigate to="/login" replace={true} state={{ from: location.pathname }} />
+      )}
     </>
   );
 }
