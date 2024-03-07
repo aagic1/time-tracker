@@ -1,66 +1,133 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-// import styles from './login.module.css';
+import { useEffect } from 'react';
+import {
+  Link,
+  useActionData,
+  useLocation,
+  useNavigate,
+  useNavigation,
+  useSubmit,
+} from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+
 import styles from '../auth-form.module.css';
 import { useAuth } from '../AuthProvider';
-import { useState, useEffect } from 'react';
 import { login as loginAPI } from '../../api';
-import toast, { Toaster } from 'react-hot-toast';
+import { LoginSchema, validateForm } from '../../utils/validation';
 
 export default function Login() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const { login: loginClient } = useAuth();
+  const actionData = useActionData();
+  const auth = useAuth();
+  const submit = useSubmit();
 
-  async function handleLogin(event) {
-    event.preventDefault();
-
-    const loginResult = await loginAPI(email, password);
-    if (!loginResult.success) {
-      return loginResult.error;
-    }
-
-    return loginClient(email);
-  }
-
-  function handleChangeEmail(event) {
-    setEmail(event.target.value);
-  }
-  function handleChangePassword(event) {
-    setPassword(event.target.value);
-  }
-
-  useEffect(() => {
-    let toastId;
-    if (location.state?.from === 'verify-email' && location.state?.result === 'success') {
-      toastId = toast.success('Verified account successfully');
-      navigate('/login', { replace: true });
-    }
-    return () => toast.remove(toastId);
-  }, [location]);
+  useSuccessfulVerificationToast(navigate, location);
+  useWrongCredentialsToast(actionData);
+  useLogin(actionData, auth);
 
   return (
-    <form className={styles.authForm} method="POST" onSubmit={handleLogin}>
-      <Toaster />
-      <div className={styles.inputContainer}>
-        <label className={styles.label} htmlFor="email">
-          Email:
-        </label>
-        <input type="email" name="email" id="email" onChange={handleChangeEmail} />
-      </div>
-      <div className={styles.inputContainer}>
-        <label className={styles.label} htmlFor="password">
-          Password:
-        </label>
-        <input type="password" name="password" id="password" onChange={handleChangePassword} />
-        <Link to="../forgot-password" className={styles.forgotPassword}>
-          Forgot password?
-        </Link>
-      </div>
-      <div className={styles.buttonContainer}>
-        <button className={styles.confirmButton}>Log in</button>
-      </div>
-    </form>
+    <Formik
+      initialValues={{ email: '', password: '' }}
+      validate={(values) => validateForm(values, LoginSchema)}
+      onSubmit={(values) => submit(values, { method: 'post' })}
+    >
+      <Form>
+        <Toaster />
+        <div className={styles.inputContainer}>
+          <label className={styles.label} htmlFor="email">
+            Email:
+          </label>
+          <Field type="email" name="email" id="email" />
+          <ErrorMessage name="email" component="div" className={styles.errorMessage} />
+        </div>
+        <div className={styles.inputContainer}>
+          <label className={styles.label} htmlFor="password">
+            Password:
+          </label>
+          <Field type="password" name="password" id="password" />
+          <ErrorMessage name="password" component="div" className={styles.errorMessage} />
+          <Link to="../forgot-password" className={styles.forgotPassword}>
+            Forgot password?
+          </Link>
+        </div>
+        <div className={styles.buttonContainer}>
+          <SubmitButton
+            defaultText="Log in"
+            submittingText="Logging in..."
+            method="post"
+            className={styles.confirmButton}
+          />
+        </div>
+      </Form>
+    </Formik>
   );
+}
+
+function SubmitButton({
+  defaultText,
+  submittingText,
+  method,
+  onClick,
+  type = 'submit',
+  className,
+}) {
+  const navigation = useNavigation();
+
+  if (navigation.state === 'submitting' && method === navigation.formMethod) {
+    return (
+      <button type={type} onClick={onClick} className={`${className} ${styles.submitting}`}>
+        {submittingText}
+      </button>
+    );
+  } else {
+    return (
+      <button type={type} onClick={onClick} className={className}>
+        {defaultText}
+      </button>
+    );
+  }
+}
+
+export async function action({ request }) {
+  const formData = await request.formData();
+  const email = formData.get('email');
+  const password = formData.get('password');
+
+  const loginResult = await loginAPI(email, password);
+  return { ...loginResult, email };
+}
+
+function useSuccessfulVerificationToast(navigate, location) {
+  useEffect(() => {
+    if (location.state?.from === 'verify-email' && location.state?.result === 'success') {
+      toast.success('Verified account successfully', { id: 'successful verification' });
+      navigate('/login', { replace: true });
+    }
+    return () => toast.remove('successful verification');
+  }, [location, navigate]);
+}
+
+function useWrongCredentialsToast(actionData) {
+  useEffect(() => {
+    if (!actionData) {
+      return;
+    }
+    if (!actionData.success) {
+      toast.error('Wrong email or password');
+    }
+
+    return () => toast.remove('wrong credentials');
+  }, [actionData]);
+}
+
+function useLogin(actionData, auth) {
+  useEffect(() => {
+    if (!actionData) {
+      return;
+    }
+    if (actionData.success) {
+      auth.login(actionData.email);
+    }
+  }, [actionData, auth]);
 }

@@ -2,7 +2,7 @@ import { createBrowserRouter, RouterProvider, useRouteError } from 'react-router
 
 import Layout from './pages/Layout/Layout.jsx';
 import AuthLayout from './pages/Auth/AuthLayout/AuthLayout.jsx';
-import Login from './features/auth/routes/Login/Login.jsx';
+import Login, { action as loginAction } from './features/auth/routes/Login/Login.jsx';
 import Register, { action as registerAction } from './features/auth/routes/Register/Register.jsx';
 import ForgotPassword, {
   action as forgotPasswordAction,
@@ -42,11 +42,12 @@ const router = createBrowserRouter([
         children: [
           {
             element: <AuthLayout />,
-            errorElement: <div>Error auth layout</div>,
+            errorElement: <ErrorElement />,
             children: [
               {
                 path: 'login',
                 element: <Login />,
+                action: loginAction,
               },
               {
                 path: 'forgot-password',
