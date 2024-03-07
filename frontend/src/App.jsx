@@ -31,6 +31,7 @@ import RecordEditor, {
   loaderUpdate as recordEditorUpdateLoader,
   action as recordEditorAction,
 } from './features/records/routes/RecordEditor/RecordEditor.jsx';
+import { Toaster } from 'react-hot-toast';
 
 const router = createBrowserRouter([
   {
@@ -138,6 +139,7 @@ const router = createBrowserRouter([
 export default function App() {
   return (
     <AuthProvider>
+      <Toaster />
       <RouterProvider router={router}></RouterProvider>
     </AuthProvider>
   );
