@@ -13,12 +13,6 @@ export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
   const email = searchParams.get('email');
 
-  function handleResend() {
-    const formData = new FormData();
-    formData.append('email', email);
-    submit(formData, { method: 'POST' });
-  }
-
   function handleCancel() {
     navigate('/login');
   }
@@ -27,7 +21,7 @@ export default function VerifyEmail() {
     <Formik
       initialValues={{ code: '' }}
       validate={(values) => validateForm(values, EmailVerificationSchema)}
-      onSubmit={(values) => submit(values, { method: 'PATCH' })}
+      onSubmit={(values) => submit(values, { method: values.method })}
     >
       <Form>
         <p className={styles.message}>An account verification code has been sent to {email}.</p>
@@ -39,18 +33,19 @@ export default function VerifyEmail() {
         </div>
         <div className={styles.buttonContainer}>
           <SubmitButton
-            className={styles.confirmButton}
-            defaultText={'Verify'}
-            submittingText={'Verifying...'}
+            defaultText="Verify"
+            submittingText="Verifying..."
             method="patch"
+            action="verify"
+            className={styles.confirmButton}
           />
           <SubmitButton
-            className={styles.confirmButton}
-            defaultText={'Resend verification code'}
-            submittingText={'Sending...'}
-            method="post"
-            onClick={handleResend}
             type="button"
+            defaultText="Resend verification code"
+            submittingText="Sending..."
+            method="post"
+            action="resend"
+            className={styles.confirmButton}
           />
           <button type="button" onClick={handleCancel} className={styles.confirmButton}>
             Cancel
