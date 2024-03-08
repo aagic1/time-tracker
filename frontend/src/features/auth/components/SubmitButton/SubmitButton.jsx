@@ -1,22 +1,28 @@
-import { useNavigation } from 'react-router-dom';
+import { useNavigation, useSubmit } from 'react-router-dom';
 import { useFormikContext } from 'formik';
 
 import styles from '../../routes/auth-form.module.css';
 
 export default function SubmitButton({
-  type = 'submit',
   action,
   method,
   defaultText,
   submittingText,
+  ignoreValidation = false,
   className,
 }) {
   const navigation = useNavigation();
-  const { setFieldValue, submitForm } = useFormikContext();
+  const submit = useSubmit();
+  const { setFieldValue, submitForm, values } = useFormikContext();
+  const type = ignoreValidation ? 'button' : 'submit';
 
   // render disabled button while submitting
   if (navigation.state === 'submitting' && navigation.formData.get('action') === action) {
-    return <button className={`${className} ${styles.submitting}`}>{submittingText}</button>;
+    return (
+      <button type={type} className={`${className} ${styles.submitting}`}>
+        {submittingText}
+      </button>
+    );
   }
 
   return (
@@ -24,12 +30,13 @@ export default function SubmitButton({
       type={type}
       className={className}
       onClick={() => {
-        if (action != null) {
-          setFieldValue('action', action);
+        // submit form directly to react router action without validating
+        if (ignoreValidation === true) {
+          return submit({ ...values, method, action }, { method });
         }
-        if (method != null) {
-          setFieldValue('method', method);
-        }
+
+        setFieldValue('action', action);
+        setFieldValue('method', method);
         submitForm();
       }}
     >

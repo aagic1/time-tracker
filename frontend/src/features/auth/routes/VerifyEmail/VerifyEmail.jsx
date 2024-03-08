@@ -32,7 +32,9 @@ export default function VerifyEmail() {
     <Formik
       initialValues={{ code: '' }}
       validate={(values) => validateForm(values, EmailVerificationSchema)}
-      onSubmit={(values) => submit(values, { method: values.method })}
+      onSubmit={(values) => {
+        submit(values, { method: values.method });
+      }}
     >
       <Form>
         <p className={styles.message}>An account verification code has been sent to {email}.</p>
@@ -51,11 +53,11 @@ export default function VerifyEmail() {
             className={styles.confirmButton}
           />
           <SubmitButton
-            type="button"
             defaultText="Resend verification code"
             submittingText="Sending..."
             method="post"
             action="resend"
+            ignoreValidation
             className={styles.confirmButton}
           />
           <button type="button" onClick={handleCancel} className={styles.confirmButton}>
@@ -74,7 +76,6 @@ export async function action({ request }) {
   if (request.method === 'PATCH') {
     const formData = await request.formData();
     const code = formData.get('code');
-
     const response = await verifyEmail(email, code);
     if (!response.ok) {
       const error = await response.json();
