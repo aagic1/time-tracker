@@ -1,4 +1,4 @@
-import { useSubmit, useSearchParams, useNavigate, redirect } from 'react-router-dom';
+import { useSubmit, useSearchParams, useNavigate, useActionData, Navigate } from 'react-router-dom';
 import { Form, Field, ErrorMessage, Formik } from 'formik';
 import toast from 'react-hot-toast';
 
@@ -12,9 +12,20 @@ export default function VerifyEmail() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const email = searchParams.get('email');
+  const actionData = useActionData();
 
   function handleCancel() {
     navigate('/login');
+  }
+
+  // redirect if no email is supplied as search param
+  if (!searchParams.get('email')) {
+    return <Navigate to="/login" replace={true} />;
+  }
+
+  // redirect after successful verification or if already verified
+  if (actionData?.success || actionData?.status === 409) {
+    return <Navigate to="/login" replace={true} />;
   }
 
   return (
@@ -67,16 +78,17 @@ export async function action({ request }) {
     const response = await verifyEmail(email, code);
     if (!response.ok) {
       const error = await response.json();
-      return toast.error(error, { id: 'verify-error' });
+      toast.error(error, { id: 'verify-error' });
+      return { success: false, status: response.status };
     }
     toast.success('Account verified successfully', { id: 'verify-success' });
-    return redirect('/login');
+    return { success: true };
   } else {
     const response = await resendVerificationCode(email);
-
     if (!response.ok) {
       const error = await response.json();
-      return toast.error(error, { id: 'resend-verification-error' });
+      toast.error(error, { id: 'resend-verification-error' });
+      return { success: false, status: response.status };
     }
     return toast.success('Verification code sent successfully', {
       id: 'resend-verification-success',
