@@ -1,4 +1,4 @@
-import { Link, redirect, useActionData, useNavigation, useSubmit } from 'react-router-dom';
+import { Link, redirect, useActionData, useSubmit } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 
@@ -6,6 +6,7 @@ import styles from '../auth-form.module.css';
 import { useAuth } from '../AuthProvider';
 import { login as loginAPI, resendVerificationCode } from '../../api';
 import { LoginSchema, validateForm } from '../../utils/validation';
+import SubmitButton from '../../components/SubmitButton/SubmitButton';
 
 export default function Login() {
   const actionData = useActionData();
@@ -21,7 +22,7 @@ export default function Login() {
     <Formik
       initialValues={{ email: '', password: '' }}
       validate={(values) => validateForm(values, LoginSchema)}
-      onSubmit={(values) => submit(values, { method: 'post' })}
+      onSubmit={(values) => submit(values, { method: values.method })}
     >
       <Form>
         <div className={styles.inputContainer}>
@@ -46,37 +47,13 @@ export default function Login() {
             defaultText="Log in"
             submittingText="Logging in..."
             method="post"
+            action="login"
             className={styles.confirmButton}
           />
         </div>
       </Form>
     </Formik>
   );
-}
-
-function SubmitButton({
-  defaultText,
-  submittingText,
-  method,
-  onClick,
-  type = 'submit',
-  className,
-}) {
-  const navigation = useNavigation();
-
-  if (navigation.state === 'submitting' && method === navigation.formMethod) {
-    return (
-      <button type={type} onClick={onClick} className={`${className} ${styles.submitting}`}>
-        {submittingText}
-      </button>
-    );
-  } else {
-    return (
-      <button type={type} onClick={onClick} className={className}>
-        {defaultText}
-      </button>
-    );
-  }
 }
 
 export async function action({ request }) {
