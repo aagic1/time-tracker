@@ -1,7 +1,7 @@
 import { redirect, useNavigation, useSubmit } from 'react-router-dom';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import { ZodError, z } from 'zod';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 // import styles from './register.module.css';
 import styles from '../auth-form.module.css';
 import { register as registerAPI } from '../../api';
@@ -86,7 +86,6 @@ export default function Register() {
             <button className={styles.confirmButton}>Register</button>
           )}
         </div>
-        <Toaster />
       </Form>
     </Formik>
   );
