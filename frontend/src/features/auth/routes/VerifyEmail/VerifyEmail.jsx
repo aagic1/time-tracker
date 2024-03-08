@@ -72,17 +72,19 @@ export async function action({ request }) {
     const response = await verifyEmail(email, code);
     if (!response.ok) {
       const error = await response.json();
-      return toast.error(error);
+      return toast.error(error, { id: 'verify-error' });
     }
-    toast.success('Account verified successfully');
+    toast.success('Account verified successfully', { id: 'verify-success' });
     return redirect('/login');
   } else {
     const response = await resendVerificationCode(email);
 
     if (!response.ok) {
       const error = await response.json();
-      return toast.error(error);
+      return toast.error(error, { id: 'resend-verification-error' });
     }
-    return toast.success('Verification code sent successfully');
+    return toast.success('Verification code sent successfully', {
+      id: 'resend-verification-success',
+    });
   }
 }
