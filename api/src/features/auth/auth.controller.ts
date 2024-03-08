@@ -49,8 +49,10 @@ export async function verifyEmail(req: Request, res: Response) {
   const result = await authService.verifyEmail(email, code);
   if (result.status === 'Success') {
     res.status(200).json(result.message);
-  } else {
+  } else if (result.status === 'Already verified') {
     res.status(409).json(result.message);
+  } else {
+    res.status(422).json(result.message);
   }
 }
 

@@ -82,7 +82,7 @@ async function verifyEmail(email: string, code: string) {
 
   if (user.verified) {
     return {
-      status: 'Failure',
+      status: 'Already verified',
       message: 'Email is already verified',
     };
   }
