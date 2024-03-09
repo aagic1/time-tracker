@@ -105,7 +105,10 @@ export async function resetPassword(req: Request, res: Response) {
     req,
     'Invalid request data: PATCH /forgot-password/password'
   );
-  await authService.resetPassword(email, code, newPassword);
+  const result = await authService.resetPassword(email, code, newPassword);
+  if (result.status === 'Failure') {
+    res.status(422).json(result.message);
+  }
   res.status(200).json('Password reset successfully');
 }
 
