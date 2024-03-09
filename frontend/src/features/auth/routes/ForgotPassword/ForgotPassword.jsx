@@ -1,5 +1,6 @@
 import { redirect, useNavigate, useSubmit } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
+import toast from 'react-hot-toast';
 
 import styles from '../auth-form.module.css';
 import { forgotPassword as forgotPasswordAPI } from '../../api';
@@ -34,6 +35,7 @@ export default function ForgotPassword() {
             defaultText="Submit"
             submittingText="Submitting..."
             method="post"
+            action="submit"
             className={styles.confirmButton}
           />
           <button type="button" className={styles.confirmButton} onClick={handleCancel}>
@@ -52,6 +54,7 @@ export async function action({ request }) {
   const forgotPasswordResult = await forgotPasswordAPI(email);
 
   if (!forgotPasswordResult.success) {
+    toast.error(forgotPasswordResult.error.message, { id: 'submit-error' });
     return forgotPasswordResult.error;
   }
   return redirect(`../forgot-password-confirmation?email=${email}`);
