@@ -13,7 +13,7 @@ export default function SubmitButton({
 }) {
   const navigation = useNavigation();
   const submit = useSubmit();
-  const { setFieldValue, submitForm, values } = useFormikContext();
+  const { setFieldValue, values } = useFormikContext();
   const type = ignoreValidation ? 'button' : 'submit';
 
   // render disabled button while submitting
@@ -37,7 +37,6 @@ export default function SubmitButton({
 
         setFieldValue('action', action);
         setFieldValue('method', method);
-        submitForm();
       }}
     >
       {defaultText}
