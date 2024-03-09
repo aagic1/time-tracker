@@ -1,20 +1,12 @@
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 
 import userDAO from '../user/user.dao';
-import { NewAccount } from '../../db/types';
 import { EmailError } from '../../errors/email-error';
 import { NotFoundError } from '../../errors/not-found-error';
-import { Register, validateAuthJwt } from './auth.validator';
+import { Register } from './auth.validator';
 import { sendEmail } from './mailer';
-import {
-  generateMessageWithLink,
-  generateJWT,
-  generateUUID,
-  generateMessageWithCode,
-} from './auth.utils';
+import { generateUUID, generateMessageWithCode } from './auth.utils';
 import { UnauthenticatedError } from '../../errors/not-authenticated-error';
-import { BadRequestError } from '../../errors/bad-request-error';
 import { UpdateError } from '../../errors/update-error';
 import { CreationError } from '../../errors/creation-error';
 
@@ -175,7 +167,7 @@ async function verifyPasswordRecoveryCode(email: string, code: string) {
   if (!user.codeCreatedAt || hasCodeExpired(user.codeCreatedAt)) {
     return {
       status: 'Failure',
-      message: 'Verification code expired',
+      message: 'Password recovery code has expired',
     };
   }
 
