@@ -66,17 +66,17 @@ async function forgotPassword(email) {
   return { success: true, data: await response.json() };
 }
 
-async function verifyPasswordRecoveryCode(code) {
+async function verifyPasswordRecoveryCode(email, code) {
   const response = await fetch('http://localhost:8000/api/v1/auth/forgot-password/code', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ token: code }),
+    body: JSON.stringify({ email, code }),
   });
 
   if (!response.ok) {
-    return { success: false, error: (await response.json()).error };
+    return { success: false, error: await response.json() };
   }
   return { success: true, data: await response.json() };
 }
