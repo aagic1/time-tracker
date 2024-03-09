@@ -10,7 +10,9 @@ import ForgotPassword, {
 import ForgotPasswordConfirmation, {
   action as forgotPasswordConfirmationAction,
 } from './features/auth/routes/ForgotPasswordConfirmation/ForgotPasswordConfirmation.jsx';
-import ResetPassword from './features/auth/routes/ResetPassword/ResetPassword.jsx';
+import ResetPassword, {
+  action as ResetPasswordAction,
+} from './features/auth/routes/ResetPassword/ResetPassword.jsx';
 import VerifyEmail, {
   action as verifyEmailAction,
 } from './features/auth/routes/VerifyEmail/VerifyEmail.jsx';
@@ -63,6 +65,7 @@ const router = createBrowserRouter([
               {
                 path: 'reset-password',
                 element: <ResetPassword />,
+                action: ResetPasswordAction,
               },
               {
                 path: 'register',

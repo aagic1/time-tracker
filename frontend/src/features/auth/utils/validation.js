@@ -17,6 +17,16 @@ const ForgotPasswordConfirmationSchema = z.object({
   code: z.string().uuid('Invalid code'),
 });
 
+const ResetPasswordSchema = z
+  .object({
+    password: z.string().min(8, 'Password must have at least 8 characters'),
+    passwordRepeat: z.string(),
+  })
+  .refine(({ password, passwordRepeat }) => passwordRepeat === password, {
+    path: ['passwordRepeat'],
+    message: 'Passwords do not match',
+  });
+
 function validateForm(values, schema) {
   try {
     schema.parse(values);
@@ -33,6 +43,7 @@ export {
   LoginSchema,
   ForgotPasswordSchema,
   ForgotPasswordConfirmationSchema,
+  ResetPasswordSchema,
 
   // functions
   validateForm,

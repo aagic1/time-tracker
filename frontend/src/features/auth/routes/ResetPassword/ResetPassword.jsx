@@ -1,68 +1,88 @@
-import { Form, useLocation, useNavigate, Navigate } from 'react-router-dom';
-// import styles from './reset-password.module.css';
+import { useLocation, useNavigate, Navigate, useFetcher } from 'react-router-dom';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import toast from 'react-hot-toast';
+
 import styles from '../auth-form.module.css';
-import { useEffect, useState } from 'react';
+import { validateForm, ResetPasswordSchema } from '../../utils/validation';
+import SubmitButton from '../../components/SubmitButton/SubmitButton';
 
 export default function ResetPassword() {
-  const [newPassword, setNewPassword] = useState('');
-  const location = useLocation();
-  const token = location.state?.token;
+  const fetcher = useFetcher();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  async function handleResetPassword() {
-    const token = location.state.token;
-    const res = await fetch(
-      'http://localhost:8000/api/v1/auth/forgot-password/password',
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token, newPassword }),
-      }
-    );
-    if (!res.ok) {
-      return await res.json();
-      // obradi sve ove slučajeve kad neki podaci fale, npr ako nema ovog tokena u location.state
-    } else {
-      console.log('reset password failed');
-      return navigate(`/login`);
-    }
+  const actionData = fetcher.data;
+  const code = location.state?.code;
+  const email = location.state?.email;
+
+  // redirect if data is missing
+  if (code == null || email == null) {
+    return <Navigate to="/forgot-password" replace={true} />;
   }
 
-  if (token == null) {
-    return <Navigate to="/forgot-password" />;
+  // redirect if reset successfully
+  if (actionData?.status === 'Success') {
+    return <Navigate to="/login" replace={true} />;
+  }
+
+  function handleCancel() {
+    return navigate('/login', { replace: true });
   }
 
   return (
-    <Form method="PATCH" className={styles.authForm}>
-      <p className={styles.message}>Please enter your new password below.</p>
-      <div className={styles.inputContainer}>
-        <label htmlFor="password">New password:</label>
-        <input
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          type="password"
-          name="password"
-          id="password"
-        />
-      </div>
-      <div className={styles.buttonContainer}>
-        <button
-          type="button"
-          onClick={handleResetPassword}
-          className={styles.confirmButton}
-        >
-          Reset password
-        </button>
-        <button
-          type="button"
-          className={styles.confirmButton}
-          onClick={() => navigate('/login')}
-        >
-          Cancel
-        </button>
-      </div>
-    </Form>
+    <Formik
+      initialValues={{ password: '', passwordRepeat: '' }}
+      validate={(values) => validateForm(values, ResetPasswordSchema)}
+      onSubmit={(values) => fetcher.submit({ ...values, code, email }, { method: values.method })}
+    >
+      <Form className={styles.authForm}>
+        <p className={styles.message}>Please enter your new password below.</p>
+        <div className={styles.inputContainer}>
+          <label htmlFor="password">New password:</label>
+          <Field type="password" name="password" />
+          <ErrorMessage name="password" component="div" className={styles.errorMessage} />
+        </div>
+        <div className={styles.inputContainer}>
+          <label htmlFor="passwordRepeat">Repeat password:</label>
+          <Field type="password" name="passwordRepeat" />
+          <ErrorMessage name="passwordRepeat" component="div" className={styles.errorMessage} />
+        </div>
+        <div className={styles.buttonContainer}>
+          <SubmitButton
+            action="reset"
+            defaultText="Reset password"
+            submittingText="Submitting..."
+            method="patch"
+            fetcher={fetcher}
+            className={styles.confirmButton}
+          />
+          <button type="button" className={styles.confirmButton} onClick={handleCancel}>
+            Cancel
+          </button>
+        </div>
+      </Form>
+    </Formik>
   );
+}
+
+export async function action({ request }) {
+  const formData = await request.formData();
+  const password = formData.get('password');
+  const code = formData.get('code');
+  const email = formData.get('email');
+
+  const res = await fetch('http://localhost:8000/api/v1/auth/forgot-password/password', {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, code, newPassword: password }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    toast.error('Failed to reset password.' + data);
+    return { status: 'Failure', error: data };
+  }
+  toast.success('Reset password successfully');
+  return { status: 'Success', data: data };
 }
