@@ -1,81 +1,100 @@
-import { Form, Navigate, useActionData, useNavigate, useSearchParams } from 'react-router-dom';
-// import styles from './forgot-password-confirmation.module.css';
+import { Navigate, useActionData, useNavigate, useSearchParams, useSubmit } from 'react-router-dom';
+import { Form, Formik, Field, ErrorMessage } from 'formik';
+import toast from 'react-hot-toast';
+
 import styles from '../auth-form.module.css';
-
-export async function action({ request }) {
-  const formData = await request.formData();
-  const type = formData.get('intent');
-
-  if (type == 'confirm') {
-    const token = formData.get('code');
-
-    const res = await fetch('http://localhost:8000/api/v1/auth/forgot-password/code', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token }),
-    });
-    if (!res.ok) {
-      return await res.json();
-    }
-    const data = await res.json();
-    return { status: 'Success', token: data.token };
-  } else if (type == 'resend') {
-    const url = new URL(request.url);
-    const email = url.searchParams.get('email');
-
-    const res = await fetch('http://localhost:8000/api/v1/auth/forgot-password/initiate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
-    });
-    if (!res.ok) {
-      return await res.json();
-    }
-    console.log('hi3');
-    return 'email sent successfully';
-  }
-}
+import { resendPasswordRecoveryCode, verifyPasswordRecoveryCode } from '../../api';
+import { validateForm, ForgotPasswordConfirmationSchema } from '../../utils/validation';
+import SubmitButton from '../../components/SubmitButton/SubmitButton';
+import { useState } from 'react';
 
 export default function ForgotPasswordConfirmation() {
   const actionData = useActionData();
+  const submit = useSubmit();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [code, setCode] = useState('');
   const email = searchParams.get('email');
-  console.log('hi');
 
+  // if email is not supplied in query string, redirect
   if (email == null) {
-    console.log('hi2');
     return <Navigate to="/forgot-password" />;
   }
 
+  // if successfully verified => redirect
+  if (actionData?.status === 'Success' && actionData.action === 'verify') {
+    return <Navigate to="/reset-password" state={{ code }} />;
+  }
+
+  function handleCancel() {
+    navigate('/login', { replace: true });
+  }
+
   return (
-    <>
-      {actionData && actionData.status === 'Success' && (
-        <Navigate to="/reset-password" state={{ token: actionData.token }} />
-      )}
+    <Formik
+      initialValues={{ code: '' }}
+      validate={(values) => validateForm(values, ForgotPasswordConfirmationSchema)}
+      onSubmit={(values) => {
+        setCode(values.code);
+        submit(values, { method: values.method });
+      }}
+    >
       <Form method="POST" className={styles.authForm}>
-        <p className={styles.message}>We have sent a code to {email}.</p>
+        <p className={styles.message}>A password recovery code has been sent to {email}.</p>
         <p className={styles.message}>Please enter the code below.</p>
         <div className={styles.inputContainer}>
           <label htmlFor="code">Code:</label>
-          <input type="text" name="code" id="code" />
+          <Field type="text" name="code" />
+          <ErrorMessage name="code" component="div" className={styles.errorMessage} />
         </div>
         <div className={styles.buttonContainer}>
-          <button type="submit" name="intent" value="confirm" className={styles.confirmButton}>
-            Confirm
-          </button>
-          <button type="submit" name="intent" value="resend" className={styles.confirmButton}>
-            Resend code
-          </button>
-          <button type="button" className={styles.confirmButton} onClick={() => navigate('/login')}>
+          <SubmitButton
+            action="verify"
+            method="post"
+            defaultText="Verify"
+            submittingText="Verifiying..."
+            className={styles.confirmButton}
+          />
+          <SubmitButton
+            action="resend"
+            method="post"
+            defaultText="Resend code"
+            submittingText="Sending..."
+            ignoreValidation
+            className={styles.confirmButton}
+          />
+          <button type="button" className={styles.confirmButton} onClick={handleCancel}>
             Cancel
           </button>
         </div>
       </Form>
-    </>
+    </Formik>
   );
+}
+
+export async function action({ request }) {
+  const formData = await request.formData();
+  const action = formData.get('action');
+  const email = new URL(request.url).searchParams.get('email');
+
+  if (action === 'verify') {
+    const code = formData.get('code');
+    const verifyResult = await verifyPasswordRecoveryCode(email, code);
+    if (!verifyResult.success) {
+      toast.error(verifyResult.error, { id: 'verify-error' });
+      return { status: 'Failure', action, message: verifyResult.error };
+    }
+    toast.success(verifyResult.data, { id: 'verify-success' });
+    return { status: 'Success', action, message: verifyResult.data };
+  } else if (action === 'resend') {
+    const resendResult = await resendPasswordRecoveryCode(email);
+    if (resendResult.success) {
+      toast.success(resendResult.data, { id: 'resend-success' });
+      return { status: 'Success', action, message: resendResult.data };
+    }
+    toast.success(resendResult.error, { id: 'resend-error' });
+    return { status: 'Failure', action, message: resendResult.error };
+  } else {
+    return null;
+  }
 }

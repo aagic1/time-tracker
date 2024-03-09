@@ -13,6 +13,10 @@ const ForgotPasswordSchema = z.object({
   email: z.string().email(),
 });
 
+const ForgotPasswordConfirmationSchema = z.object({
+  code: z.string().uuid('Invalid code'),
+});
+
 function validateForm(values, schema) {
   try {
     schema.parse(values);
@@ -28,6 +32,7 @@ export {
   EmailVerificationSchema,
   LoginSchema,
   ForgotPasswordSchema,
+  ForgotPasswordConfirmationSchema,
 
   // functions
   validateForm,
