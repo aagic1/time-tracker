@@ -89,11 +89,12 @@ export async function verifyPasswordRecoveryCode(req: Request, res: Response) {
     req,
     'Invalid request data: PATCH /forgot-password/code'
   );
-  const passwordResetToken = await authService.verifyPasswordRecoveryCode(email, code);
+  const passwordResetResult = await authService.verifyPasswordRecoveryCode(email, code);
 
-  res
-    .status(200)
-    .json({ message: 'Password recovery code verified successfully', token: passwordResetToken });
+  if (passwordResetResult.status === 'Failure') {
+    return res.status(422).json(passwordResetResult.message);
+  }
+  res.status(200).json(passwordResetResult.message);
 }
 
 export async function resetPassword(req: Request, res: Response) {
