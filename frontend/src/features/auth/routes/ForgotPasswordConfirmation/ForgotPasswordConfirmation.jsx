@@ -23,7 +23,7 @@ export default function ForgotPasswordConfirmation() {
 
   // if successfully verified => redirect
   if (actionData?.status === 'Success' && actionData.action === 'verify') {
-    return <Navigate to="/reset-password" state={{ code }} />;
+    return <Navigate to="/reset-password" replace={true} state={{ code, email }} />;
   }
 
   function handleCancel() {
