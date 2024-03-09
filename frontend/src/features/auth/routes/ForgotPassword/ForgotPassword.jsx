@@ -19,9 +19,9 @@ export default function ForgotPassword() {
     <Formik
       initialValues={{ email: '' }}
       validate={(values) => validateForm(values, ForgotPasswordSchema)}
-      onSubmit={(values) => submit(values, { method: 'post' })}
+      onSubmit={(values) => submit(values, { method: values.method })}
     >
-      <Form method="post" className={styles.authForm}>
+      <Form className={styles.authForm}>
         <p className={styles.message}>
           Please provide the email adress that you used when you registered your account.
         </p>
