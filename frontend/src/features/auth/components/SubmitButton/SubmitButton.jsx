@@ -9,6 +9,7 @@ export default function SubmitButton({
   defaultText,
   submittingText,
   ignoreValidation = false,
+  fetcher,
   className,
 }) {
   const navigation = useNavigation();
@@ -17,7 +18,10 @@ export default function SubmitButton({
   const type = ignoreValidation ? 'button' : 'submit';
 
   // render disabled button while submitting
-  if (navigation.state === 'submitting' && navigation.formData.get('action') === action) {
+  if (
+    (navigation.state === 'submitting' && navigation.formData.get('action') === action) ||
+    (fetcher?.state === 'submitting' && fetcher?.formData.get('action') === action)
+  ) {
     return (
       <button type={type} className={`${className} ${styles.submitting}`}>
         {submittingText}
@@ -32,6 +36,9 @@ export default function SubmitButton({
       onClick={() => {
         // submit form directly to react router action without validating
         if (ignoreValidation === true) {
+          if (fetcher) {
+            return fetcher.submit({ ...values, method, action }, { method });
+          }
           return submit({ ...values, method, action }, { method });
         }
 
