@@ -1,6 +1,6 @@
 import styles from './auth-header.module.css';
 
-export default function AuthHeader() {
+export function AuthHeader() {
   return (
     <header className={styles.header}>
       <div className={styles.logo}>

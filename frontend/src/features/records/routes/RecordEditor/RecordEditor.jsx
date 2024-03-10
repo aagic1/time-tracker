@@ -15,7 +15,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import useStopwatch from '../../../../hooks/useStopwatch.js';
 
-export async function loaderUpdate({ params }) {
+export async function recordEditorUpdateLoader({ params }) {
   const recordId = params.recordId;
 
   const recordPromise = fetch(`http://localhost:8000/api/v1/records/${recordId}`, {
@@ -48,7 +48,7 @@ export async function loaderUpdate({ params }) {
   };
 }
 
-export async function loaderCreate({ request }) {
+export async function recordEditorCreateLoader({ request }) {
   const res = await fetch(`http://localhost:8000/api/v1/activities?archived=false`, {
     credentials: 'include',
   });
@@ -85,7 +85,7 @@ export async function loaderCreate({ request }) {
   };
 }
 
-export async function action({ request, params }) {
+export async function recordEditorAction({ request, params }) {
   const formData = await request.formData();
   const startedAt = formData.get('startedAt');
   const stoppedAt = formData.get('stoppedAt');
@@ -153,7 +153,7 @@ export async function action({ request, params }) {
   // })
 }
 
-export default function RecordEditor() {
+export function RecordEditor() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const {

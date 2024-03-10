@@ -7,7 +7,7 @@ import { resendVerificationCode, verifyEmail } from '../../api';
 import { EmailVerificationSchema, validateForm } from '../../utils/validation';
 import SubmitButton from '../../components/SubmitButton/SubmitButton';
 
-export default function VerifyEmail() {
+export function VerifyEmail() {
   const submit = useSubmit();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -69,7 +69,7 @@ export default function VerifyEmail() {
   );
 }
 
-export async function action({ request }) {
+export async function verifyEmailAction({ request }) {
   const url = new URL(request.url);
   const email = url.searchParams.get('email');
 

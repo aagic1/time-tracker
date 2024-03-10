@@ -1,10 +1,10 @@
 import { useLoaderData } from 'react-router-dom';
 import styles from './goal.module.css';
-import HorizontalSeparator from '../../../../components/HorizontalSeparator/HorizontalSeparator';
+import { HorizontalSeparator } from '../../../../components/Elements';
 import { FaCheckCircle, FaStopwatch } from 'react-icons/fa';
 import useStopwatch from '../../../../hooks/useStopwatch';
 
-export async function loader() {
+export async function goalLoader() {
   const result = await fetch(
     `http://localhost:8000/api/v1/records/goals?timezoneOffset=${new Date().getTimezoneOffset()}`,
     {
@@ -19,7 +19,7 @@ export async function loader() {
   return await result.json();
 }
 
-export default function Goal() {
+export function Goal() {
   const { goals, measuredAt } = useLoaderData();
   const dayGoals = goals.filter((goal) => goal.goalName === 'dayGoal');
   const weekGoals = goals.filter((goal) => goal.goalName === 'weekGoal');

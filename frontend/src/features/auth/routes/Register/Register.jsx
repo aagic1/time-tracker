@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import styles from '../auth-form.module.css';
 import { register as registerAPI } from '../../api';
 
-export async function action({ request }) {
+export async function registerAction({ request }) {
   const formData = await request.formData();
   const email = formData.get('email');
   const password = formData.get('password');
@@ -43,7 +43,7 @@ function validateForm(values) {
   }
 }
 
-export default function Register() {
+export function Register() {
   const navigation = useNavigation();
   const submit = useSubmit();
 

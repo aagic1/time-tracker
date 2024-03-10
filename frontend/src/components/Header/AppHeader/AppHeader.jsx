@@ -1,17 +1,17 @@
-import styles from './header.module.css';
+import styles from './app-header.module.css';
 import { NavLink } from 'react-router-dom';
-import { useAuth } from '../../features/auth/routes/AuthProvider';
+import { useAuth } from '../../../features/auth/routes/AuthProvider';
 import { FaRegClock, FaTasks, FaChartBar, FaSignOutAlt } from 'react-icons/fa';
 import { FaBullseye as Fa6Bullseye } from 'react-icons/fa6';
 
 const headerNavigationLinks = [
-  { id: 1, name: 'Activities', to: '/', Icon: FaRegClock },
+  { id: 1, name: 'Activities', to: '/activities', Icon: FaRegClock },
   { id: 2, name: 'Records', to: '/records', Icon: FaTasks },
   { id: 3, name: 'Goals', to: '/goals', Icon: Fa6Bullseye },
   { id: 4, name: 'Statistics', to: '/statistics', Icon: FaChartBar },
 ];
 
-export default function Header() {
+export function AppHeader() {
   const { logout } = useAuth();
 
   async function handleLogout() {

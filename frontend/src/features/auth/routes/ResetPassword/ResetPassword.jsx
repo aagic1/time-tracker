@@ -6,7 +6,7 @@ import styles from '../auth-form.module.css';
 import { validateForm, ResetPasswordSchema } from '../../utils/validation';
 import SubmitButton from '../../components/SubmitButton/SubmitButton';
 
-export default function ResetPassword() {
+export function ResetPassword() {
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const location = useLocation();
@@ -65,7 +65,7 @@ export default function ResetPassword() {
   );
 }
 
-export async function action({ request }) {
+export async function resetPasswordAction({ request }) {
   const formData = await request.formData();
   const password = formData.get('password');
   const code = formData.get('code');

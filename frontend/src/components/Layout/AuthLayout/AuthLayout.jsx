@@ -1,10 +1,9 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import styles from './auth-layout.module.css';
 
-export default function AuthLayout() {
+export function AuthLayout() {
   const { pathname } = useLocation();
-  const isLoginOrRegisterPage =
-    pathname === '/login' || pathname === '/register';
+  const isLoginOrRegisterPage = pathname === '/login' || pathname === '/register';
   return (
     <div className={styles.authPage}>
       <div className={styles.authContainer}>
@@ -12,17 +11,13 @@ export default function AuthLayout() {
           <nav className={styles.navContainer}>
             <NavLink
               to="../login"
-              className={({ isActive }) =>
-                `${isActive ? styles.active : ''} ${styles.navlink}`
-              }
+              className={({ isActive }) => `${isActive ? styles.active : ''} ${styles.navlink}`}
             >
               Login
             </NavLink>
             <NavLink
               to="../register"
-              className={({ isActive }) =>
-                `${isActive ? styles.active : ''} ${styles.navlink}`
-              }
+              className={({ isActive }) => `${isActive ? styles.active : ''} ${styles.navlink}`}
             >
               Register
             </NavLink>

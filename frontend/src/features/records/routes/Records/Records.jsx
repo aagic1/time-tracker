@@ -15,7 +15,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import ActiveRecord from '../../components/ActiveRecord/ActiveRecord';
 
-export async function loader({ request }) {
+export async function recordsLoader({ request }) {
   const search = new URL(request.url).searchParams;
 
   if (!search.has('date')) {
@@ -43,7 +43,7 @@ export async function loader({ request }) {
   return await res.json();
 }
 
-export default function Records() {
+export function Records() {
   const location = useLocation();
   const navigate = useNavigate();
   const navigationLoading = useNavigationLoading();

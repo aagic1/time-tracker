@@ -5,7 +5,7 @@ import { useImmer } from 'use-immer';
 import ActivityPreview from '../../components/ActivityPreview/ActivityPreview.jsx';
 import GoalInput from '../../components/GoalInput/GoalInput.jsx';
 
-export async function loader({ params, request }) {
+export async function activityEditorLoader({ params, request }) {
   const url = new URL(request.url);
   const pathname = url.pathname;
   const lastSegment = pathname.split('/').slice(-1)[0];
@@ -24,7 +24,7 @@ export async function loader({ params, request }) {
   }
 }
 
-export default function ActivityEditor() {
+export function ActivityEditor() {
   const { type, activity } = useLoaderData();
   const navigate = useNavigate();
   4;

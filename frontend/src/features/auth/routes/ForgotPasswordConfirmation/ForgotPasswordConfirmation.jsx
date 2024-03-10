@@ -8,7 +8,7 @@ import { validateForm, ForgotPasswordConfirmationSchema } from '../../utils/vali
 import SubmitButton from '../../components/SubmitButton/SubmitButton';
 import { useState } from 'react';
 
-export default function ForgotPasswordConfirmation() {
+export function ForgotPasswordConfirmation() {
   const actionData = useActionData();
   const submit = useSubmit();
   const navigate = useNavigate();
@@ -72,7 +72,7 @@ export default function ForgotPasswordConfirmation() {
   );
 }
 
-export async function action({ request }) {
+export async function forgotPasswordConfirmationAction({ request }) {
   const formData = await request.formData();
   const action = formData.get('action');
   const email = new URL(request.url).searchParams.get('email');

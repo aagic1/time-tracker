@@ -7,7 +7,7 @@ import { forgotPassword as forgotPasswordAPI } from '../../api';
 import { ForgotPasswordSchema, validateForm } from '../../utils/validation';
 import SubmitButton from '../../components/SubmitButton/SubmitButton';
 
-export default function ForgotPassword() {
+export function ForgotPassword() {
   const submit = useSubmit();
   const navigate = useNavigate();
 
@@ -47,7 +47,7 @@ export default function ForgotPassword() {
   );
 }
 
-export async function action({ request }) {
+export async function forgotPasswordAction({ request }) {
   const formData = await request.formData();
   const email = formData.get('email');
 
