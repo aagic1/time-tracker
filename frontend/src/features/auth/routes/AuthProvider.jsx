@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import { LoadingSpinner } from '../../../components/LoadingSpinner/LoadingSpinner';
 
 const AuthContext = createContext({});
 
@@ -45,7 +46,7 @@ export default function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{ user, isLoggedIn, login, logout }}>
-      {isLoggedIn === null ? <div>whoami error, handle better</div> : children}
+      {isLoggedIn === null ? <LoadingSpinner /> : children}
     </AuthContext.Provider>
   );
 }
