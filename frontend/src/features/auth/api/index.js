@@ -21,11 +21,9 @@ async function register(email, password) {
     },
     body: JSON.stringify({ email, password }),
   });
+  const data = await response.json();
 
-  if (!response.ok) {
-    return { success: false, status: response.status, error: (await response.json()).error };
-  }
-  return { success: true, status: response.status, data: await response.json() };
+  return { response, data };
 }
 
 async function verifyEmail(email, code) {

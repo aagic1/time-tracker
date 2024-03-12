@@ -1,5 +1,16 @@
 import { z, ZodError } from 'zod';
 
+const RegisterSchema = z
+  .object({
+    email: z.string().email('Invalid email address'),
+    password: z.string().min(8, 'Password must have at least 8 characters'),
+    passwordRepeat: z.string(),
+  })
+  .refine(({ password, passwordRepeat }) => passwordRepeat === password, {
+    path: ['passwordRepeat'],
+    message: 'Passwords do not match',
+  });
+
 const EmailVerificationSchema = z.object({
   code: z.string().uuid('Invalid code'),
 });
@@ -39,6 +50,7 @@ function validateForm(values, schema) {
 
 export {
   // validation schemas
+  RegisterSchema,
   EmailVerificationSchema,
   LoginSchema,
   ForgotPasswordSchema,
