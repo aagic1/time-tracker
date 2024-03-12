@@ -35,7 +35,7 @@ export function ForgotPassword() {
             defaultText="Submit"
             submittingText="Submitting..."
             method="post"
-            action="submit"
+            intent="submit"
             className={styles.confirmButton}
           />
           <button type="button" className={styles.confirmButton} onClick={handleCancel}>

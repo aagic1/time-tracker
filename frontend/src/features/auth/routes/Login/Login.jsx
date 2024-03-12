@@ -47,7 +47,7 @@ export function Login() {
             defaultText="Log in"
             submittingText="Logging in..."
             method="post"
-            action="login"
+            intent="login"
             className={styles.confirmButton}
           />
         </div>

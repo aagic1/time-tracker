@@ -4,7 +4,7 @@ import { useFormikContext } from 'formik';
 import styles from '../../routes/auth-form.module.css';
 
 export default function SubmitButton({
-  action,
+  intent,
   method,
   defaultText,
   submittingText,
@@ -19,8 +19,8 @@ export default function SubmitButton({
 
   // render disabled button while submitting
   if (
-    (navigation.state === 'submitting' && navigation.formData.get('action') === action) ||
-    (fetcher?.state === 'submitting' && fetcher?.formData.get('action') === action)
+    (navigation.state === 'submitting' && navigation.formData.get('intent') === intent) ||
+    (fetcher?.state === 'submitting' && fetcher?.formData.get('intent') === intent)
   ) {
     return (
       <button type={type} className={`${className} ${styles.submitting}`}>
@@ -34,15 +34,15 @@ export default function SubmitButton({
       type={type}
       className={className}
       onClick={() => {
-        // submit form directly to react router action without validating
+        // submit form directly to react router intent without validating
         if (ignoreValidation === true) {
           if (fetcher) {
-            return fetcher.submit({ ...values, method, action }, { method });
+            return fetcher.submit({ ...values, method, intent: intent }, { method });
           }
-          return submit({ ...values, method, action }, { method });
+          return submit({ ...values, method, intent: intent }, { method });
         }
 
-        setFieldValue('action', action);
+        setFieldValue('intent', intent);
         setFieldValue('method', method);
       }}
     >

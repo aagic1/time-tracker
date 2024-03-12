@@ -49,7 +49,7 @@ export function ResetPassword() {
         </div>
         <div className={styles.buttonContainer}>
           <SubmitButton
-            action="reset"
+            intent="reset"
             defaultText="Reset password"
             submittingText="Submitting..."
             method="patch"

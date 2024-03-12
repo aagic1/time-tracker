@@ -49,14 +49,14 @@ export function ForgotPasswordConfirmation() {
         </div>
         <div className={styles.buttonContainer}>
           <SubmitButton
-            action="verify"
+            intent="verify"
             method="post"
             defaultText="Verify"
             submittingText="Verifiying..."
             className={styles.confirmButton}
           />
           <SubmitButton
-            action="resend"
+            intent="resend"
             method="post"
             defaultText="Resend code"
             submittingText="Sending..."

@@ -49,14 +49,14 @@ export function VerifyEmail() {
             defaultText="Verify"
             submittingText="Verifying..."
             method="patch"
-            action="verify"
+            intent="verify"
             className={styles.confirmButton}
           />
           <SubmitButton
             defaultText="Resend verification code"
             submittingText="Sending..."
             method="post"
-            action="resend"
+            intent="resend"
             ignoreValidation
             className={styles.confirmButton}
           />
