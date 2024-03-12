@@ -70,11 +70,8 @@ async function verifyPasswordRecoveryCode(email, code) {
     },
     body: JSON.stringify({ email, code }),
   });
-
-  if (!response.ok) {
-    return { success: false, error: await response.json() };
-  }
-  return { success: true, data: await response.json() };
+  const data = await response.json();
+  return { response, data };
 }
 
 async function resendPasswordRecoveryCode(email) {
@@ -85,11 +82,8 @@ async function resendPasswordRecoveryCode(email) {
     },
     body: JSON.stringify({ email }),
   });
-  if (!response.ok) {
-    return { success: false, error: await response.json() };
-  }
-
-  return { success: true, data: await response.json() };
+  const data = await response.json();
+  return { response, data };
 }
 
 export {

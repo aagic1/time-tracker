@@ -22,7 +22,7 @@ export function ForgotPasswordConfirmation() {
   }
 
   // if successfully verified => redirect
-  if (actionData?.status === 'Success' && actionData.action === 'verify') {
+  if (actionData?.success && actionData.intent === 'verify') {
     return <Navigate to="/reset-password" replace={true} state={{ code, email }} />;
   }
 
@@ -74,26 +74,24 @@ export function ForgotPasswordConfirmation() {
 
 export async function forgotPasswordConfirmationAction({ request }) {
   const formData = await request.formData();
-  const action = formData.get('action');
+  const intent = formData.get('intent');
   const email = new URL(request.url).searchParams.get('email');
 
-  if (action === 'verify') {
+  if (intent === 'verify') {
     const code = formData.get('code');
-    const verifyResult = await verifyPasswordRecoveryCode(email, code);
-    if (!verifyResult.success) {
-      toast.error(verifyResult.error, { id: 'verify-error' });
-      return { status: 'Failure', action, message: verifyResult.error };
+    const { response, data } = await verifyPasswordRecoveryCode(email, code);
+    if (!response.ok) {
+      return toast.error(data.error.message, { id: 'verify-error' });
     }
-    toast.success(verifyResult.data, { id: 'verify-success' });
-    return { status: 'Success', action, message: verifyResult.data };
-  } else if (action === 'resend') {
-    const resendResult = await resendPasswordRecoveryCode(email);
-    if (resendResult.success) {
-      toast.success(resendResult.data, { id: 'resend-success' });
-      return { status: 'Success', action, message: resendResult.data };
+    toast.success(data, { id: 'verify-success' });
+    return { success: true, intent };
+  } else if (intent === 'resend') {
+    const { response, data } = await resendPasswordRecoveryCode(email);
+    if (!response.ok) {
+      return toast.error(data.error.message, { id: 'resend-error' });
     }
-    toast.success(resendResult.error, { id: 'resend-error' });
-    return { status: 'Failure', action, message: resendResult.error };
+    toast.success(data, { id: 'resend-success' });
+    return { success: true, intent };
   } else {
     return null;
   }
