@@ -61,13 +61,14 @@ export async function loginAction({ request }) {
   const email = formData.get('email');
   const password = formData.get('password');
 
-  const loginResult = await loginAPI(email, password);
-  if (loginResult.status === 401) {
+  const { response, data } = await loginAPI(email, password);
+  if (response.status === 401) {
     resendVerificationCode(email);
     toast('Please verify your email', { id: 'verify-email-message' });
     return redirect(`/verify-email?email=${email}`);
-  } else if (!loginResult.success) {
+  } else if (!response.ok) {
     toast.error('Wrong email or password');
+    return { success: false, error: data.error };
   }
-  return { ...loginResult, email };
+  return { success: true, data };
 }

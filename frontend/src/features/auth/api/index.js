@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8000/api/v1';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 async function login(email, password) {
   const response = await fetch(BASE_URL + '/auth/login', {
@@ -9,11 +9,8 @@ async function login(email, password) {
     body: JSON.stringify({ email, password }),
     credentials: 'include',
   });
-
-  if (!response.ok) {
-    return { success: false, status: response.status, error: (await response.json()).error };
-  }
-  return { success: true, status: response.status, data: await response.json() };
+  const data = await response.json();
+  return { response, data };
 }
 
 async function register(email, password) {
