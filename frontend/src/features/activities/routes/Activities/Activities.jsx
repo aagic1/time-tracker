@@ -7,7 +7,7 @@ import ActivityCard from '../../components/ActivityCard/ActivityCard';
 import CreateActivityCard from '../../components/CreateActivityCard/CreateActivityCard';
 import ArchivedActivityCard from '../../components/ArchivedActivityCard/ArchivedActivityCard';
 import ActiveRecord from '../../../records/components/ActiveRecord/ActiveRecord';
-import { HorizontalSeparator } from '../../../../components/Elements';
+import { HorizontalSeparator } from '../../../../components/HorizontalSeparator';
 
 export async function activitiesLoader() {
   const promiseActivities = fetch('http://localhost:8000/api/v1/activities', {

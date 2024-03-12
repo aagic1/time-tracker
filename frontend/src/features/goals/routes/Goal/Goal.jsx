@@ -1,6 +1,6 @@
 import { useLoaderData } from 'react-router-dom';
 import styles from './goal.module.css';
-import { HorizontalSeparator } from '../../../../components/Elements';
+import { HorizontalSeparator } from '../../../../components/HorizontalSeparator';
 import { FaCheckCircle, FaStopwatch } from 'react-icons/fa';
 import useStopwatch from '../../../../hooks/useStopwatch';
 
