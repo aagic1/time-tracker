@@ -51,11 +51,11 @@ export async function forgotPasswordAction({ request }) {
   const formData = await request.formData();
   const email = formData.get('email');
 
-  const forgotPasswordResult = await forgotPasswordAPI(email);
+  const { response, data } = await forgotPasswordAPI(email);
 
-  if (!forgotPasswordResult.success) {
-    toast.error(forgotPasswordResult.error.message, { id: 'submit-error' });
-    return forgotPasswordResult.error;
+  if (!response.ok) {
+    toast.error(data.error.message, { id: 'submit-error' });
+    return { success: false, error: data.error };
   }
   return redirect(`../forgot-password-confirmation?email=${email}`);
 }

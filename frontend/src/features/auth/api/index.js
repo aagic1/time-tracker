@@ -58,11 +58,8 @@ async function forgotPassword(email) {
     },
     body: JSON.stringify({ email }),
   });
-
-  if (!response.ok) {
-    return { success: false, error: (await response.json()).error };
-  }
-  return { success: true, data: await response.json() };
+  const data = await response.json();
+  return { response, data };
 }
 
 async function verifyPasswordRecoveryCode(email, code) {
