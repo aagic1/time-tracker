@@ -86,6 +86,19 @@ async function resendPasswordRecoveryCode(email) {
   return { response, data };
 }
 
+async function resetPassword(newPassword, email, code) {
+  const response = await fetch('http://localhost:8000/api/v1/auth/forgot-password/password', {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, code, newPassword }),
+  });
+  const data = await response.json();
+
+  return { response, data };
+}
+
 export {
   login,
   register,
@@ -94,4 +107,5 @@ export {
   forgotPassword,
   verifyPasswordRecoveryCode,
   resendPasswordRecoveryCode,
+  resetPassword,
 };

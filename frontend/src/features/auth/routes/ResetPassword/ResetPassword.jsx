@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import styles from '../auth-form.module.css';
 import { validateForm, ResetPasswordSchema } from '../../utils/validation';
 import SubmitButton from '../../components/SubmitButton/SubmitButton';
+import { resetPassword } from '../../api';
 
 export function ResetPassword() {
   const fetcher = useFetcher();
@@ -21,7 +22,7 @@ export function ResetPassword() {
   }
 
   // redirect if reset successfully
-  if (actionData?.status === 'Success') {
+  if (actionData?.success) {
     return <Navigate to="/login" replace={true} />;
   }
 
@@ -71,18 +72,12 @@ export async function resetPasswordAction({ request }) {
   const code = formData.get('code');
   const email = formData.get('email');
 
-  const res = await fetch('http://localhost:8000/api/v1/auth/forgot-password/password', {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email, code, newPassword: password }),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    toast.error('Failed to reset password.' + data);
-    return { status: 'Failure', error: data };
+  const { response, data } = await resetPassword(password, email, code);
+
+  if (!response.ok) {
+    toast.error('Failed to reset password. ' + data.error.message);
+    return { success: false, error: data.error };
   }
   toast.success('Reset password successfully');
-  return { status: 'Success', data: data };
+  return { success: true, data };
 }
