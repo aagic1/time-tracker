@@ -70,29 +70,27 @@ export function VerifyEmail() {
 }
 
 export async function verifyEmailAction({ request }) {
-  const url = new URL(request.url);
-  const email = url.searchParams.get('email');
+  const email = new URL(request.url).searchParams.get('email');
 
   if (request.method === 'PATCH') {
     const formData = await request.formData();
     const code = formData.get('code');
-    const response = await verifyEmail(email, code);
+    const { response, data } = await verifyEmail(email, code);
     if (!response.ok) {
-      const error = await response.json();
-      toast.error(error, { id: 'verify-error' });
+      toast.error(data.error.message, { id: 'verify-error' });
       return { success: false, status: response.status };
     }
     toast.success('Account verified successfully', { id: 'verify-success' });
-    return { success: true };
+    return { success: true, data };
   } else {
-    const response = await resendVerificationCode(email);
+    const { response, data } = await resendVerificationCode(email);
     if (!response.ok) {
-      const error = await response.json();
-      toast.error(error, { id: 'resend-verification-error' });
+      toast.error(data.error.message, { id: 'resend-verification-error' });
       return { success: false, status: response.status };
     }
-    return toast.success('Verification code sent successfully', {
+    toast.success('Verification code sent successfully', {
       id: 'resend-verification-success',
     });
+    return { success: true, data };
   }
 }
