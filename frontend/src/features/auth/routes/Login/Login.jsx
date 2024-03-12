@@ -7,16 +7,19 @@ import { useAuth } from '../AuthProvider';
 import { login as loginAPI, resendVerificationCode } from '../../api';
 import { LoginSchema, validateForm } from '../../utils/validation';
 import SubmitButton from '../../components/SubmitButton/SubmitButton';
+import { useEffect } from 'react';
 
 export function Login() {
   const actionData = useActionData();
   const auth = useAuth();
   const submit = useSubmit();
 
-  // client-side login after successful authentication
-  if (actionData?.success) {
-    auth.login(actionData.email);
-  }
+  // client side login if successfully logged in server side
+  useEffect(() => {
+    if (actionData?.success) {
+      auth.login(actionData.email);
+    }
+  }, [actionData, auth]);
 
   return (
     <Formik
