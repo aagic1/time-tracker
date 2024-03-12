@@ -9,7 +9,6 @@ export function AppRouterProvider() {
 
   const routes = [
     {
-      path: '/',
       element: <MainLayout />,
       children: isLoggedIn ? protectedRoutes : publicRoutes,
     },

@@ -21,8 +21,13 @@ import { AuthLayout } from '../components/Layout';
 
 export const publicRoutes = [
   {
+    path: '/',
     element: <AuthLayout />,
     children: [
+      {
+        index: true,
+        element: <Navigate to="login" replace={true} />,
+      },
       {
         path: 'register',
         element: <Register />,

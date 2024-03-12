@@ -18,52 +18,57 @@ import {
 
 export const protectedRoutes = [
   {
-    index: true,
-    element: <Navigate to="activities" />,
-  },
-  {
-    path: 'activities',
-    element: <Activities />,
-    loader: activitiesLoader,
-  },
-  {
-    path: 'activities/:activityName',
-    element: <ActivityEditor type="edit" />,
-    loader: activityEditorLoader,
-  },
-  {
-    path: 'activities/create',
-    element: <ActivityEditor />,
-    loader: activityEditorLoader,
-  },
-  {
-    path: 'goals',
-    element: <Goal />,
-    loader: goalLoader,
-  },
-  {
-    path: 'records',
-    element: <Records />,
-    loader: recordsLoader,
-  },
-  {
-    path: 'records/create',
-    element: <RecordEditor />,
-    loader: recordEditorCreateLoader,
-    action: recordEditorAction,
-  },
-  {
-    path: 'records/:recordId',
-    element: <RecordEditor />,
-    loader: recordEditorUpdateLoader,
-    action: recordEditorAction,
-  },
-  {
-    path: 'statistics',
-    element: <div>Statistics page</div>,
-  },
-  {
-    path: '*',
-    element: <Navigate to="." replace={true} />,
+    path: '/',
+    children: [
+      {
+        index: true,
+        element: <Navigate to="activities" replace={true} />,
+      },
+      {
+        path: 'activities',
+        element: <Activities />,
+        loader: activitiesLoader,
+      },
+      {
+        path: 'activities/:activityName',
+        element: <ActivityEditor type="edit" />,
+        loader: activityEditorLoader,
+      },
+      {
+        path: 'activities/create',
+        element: <ActivityEditor />,
+        loader: activityEditorLoader,
+      },
+      {
+        path: 'goals',
+        element: <Goal />,
+        loader: goalLoader,
+      },
+      {
+        path: 'records',
+        element: <Records />,
+        loader: recordsLoader,
+      },
+      {
+        path: 'records/create',
+        element: <RecordEditor />,
+        loader: recordEditorCreateLoader,
+        action: recordEditorAction,
+      },
+      {
+        path: 'records/:recordId',
+        element: <RecordEditor />,
+        loader: recordEditorUpdateLoader,
+        action: recordEditorAction,
+      },
+      {
+        path: 'statistics',
+        element: <div>Statistics page</div>,
+      },
+      {
+        path: '*',
+        element: <Navigate to="/activities" replace={true} />,
+      },
+    ],
   },
 ];
