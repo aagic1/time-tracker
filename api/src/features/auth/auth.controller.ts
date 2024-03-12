@@ -50,9 +50,9 @@ export async function verifyEmail(req: Request, res: Response) {
   if (result.status === 'Success') {
     res.status(200).json(result.message);
   } else if (result.status === 'Already verified') {
-    res.status(409).json(result.message);
+    res.status(409).json({ error: { message: result.message } });
   } else {
-    res.status(422).json(result.message);
+    res.status(422).json({ error: { message: result.message } });
   }
 }
 
@@ -67,7 +67,7 @@ export async function resendVerificationCode(req: Request, res: Response) {
   if (result.status === 'Success') {
     res.status(200).json(result.message);
   } else {
-    res.status(409).json(result.message);
+    res.status(409).json({ error: { message: result.message } });
   }
 }
 
@@ -92,7 +92,7 @@ export async function verifyPasswordRecoveryCode(req: Request, res: Response) {
   const passwordResetResult = await authService.verifyPasswordRecoveryCode(email, code);
 
   if (passwordResetResult.status === 'Failure') {
-    return res.status(422).json(passwordResetResult.message);
+    return res.status(422).json({ error: { message: passwordResetResult.message } });
   }
   res.status(200).json(passwordResetResult.message);
 }
@@ -107,7 +107,7 @@ export async function resetPassword(req: Request, res: Response) {
   );
   const result = await authService.resetPassword(email, code, newPassword);
   if (result.status === 'Failure') {
-    res.status(422).json(result.message);
+    res.status(422).json({ error: { message: result.message } });
   }
   res.status(200).json('Password reset successfully');
 }
