@@ -17,5 +17,5 @@ export function AppRouterProvider() {
 
   const router = createBrowserRouter(routes);
 
-  return <RouterProvider router={router}></RouterProvider>;
+  return <RouterProvider router={router} />;
 }
