@@ -99,6 +99,14 @@ async function resetPassword(newPassword, email, code) {
   return { response, data };
 }
 
+async function whoami() {
+  const response = await fetch('http://localhost:8000/api/v1/auth/whoami', {
+    credentials: 'include',
+  });
+  const data = await response.json();
+  return { response, data };
+}
+
 export {
   login,
   register,
@@ -108,4 +116,5 @@ export {
   verifyPasswordRecoveryCode,
   resendPasswordRecoveryCode,
   resetPassword,
+  whoami,
 };

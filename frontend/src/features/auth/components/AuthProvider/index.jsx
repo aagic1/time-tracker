@@ -1,13 +1,10 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { LoadingSpinner } from '../../../components/LoadingSpinner/LoadingSpinner';
+import { useState, useEffect } from 'react';
 
-const AuthContext = createContext({});
+import { AuthContext } from '../../context';
+import { LoadingSpinner } from '../../../../components/LoadingSpinner/LoadingSpinner';
+import { whoami } from '../../api';
 
-export function useAuth() {
-  return useContext(AuthContext);
-}
-
-export default function AuthProvider({ children }) {
+export function AuthProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [user, setUser] = useState(null);
 
@@ -22,16 +19,12 @@ export default function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    async function whoami() {
-      const res = await fetch('http://localhost:8000/api/v1/auth/whoami', {
-        credentials: 'include',
-      });
-      if (!res.ok) {
-        console.log('whoami error');
+    async function checkLoginStatus() {
+      const { response, data } = await whoami();
+      if (!response.ok) {
         throw new Error('whoami error');
       }
 
-      const data = await res.json();
       if (data === null) {
         setIsLoggedIn(false);
         setUser(null);
@@ -41,7 +34,7 @@ export default function AuthProvider({ children }) {
       }
     }
 
-    whoami();
+    checkLoginStatus();
   }, []);
 
   return (

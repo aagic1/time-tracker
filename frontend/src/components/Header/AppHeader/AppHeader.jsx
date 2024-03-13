@@ -1,6 +1,6 @@
 import styles from './app-header.module.css';
 import { NavLink } from 'react-router-dom';
-import { useAuth } from '../../../features/auth/routes/AuthProvider';
+import { useAuth } from '../../../features/auth/context';
 import { FaRegClock, FaTasks, FaChartBar, FaSignOutAlt } from 'react-icons/fa';
 import { FaBullseye as Fa6Bullseye } from 'react-icons/fa6';
 
