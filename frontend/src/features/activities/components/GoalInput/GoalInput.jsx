@@ -2,8 +2,6 @@ import styles from './goal-input.module.css';
 import IntervalInput from '../IntervalInput/IntervalInput.jsx';
 
 export default function GoalInput({ goal, isChecked, handleCheck, handleIntervalChange }) {
-  console.log('goal');
-  console.log(goal);
   return (
     <div className={styles.goalInputContainer}>
       <div className={styles.goalCheckContainer}>
