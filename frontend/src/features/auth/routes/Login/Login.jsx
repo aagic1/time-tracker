@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 
 import styles from '../auth-form.module.css';
-import { useAuth } from '../../context';
+import { useAuth } from '../../context/AuthProvider';
 import { login as loginAPI, resendVerificationCode } from '../../api';
 import { LoginSchema, validateForm } from '../../utils/validation';
 import { SubmitButton } from '../../components/SubmitButton';

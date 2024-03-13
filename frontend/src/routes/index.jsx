@@ -1,5 +1,5 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { useAuth } from '../features/auth/context';
+import { useAuth } from '../features/auth/context/AuthProvider';
 import { protectedRoutes } from './protected';
 import { publicRoutes } from './public';
 import { MainLayout } from '../components/Layout';

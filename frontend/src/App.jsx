@@ -1,7 +1,7 @@
 // import { useRouteError } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
-import { AuthProvider } from './features/auth/components/AuthProvider';
+import { AuthProvider } from './features/auth/context/AuthProvider';
 import { AppRouterProvider } from './routes';
 
 export default function App() {

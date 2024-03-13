@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import styles from './main-layout.module.css';
 import { AppHeader, AuthHeader } from '../../Header';
-import { useAuth } from '../../../features/auth/context';
+import { useAuth } from '../../../features/auth/context/AuthProvider';
 
 export function MainLayout() {
   const { isLoggedIn } = useAuth();

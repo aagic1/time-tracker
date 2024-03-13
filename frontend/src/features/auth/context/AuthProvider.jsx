@@ -1,8 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
 
-import { AuthContext } from '../../context';
-import { LoadingSpinner } from '../../../../components/LoadingSpinner';
-import { whoami } from '../../api';
+import { LoadingSpinner } from '../../../components/LoadingSpinner';
+import { whoami } from '../api';
+
+const AuthContext = createContext({});
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within a AuthProvider');
+  }
+  return context;
+}
 
 export function AuthProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
