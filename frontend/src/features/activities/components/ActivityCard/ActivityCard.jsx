@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import styles from './activity-card.module.css';
-// import { useState } from 'react';
 
 export default function ActivityCard({ activity, activeRecords, onClick }) {
   return (
@@ -16,7 +15,7 @@ export default function ActivityCard({ activity, activeRecords, onClick }) {
       </div>
       <div className={styles.editContainer}>
         <Link
-          to={`activities/${activity.name}`}
+          to={activity.name}
           onClick={(e) => {
             e.stopPropagation();
           }}
