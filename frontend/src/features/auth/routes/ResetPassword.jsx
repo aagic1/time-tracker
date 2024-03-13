@@ -2,10 +2,10 @@ import { useLocation, useNavigate, Navigate, useFetcher } from 'react-router-dom
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import toast from 'react-hot-toast';
 
-import styles from '../auth-form.module.css';
-import { validateForm, ResetPasswordSchema } from '../../utils/validation';
-import { SubmitButton } from '../../components/SubmitButton';
-import { resetPassword } from '../../api';
+import styles from './auth-form.module.css';
+import { validateForm, ResetPasswordSchema } from '../utils/validation';
+import { SubmitButton } from '../components/SubmitButton';
+import { resetPassword } from '../api';
 
 export function ResetPassword() {
   const fetcher = useFetcher();
@@ -36,7 +36,7 @@ export function ResetPassword() {
       validate={(values) => validateForm(values, ResetPasswordSchema)}
       onSubmit={(values) => fetcher.submit({ ...values, code, email }, { method: values.method })}
     >
-      <Form className={styles.authForm}>
+      <Form>
         <p className={styles.message}>Please enter your new password below.</p>
         <div className={styles.inputContainer}>
           <label htmlFor="password">New password:</label>
@@ -55,9 +55,9 @@ export function ResetPassword() {
             submittingText="Submitting..."
             method="patch"
             fetcher={fetcher}
-            className={styles.confirmButton}
+            className={styles.authFormButton}
           />
-          <button type="button" className={styles.confirmButton} onClick={handleCancel}>
+          <button type="button" className={styles.authFormButton} onClick={handleCancel}>
             Cancel
           </button>
         </div>

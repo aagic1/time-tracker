@@ -1,9 +1,10 @@
 import { redirect, useNavigation, useSubmit } from 'react-router-dom';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import toast from 'react-hot-toast';
-import styles from '../auth-form.module.css';
-import { register as registerAPI } from '../../api';
-import { validateForm, RegisterSchema } from '../../utils/validation';
+
+import styles from './auth-form.module.css';
+import { register as registerAPI } from '../api';
+import { validateForm, RegisterSchema } from '../utils/validation';
 
 export function Register() {
   const navigation = useNavigation();
@@ -41,11 +42,11 @@ export function Register() {
         </div>
         <div className={styles.buttonContainer}>
           {navigation.state === 'submitting' ? (
-            <button className={`${styles.confirmButton} ${styles.submitting}`}>
+            <button className={`${styles.authFormButton} ${styles.submitting}`}>
               Submitting...
             </button>
           ) : (
-            <button className={styles.confirmButton}>Register</button>
+            <button className={styles.authFormButton}>Register</button>
           )}
         </div>
       </Form>

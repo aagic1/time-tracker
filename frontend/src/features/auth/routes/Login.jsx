@@ -1,13 +1,13 @@
+import { useEffect } from 'react';
 import { Link, redirect, useActionData, useSubmit } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 
-import styles from '../auth-form.module.css';
-import { useAuth } from '../../context/AuthProvider';
-import { login as loginAPI, resendVerificationCode } from '../../api';
-import { LoginSchema, validateForm } from '../../utils/validation';
-import { SubmitButton } from '../../components/SubmitButton';
-import { useEffect } from 'react';
+import styles from './auth-form.module.css';
+import { useAuth } from '../context/AuthProvider';
+import { login as loginAPI, resendVerificationCode } from '../api';
+import { LoginSchema, validateForm } from '../utils/validation';
+import { SubmitButton } from '../components/SubmitButton';
 
 export function Login() {
   const actionData = useActionData();
@@ -41,7 +41,7 @@ export function Login() {
           </label>
           <Field type="password" name="password" id="password" />
           <ErrorMessage name="password" component="div" className={styles.errorMessage} />
-          <Link to="../forgot-password" className={styles.forgotPassword}>
+          <Link to="../forgot-password" className={styles.forgotPasswordLink}>
             Forgot password?
           </Link>
         </div>
@@ -51,7 +51,7 @@ export function Login() {
             submittingText="Logging in..."
             method="post"
             intent="login"
-            className={styles.confirmButton}
+            className={styles.authFormButton}
           />
         </div>
       </Form>

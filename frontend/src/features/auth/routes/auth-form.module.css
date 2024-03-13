@@ -1,12 +1,12 @@
-.authForm {
-    /* width: 400px; */
-}
-
-
 .inputContainer {
     display: flex;
     flex-direction: column;
     margin-bottom: 10px;
+}
+
+.errorMessage {
+    font-size: 14px;
+    color: crimson
 }
 
 .buttonContainer {
@@ -15,19 +15,8 @@
     gap: 5px;
 }
 
-.confirmButton {
-    flex: 1;
+.authFormButton {
     padding: 5px;
-}
-
-.forgotPassword {
-    margin-top: 5px;
-    padding: 0;
-    text-align: end;
-}
-
-.message {
-    text-align: center;
 }
 
 .submitting {
@@ -35,7 +24,16 @@
     opacity: 0.5;
 }
 
-.errorMessage {
-    font-size: 14px;
-    color: crimson
+.forgotPasswordLink {
+    margin-top: 5px;
+    padding: 0 4px;
+    display: flex;
+    align-self: flex-end;
 }
+
+.message {
+    text-align: center;
+}
+
+
+

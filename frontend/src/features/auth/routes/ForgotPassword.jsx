@@ -2,10 +2,10 @@ import { redirect, useNavigate, useSubmit } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import toast from 'react-hot-toast';
 
-import styles from '../auth-form.module.css';
-import { forgotPassword as forgotPasswordAPI } from '../../api';
-import { ForgotPasswordSchema, validateForm } from '../../utils/validation';
-import { SubmitButton } from '../../components/SubmitButton';
+import styles from './auth-form.module.css';
+import { forgotPassword as forgotPasswordAPI } from '../api';
+import { ForgotPasswordSchema, validateForm } from '../utils/validation';
+import { SubmitButton } from '../components/SubmitButton';
 
 export function ForgotPassword() {
   const submit = useSubmit();
@@ -21,7 +21,7 @@ export function ForgotPassword() {
       validate={(values) => validateForm(values, ForgotPasswordSchema)}
       onSubmit={(values) => submit(values, { method: values.method })}
     >
-      <Form className={styles.authForm}>
+      <Form>
         <p className={styles.message}>
           Please provide the email adress that you used when you registered your account.
         </p>
@@ -36,9 +36,9 @@ export function ForgotPassword() {
             submittingText="Submitting..."
             method="post"
             intent="submit"
-            className={styles.confirmButton}
+            className={styles.authFormButton}
           />
-          <button type="button" className={styles.confirmButton} onClick={handleCancel}>
+          <button type="button" className={styles.authFormButton} onClick={handleCancel}>
             Cancel
           </button>
         </div>

@@ -2,10 +2,10 @@ import { useSubmit, useSearchParams, useNavigate, useActionData, Navigate } from
 import { Form, Field, ErrorMessage, Formik } from 'formik';
 import toast from 'react-hot-toast';
 
-import styles from '../auth-form.module.css';
-import { resendVerificationCode, verifyEmail } from '../../api';
-import { EmailVerificationSchema, validateForm } from '../../utils/validation';
-import { SubmitButton } from '../../components/SubmitButton';
+import styles from './auth-form.module.css';
+import { resendVerificationCode, verifyEmail } from '../api';
+import { EmailVerificationSchema, validateForm } from '../utils/validation';
+import { SubmitButton } from '../components/SubmitButton';
 
 export function VerifyEmail() {
   const submit = useSubmit();
@@ -50,7 +50,7 @@ export function VerifyEmail() {
             submittingText="Verifying..."
             method="patch"
             intent="verify"
-            className={styles.confirmButton}
+            className={styles.authFormButton}
           />
           <SubmitButton
             defaultText="Resend verification code"
@@ -58,9 +58,9 @@ export function VerifyEmail() {
             method="post"
             intent="resend"
             ignoreValidation
-            className={styles.confirmButton}
+            className={styles.authFormButton}
           />
-          <button type="button" onClick={handleCancel} className={styles.confirmButton}>
+          <button type="button" onClick={handleCancel} className={styles.authFormButton}>
             Cancel
           </button>
         </div>

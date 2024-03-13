@@ -1,12 +1,12 @@
+import { useState } from 'react';
 import { Navigate, useActionData, useNavigate, useSearchParams, useSubmit } from 'react-router-dom';
 import { Form, Formik, Field, ErrorMessage } from 'formik';
 import toast from 'react-hot-toast';
 
-import styles from '../auth-form.module.css';
-import { resendPasswordRecoveryCode, verifyPasswordRecoveryCode } from '../../api';
-import { validateForm, ForgotPasswordConfirmationSchema } from '../../utils/validation';
-import { SubmitButton } from '../../components/SubmitButton';
-import { useState } from 'react';
+import styles from './auth-form.module.css';
+import { resendPasswordRecoveryCode, verifyPasswordRecoveryCode } from '../api';
+import { validateForm, ForgotPasswordConfirmationSchema } from '../utils/validation';
+import { SubmitButton } from '../components/SubmitButton';
 
 export function ForgotPasswordConfirmation() {
   const actionData = useActionData();
@@ -39,7 +39,7 @@ export function ForgotPasswordConfirmation() {
         submit(values, { method: values.method });
       }}
     >
-      <Form method="POST" className={styles.authForm}>
+      <Form method="POST">
         <p className={styles.message}>A password recovery code has been sent to {email}.</p>
         <p className={styles.message}>Please enter the code below.</p>
         <div className={styles.inputContainer}>
@@ -53,7 +53,7 @@ export function ForgotPasswordConfirmation() {
             method="post"
             defaultText="Verify"
             submittingText="Verifiying..."
-            className={styles.confirmButton}
+            className={styles.authFormButton}
           />
           <SubmitButton
             intent="resend"
@@ -61,9 +61,9 @@ export function ForgotPasswordConfirmation() {
             defaultText="Resend code"
             submittingText="Sending..."
             ignoreValidation
-            className={styles.confirmButton}
+            className={styles.authFormButton}
           />
-          <button type="button" className={styles.confirmButton} onClick={handleCancel}>
+          <button type="button" className={styles.authFormButton} onClick={handleCancel}>
             Cancel
           </button>
         </div>
