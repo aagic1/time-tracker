@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import styles from '../auth-form.module.css';
 import { forgotPassword as forgotPasswordAPI } from '../../api';
 import { ForgotPasswordSchema, validateForm } from '../../utils/validation';
-import SubmitButton from '../../components/SubmitButton/SubmitButton';
+import { SubmitButton } from '../../components/SubmitButton';
 
 export function ForgotPassword() {
   const submit = useSubmit();

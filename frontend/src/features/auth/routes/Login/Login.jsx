@@ -6,7 +6,7 @@ import styles from '../auth-form.module.css';
 import { useAuth } from '../../context';
 import { login as loginAPI, resendVerificationCode } from '../../api';
 import { LoginSchema, validateForm } from '../../utils/validation';
-import SubmitButton from '../../components/SubmitButton/SubmitButton';
+import { SubmitButton } from '../../components/SubmitButton';
 import { useEffect } from 'react';
 
 export function Login() {

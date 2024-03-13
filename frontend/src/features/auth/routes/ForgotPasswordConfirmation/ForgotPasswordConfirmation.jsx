@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import styles from '../auth-form.module.css';
 import { resendPasswordRecoveryCode, verifyPasswordRecoveryCode } from '../../api';
 import { validateForm, ForgotPasswordConfirmationSchema } from '../../utils/validation';
-import SubmitButton from '../../components/SubmitButton/SubmitButton';
+import { SubmitButton } from '../../components/SubmitButton';
 import { useState } from 'react';
 
 export function ForgotPasswordConfirmation() {

@@ -3,7 +3,7 @@ import { useFormikContext } from 'formik';
 
 import styles from '../../routes/auth-form.module.css';
 
-export default function SubmitButton({
+export function SubmitButton({
   intent,
   method,
   defaultText,

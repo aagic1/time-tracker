@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 
 import styles from '../auth-form.module.css';
 import { validateForm, ResetPasswordSchema } from '../../utils/validation';
-import SubmitButton from '../../components/SubmitButton/SubmitButton';
+import { SubmitButton } from '../../components/SubmitButton';
 import { resetPassword } from '../../api';
 
 export function ResetPassword() {

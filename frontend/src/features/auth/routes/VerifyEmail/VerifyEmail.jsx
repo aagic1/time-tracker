@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import styles from '../auth-form.module.css';
 import { resendVerificationCode, verifyEmail } from '../../api';
 import { EmailVerificationSchema, validateForm } from '../../utils/validation';
-import SubmitButton from '../../components/SubmitButton/SubmitButton';
+import { SubmitButton } from '../../components/SubmitButton';
 
 export function VerifyEmail() {
   const submit = useSubmit();
