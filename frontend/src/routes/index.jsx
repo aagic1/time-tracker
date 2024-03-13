@@ -3,7 +3,7 @@ import { useAuth } from '../features/auth/context';
 import { protectedRoutes } from './protected';
 import { publicRoutes } from './public';
 import { MainLayout } from '../components/Layout';
-import { LoadingSpinner } from '../components/LoadingSpinner/LoadingSpinner';
+import { LoadingSpinner } from '../components/LoadingSpinner';
 
 export function AppRouterProvider() {
   const { isLoggedIn } = useAuth();

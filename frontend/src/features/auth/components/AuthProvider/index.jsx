@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import { AuthContext } from '../../context';
-import { LoadingSpinner } from '../../../../components/LoadingSpinner/LoadingSpinner';
+import { LoadingSpinner } from '../../../../components/LoadingSpinner';
 import { whoami } from '../../api';
 
 export function AuthProvider({ children }) {
