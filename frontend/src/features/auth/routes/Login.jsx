@@ -17,6 +17,7 @@ export function Login() {
   // client side login if successfully logged in server side
   useEffect(() => {
     if (actionData?.success) {
+      toast.remove();
       auth.login(actionData.email);
     }
   }, [actionData, auth]);
