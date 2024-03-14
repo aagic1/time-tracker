@@ -1,6 +1,7 @@
 import { useReducer } from 'react';
 import { useImmerReducer } from 'use-immer';
 import { useLoaderData, useNavigation } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 import styles from './activities.module.css';
 import ActivityCard from '../../components/ActivityCard/ActivityCard';
@@ -10,19 +11,62 @@ import ActiveRecord from '../../../records/components/ActiveRecord/ActiveRecord'
 import { HorizontalSeparator } from '../../../../components/HorizontalSeparator';
 import { activitiesReducer } from '../../hooks/activitiesReducer';
 import { activeRecordsReducer } from '../../hooks/activeRecordsReducer';
-import { restoreActivity, deleteActivity, createRecord, stopRecord } from '../../api';
+import {
+  restoreActivity,
+  deleteActivity,
+  createRecord,
+  stopRecord,
+  getActivities,
+  getActiveRecords,
+} from '../../api';
+import { FakeRecord } from '../../utils/FakeRecord';
 
 export function Activities() {
   const navigation = useNavigation();
   const loaderData = useLoaderData();
-  const [activities, dispatchActivities] = useReducer(
-    activitiesReducer,
-    loaderData.activitiesData.activities
-  );
+  const [activities, dispatchActivities] = useReducer(activitiesReducer, loaderData.activities);
   const [activeRecords, dispatchRecords] = useImmerReducer(
     activeRecordsReducer,
-    loaderData.recordsData.records
+    loaderData.activeRecords
   );
+  const currentActivities = activities.filter((activity) => !activity.archived);
+  const archivedActivities = activities.filter((activity) => activity.archived);
+
+  return (
+    <div className={navigation.state === 'loading' ? styles.loading : ''}>
+      {activeRecords.length > 0 && (
+        <>
+          <HorizontalSeparator text="Tracking" className={styles.separator} />
+          <ActiveRecordsList
+            activeRecords={activeRecords}
+            handleRecordClick={handleRecordClick}
+            className={styles.activeRecords}
+          />
+        </>
+      )}
+      <HorizontalSeparator text="Activities" className={styles.separator} />
+      <ActivitiesList
+        activities={currentActivities}
+        activeRecords={activeRecords}
+        handleActivityClick={handleActivityClick}
+        className={styles.activitiesContainer}
+      />
+      {archivedActivities.length > 0 && (
+        <>
+          <HorizontalSeparator text="Archived" className={styles.separator} />
+          <ArchivedActivitiesList
+            activities={archivedActivities}
+            handleDelete={handleDelete}
+            handleRestore={handleRestore}
+            className={styles.activitiesContainer}
+          />
+        </>
+      )}
+    </div>
+  );
+
+  // ______________
+  // EVENT HANDLERS
 
   async function handleDelete(activity) {
     // display activity as loading while server is processing request
@@ -31,7 +75,10 @@ export function Activities() {
     const { response } = await deleteActivity(activity.name);
     if (!response.ok) {
       dispatchActivities({ type: 'setNotLoading', activityId: activity.id });
-      throw new Error('Failed to delete activity with name ' + activity.name);
+      return toast.error('Failed to delete activity with name ' + activity.name, {
+        id: 'delete-error',
+      });
+      // throw new Error('Failed to delete activity with name ' + activity.name);
     }
 
     dispatchActivities({ type: 'delete', activityId: activity.id });
@@ -44,7 +91,8 @@ export function Activities() {
     const { response } = await restoreActivity(activity.name);
     if (!response.ok) {
       dispatchActivities({ type: 'setNotLoading', activityId: activity.id });
-      throw new Error(`Failed to restore activity`);
+      return toast.error('Failed to restore activity', { id: 'restore-error' });
+      // throw new Error(`Failed to restore activity`);
     }
 
     dispatchActivities({ type: 'restore', activityId: activity.id });
@@ -65,7 +113,8 @@ export function Activities() {
     // restore stopped record if server could not process request
     if (!response.ok) {
       dispatchRecords({ type: 'restoreStoppedRecord', stoppedRecord: record });
-      throw new Error('Failed to stop record tracking');
+      return toast.error('Failed to stop tracking record', { id: 'stop-error' });
+      // throw new Error('Failed to stop record tracking');
     }
   }
 
@@ -77,7 +126,7 @@ export function Activities() {
     }
 
     // optimistic UI - create fake record while server is processing request
-    const fakeRecord = createFakeRecord(activity);
+    const fakeRecord = new FakeRecord(activity);
     dispatchActivities({ type: 'setLoading', activityId: activity.id });
     dispatchRecords({ type: 'createFake', fakeRecord });
 
@@ -85,7 +134,8 @@ export function Activities() {
     if (!response.ok) {
       dispatchActivities({ type: 'setNotLoading', activityId: activity.id });
       dispatchRecords({ type: 'deleteFake', activityId: activity.id });
-      throw new Error('Failed to start record');
+      return toast.error('Failed to start record', { id: 'start-error' });
+      // throw new Error('Failed to start record');
     }
 
     // update fake record with real values
@@ -96,79 +146,13 @@ export function Activities() {
     });
     dispatchActivities({ type: 'setNotLoading', activityId: activity.id });
   }
-
-  return (
-    <div className={navigation.state === 'loading' ? styles.loading : ''}>
-      {activeRecords.length > 0 && (
-        <>
-          <HorizontalSeparator text="Tracking" className={styles.separator} />
-          <div className={styles.activeRecordsContainer}>
-            <div className={styles.activeRecords}>
-              {activeRecords
-                .toSorted((a, b) => {
-                  return new Date(b.startedAt) - new Date(a.startedAt);
-                })
-                .map((record) => (
-                  <ActiveRecord
-                    key={record.recordId}
-                    record={record}
-                    showEdit
-                    onClick={handleRecordClick}
-                    showSessionDetails
-                  />
-                ))}
-            </div>
-          </div>
-        </>
-      )}
-      <HorizontalSeparator text="Activities" className={styles.separator} />
-      <div className={styles.activitesContainer}>
-        {activities
-          .filter((activity) => !activity.archived)
-          .map((activity) => (
-            <ActivityCard
-              key={activity.id}
-              activity={activity}
-              onClick={handleActivityClick}
-              activeRecords={activeRecords}
-            />
-          ))}
-        <CreateActivityCard />
-      </div>
-      {activities.some((activity) => activity.archived) && (
-        <>
-          <HorizontalSeparator text="Archived" className={styles.separator} />
-          <div className={styles.activitesContainer}>
-            {activities
-              .filter((activity) => activity.archived)
-              .map((activity) => (
-                <ArchivedActivityCard
-                  key={activity.id}
-                  activity={activity}
-                  onRestore={handleRestore}
-                  onDelete={handleDelete}
-                />
-              ))}
-          </div>
-        </>
-      )}
-    </div>
-  );
 }
 
 export async function activitiesLoader() {
-  const promiseActivities = fetch('http://localhost:8000/api/v1/activities', {
-    method: 'GET',
-    credentials: 'include',
-  });
-  const promiseActiveRecords = fetch('http://localhost:8000/api/v1/records?active=true', {
-    method: 'GET',
-    credentials: 'include',
-  });
-  const [responseActivities, responseActiveRecords] = await Promise.all([
-    promiseActivities,
-    promiseActiveRecords,
-  ]);
+  const [
+    { response: responseActivities, data: dataActivities },
+    { response: responseActiveRecords, data: dataActiveRecords },
+  ] = await Promise.all([getActivities(), getActiveRecords()]);
 
   // moze se desiti da su oba errora - treba bolje obraditi
   if (!responseActivities.ok) {
@@ -179,24 +163,58 @@ export async function activitiesLoader() {
   }
 
   return {
-    activitiesData: await responseActivities.json(),
-    recordsData: await responseActiveRecords.json(),
+    activities: dataActivities,
+    activeRecords: dataActiveRecords,
   };
 }
 
-function createFakeRecord(activity) {
-  return {
-    recordId: `fake-${activity.name}`,
-    startedAt: new Date().toISOString(),
-    stoppedAt: null,
-    activityId: activity.id,
-    activityName: activity.name,
-    color: activity.color.slice(1),
-    sessionGoal: activity.sessionGoal,
-    dayGoal: activity.dayGoal,
-    weekGoal: activity.weekGoal,
-    monthGoal: activity.monthGoal,
-    comment: null,
-    fake: true,
-  };
+function ActivitiesList({ activities, handleActivityClick, activeRecords, className }) {
+  return (
+    <div className={className}>
+      {activities.map((activity) => (
+        <ActivityCard
+          key={activity.id}
+          activity={activity}
+          onClick={handleActivityClick}
+          activeRecords={activeRecords}
+        />
+      ))}
+      <CreateActivityCard />
+    </div>
+  );
+}
+
+function ArchivedActivitiesList({ activities, handleRestore, handleDelete, className }) {
+  return (
+    <div className={className}>
+      {activities.map((activity) => (
+        <ArchivedActivityCard
+          key={activity.id}
+          activity={activity}
+          onRestore={handleRestore}
+          onDelete={handleDelete}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ActiveRecordsList({ activeRecords, handleRecordClick, className }) {
+  return (
+    <div className={className}>
+      {activeRecords
+        .toSorted((a, b) => {
+          return new Date(b.startedAt) - new Date(a.startedAt);
+        })
+        .map((record) => (
+          <ActiveRecord
+            key={record.recordId}
+            record={record}
+            showEdit
+            onClick={handleRecordClick}
+            showSessionDetails
+          />
+        ))}
+    </div>
+  );
 }

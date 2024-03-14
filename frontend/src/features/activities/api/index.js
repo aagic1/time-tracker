@@ -1,6 +1,6 @@
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-export async function deleteActivity(activityName) {
+async function deleteActivity(activityName) {
   const response = await fetch(BASE_URL + `/activities/${activityName}`, {
     method: 'DELETE',
     credentials: 'include',
@@ -10,7 +10,7 @@ export async function deleteActivity(activityName) {
   return { response, data: null };
 }
 
-export async function restoreActivity(activityName) {
+async function restoreActivity(activityName) {
   const response = await fetch(BASE_URL + `/activities/${activityName}`, {
     method: 'PATCH',
     headers: {
@@ -23,7 +23,7 @@ export async function restoreActivity(activityName) {
   return { response, data };
 }
 
-export async function createRecord(activityId, startedAt) {
+async function createRecord(activityId, startedAt) {
   const response = await fetch(BASE_URL + '/records', {
     method: 'POST',
     credentials: 'include',
@@ -40,7 +40,7 @@ export async function createRecord(activityId, startedAt) {
   return { response, data };
 }
 
-export async function stopRecord(recordId, stoppedAt) {
+async function stopRecord(recordId, stoppedAt) {
   const response = await fetch(`http://localhost:8000/api/v1/records/${recordId}`, {
     method: 'PATCH',
     headers: {
@@ -54,3 +54,30 @@ export async function stopRecord(recordId, stoppedAt) {
   const data = await response.json();
   return { response, data };
 }
+
+async function getActivities() {
+  const response = await fetch(BASE_URL + '/activities', {
+    method: 'GET',
+    credentials: 'include',
+  });
+  const data = await response.json();
+  return { response, data };
+}
+
+async function getActiveRecords() {
+  const response = await fetch(BASE_URL + '/records?active=true', {
+    method: 'GET',
+    credentials: 'include',
+  });
+  const data = await response.json();
+  return { response, data };
+}
+
+export {
+  deleteActivity,
+  restoreActivity,
+  createRecord,
+  stopRecord,
+  getActivities,
+  getActiveRecords,
+};
