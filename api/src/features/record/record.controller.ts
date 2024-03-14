@@ -28,7 +28,7 @@ export async function getAllRecords(req: Request, res: Response) {
     'Invalid request data: GET /records'
   );
   const records = await recordService.getAllRecords(req.session.user!.id, query);
-  res.status(200).json({ records });
+  res.status(200).json(records);
 }
 
 export async function deleteRecord(req: Request, res: Response) {
@@ -64,7 +64,7 @@ export async function updateRecord(req: Request, res: Response) {
   );
 
   const updatedRecord = await recordService.updateRecord(req.session.user!.id, recordId, body);
-  res.json({ updatedRecord });
+  res.json(updatedRecord);
 }
 
 export async function getCurrentGoals(req: Request, res: Response) {
