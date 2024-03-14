@@ -17,7 +17,7 @@ export async function getAllActivities(req: Request, res: Response) {
     'Invalid request data: GET /activities'
   );
   const activities = await activityService.getAllActivities(req.session.user!.id, filters);
-  res.status(200).json({ activities });
+  res.status(200).json(activities);
 }
 
 export async function getActivity(req: Request, res: Response) {
@@ -30,7 +30,7 @@ export async function getActivity(req: Request, res: Response) {
   );
 
   const activity = await activityService.getActivity(req.session.user!.id, activityName);
-  res.status(200).json({ activity });
+  res.status(200).json(activity);
 }
 
 export async function createActivity(req: Request, res: Response) {
@@ -41,7 +41,7 @@ export async function createActivity(req: Request, res: Response) {
   );
 
   const newActivity = await activityService.createActivity(req.session.user!.id, activityData);
-  res.status(201).json({ activity: newActivity });
+  res.status(201).json(newActivity);
 }
 
 export async function updateActivity(req: Request, res: Response) {
@@ -59,7 +59,7 @@ export async function updateActivity(req: Request, res: Response) {
     activityData
   );
 
-  res.status(200).json({ activity: updatedActivity });
+  res.status(200).json(updatedActivity);
 }
 
 export async function deleteActivity(req: Request, res: Response) {
