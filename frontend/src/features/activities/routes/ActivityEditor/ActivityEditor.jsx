@@ -50,13 +50,13 @@ export function ActivityEditor() {
             />
           </div>
           <div className={styles.inputContainer}>
-            <label className={styles.label} htmlFor="name">
+            <label className={styles.label} htmlFor="color">
               Color:
             </label>
             <input
               type="color"
-              name="name"
-              id="name"
+              name="color"
+              id="color"
               value={color}
               onChange={(e) => setColor(e.target.value)}
             />
@@ -129,7 +129,7 @@ export function ActivityEditor() {
   );
 
   function handleCheck(event) {
-    const name = event.target.name;
+    const name = event.target.name.split('-')[1];
     const isChecked = event.target.checked;
     updateGoalData((draft) => {
       draft[name] = isChecked ? { hours: 0, minutes: 0, seconds: 0 } : null;
@@ -140,7 +140,7 @@ export function ActivityEditor() {
   }
 
   function handleChange(event, goalType) {
-    const timeUnit = event.target.name;
+    const timeUnit = event.target.name.split('-')[0];
     const timeValue = event.target.value;
     updateGoalData((draft) => {
       draft[goalType][timeUnit] = Number(timeValue);

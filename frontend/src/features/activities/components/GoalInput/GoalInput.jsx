@@ -9,10 +9,10 @@ export default function GoalInput({ goal, isChecked, handleCheck, handleInterval
           checked={isChecked}
           onChange={handleCheck}
           type="checkbox"
-          name={goal.type}
-          id={goal.type}
+          name={`check-${goal.type}`}
+          id={`check-${goal.type}`}
         />
-        <label className={styles.checkLabel} htmlFor={goal.type}>
+        <label className={styles.checkLabel} htmlFor={`check-${goal.type}`}>
           {goal.name}
         </label>
       </div>

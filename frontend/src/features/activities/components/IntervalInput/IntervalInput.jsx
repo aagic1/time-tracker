@@ -10,13 +10,13 @@ export default function IntervalInput({ type, value, onChange }) {
           dir="rtl"
           className={`${styles.numberInput} ${styles.numberInputHours}`}
           type="number"
-          name="hours"
-          id="hours"
+          name={`hours-${type}`}
+          id={`hours-${type}`}
           min={0}
           value={goal.hours}
           onChange={(e) => onChange(e, type)}
         />
-        <label className={styles.goalLabel} htmlFor="hours">
+        <label className={styles.goalLabel} htmlFor={`hours-${type}`}>
           h
         </label>
       </div>
@@ -25,14 +25,14 @@ export default function IntervalInput({ type, value, onChange }) {
           dir="rtl"
           className={styles.numberInput}
           type="number"
-          name="minutes"
-          id="minutes"
+          name={`minutes-${type}`}
+          id={`minutes-${type}`}
           min={0}
           max={59}
           value={goal.minutes}
           onChange={(e) => onChange(e, type)}
         />
-        <label className={styles.goalLabel} htmlFor="minutes">
+        <label className={styles.goalLabel} htmlFor={`minutes-${type}`}>
           m
         </label>
       </div>
@@ -41,14 +41,14 @@ export default function IntervalInput({ type, value, onChange }) {
           dir="rtl"
           className={styles.numberInput}
           type="number"
-          name="seconds"
-          id="seconds"
+          name={`seconds-${type}`}
+          id={`seconds-${type}`}
           min={0}
           max={59}
           value={goal.seconds}
           onChange={(e) => onChange(e, type)}
         />
-        <label className={styles.goalLabel} htmlFor="seconds">
+        <label className={styles.goalLabel} htmlFor={`seconds-${type}`}>
           s
         </label>
       </div>
