@@ -1,6 +1,6 @@
 import styles from './activity-preview.module.css';
 
-export default function ActivityPreview({ name, color }) {
+export function ActivityPreview({ name, color }) {
   return (
     <div
       className={styles.cardContainer}

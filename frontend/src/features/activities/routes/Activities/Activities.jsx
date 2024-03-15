@@ -4,9 +4,9 @@ import { useLoaderData, useNavigation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 import styles from './activities.module.css';
-import ActivityCard from '../../components/ActivityCard/ActivityCard';
-import CreateActivityCard from '../../components/CreateActivityCard/CreateActivityCard';
-import ArchivedActivityCard from '../../components/ArchivedActivityCard/ArchivedActivityCard';
+import { ActivityCard } from '../../components/ActivityCard';
+import { CreateActivityCard } from '../../components/CreateActivityCard';
+import { ArchivedActivityCard } from '../../components/ArchivedActivityCard';
 import ActiveRecord from '../../../records/components/ActiveRecord/ActiveRecord';
 import { HorizontalSeparator } from '../../../../components/HorizontalSeparator';
 import { activitiesReducer } from '../../hooks/activitiesReducer';

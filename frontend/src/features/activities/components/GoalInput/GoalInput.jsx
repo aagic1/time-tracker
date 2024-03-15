@@ -1,7 +1,7 @@
 import styles from './goal-input.module.css';
-import IntervalInput from '../IntervalInput/IntervalInput.jsx';
+import { IntervalInput } from '../IntervalInput';
 
-export default function GoalInput({ goal, isChecked, handleCheck, handleIntervalChange }) {
+export function GoalInput({ goal, isChecked, handleCheck, handleIntervalChange }) {
   return (
     <div className={styles.goalInputContainer}>
       <div className={styles.goalCheckContainer}>

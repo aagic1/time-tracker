@@ -1,6 +1,6 @@
 import styles from './interval-input.module.css';
 
-export default function IntervalInput({ type, value, onChange }) {
+export function IntervalInput({ type, value, onChange }) {
   const goal = value != null ? value : { hours: 0, minutes: 0, seconds: 0 };
 
   return (

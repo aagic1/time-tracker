@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
+
 import styles from './activity-card.module.css';
 
-export default function ActivityCard({ activity, activeRecords, onClick }) {
+export function ActivityCard({ activity, activeRecords, onClick }) {
   return (
     <div
       className={`${styles.cardContainer} ${activity.loading ? styles.loading : ''}`}

@@ -1,7 +1,8 @@
-import styles from './archived-activity-card.module.css';
 import { useState } from 'react';
 
-export default function ArchivedActivityCard({ activity, onRestore, onDelete }) {
+import styles from './archived-activity-card.module.css';
+
+export function ArchivedActivityCard({ activity, onRestore, onDelete }) {
   const [editing, setEditing] = useState(false);
 
   return (

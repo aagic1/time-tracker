@@ -4,8 +4,8 @@ import { useImmer } from 'use-immer';
 import toast from 'react-hot-toast';
 
 import styles from './activity-editor.module.css';
-import ActivityPreview from '../../components/ActivityPreview/ActivityPreview.jsx';
-import GoalInput from '../../components/GoalInput/GoalInput.jsx';
+import { ActivityPreview } from '../../components/ActivityPreview';
+import { GoalInput } from '../../components/GoalInput';
 import { createActivity, getactivity, updateActivity } from '../../api';
 import { randomLightColor } from '../../utils/randomLightColor.js';
 
