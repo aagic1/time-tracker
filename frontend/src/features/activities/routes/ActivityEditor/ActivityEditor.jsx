@@ -141,7 +141,23 @@ export function ActivityEditor() {
 
   function handleChange(event, goalType) {
     const timeUnit = event.target.name.split('-')[0];
-    const timeValue = event.target.value;
+    // const timeValue = event.target.value;
+    let timeValueString = event.target.value;
+    // remove leading zeros
+    while (timeValueString[0] === '0' && timeValueString.length > 1) {
+      timeValueString = timeValueString.split('').slice(1).join('');
+    }
+    let timeValue = Number.parseInt(timeValueString);
+    if (Number.isNaN(timeValue)) {
+      timeValue = 0;
+    }
+    if (timeValue > event.target.max) {
+      timeValue = event.target.max;
+    }
+    if (timeValue < event.target.min) {
+      timeValue = event.target.min;
+    }
+
     updateGoalData((draft) => {
       draft[goalType][timeUnit] = Number(timeValue);
     });

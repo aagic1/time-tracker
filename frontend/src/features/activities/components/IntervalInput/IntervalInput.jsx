@@ -12,7 +12,8 @@ export function IntervalInput({ type, value, onChange }) {
           name={`hours-${type}`}
           id={`hours-${type}`}
           min={0}
-          value={goal.hours}
+          max={99999}
+          value={goal.hours.toString()}
           onChange={(e) => onChange(e, type)}
         />
         <label className={styles.goalLabel} htmlFor={`hours-${type}`}>
@@ -27,7 +28,7 @@ export function IntervalInput({ type, value, onChange }) {
           id={`minutes-${type}`}
           min={0}
           max={59}
-          value={goal.minutes}
+          value={goal.minutes.toString()}
           onChange={(e) => onChange(e, type)}
         />
         <label className={styles.goalLabel} htmlFor={`minutes-${type}`}>
@@ -42,7 +43,7 @@ export function IntervalInput({ type, value, onChange }) {
           id={`seconds-${type}`}
           min={0}
           max={59}
-          value={goal.seconds}
+          value={goal.seconds.toString()}
           onChange={(e) => onChange(e, type)}
         />
         <label className={styles.goalLabel} htmlFor={`seconds-${type}`}>
