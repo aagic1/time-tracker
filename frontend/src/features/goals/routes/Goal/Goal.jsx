@@ -5,6 +5,7 @@ import { HorizontalSeparator } from '../../../../components/HorizontalSeparator'
 import { getGoalData } from '../../api';
 import { GoalCard } from '../../components/GoalCard';
 import { ActiveGoalCard } from '../../components/ActiveGoalCard';
+import { NoData } from '../../components/NoData';
 
 export function Goal() {
   const { goals, measuredAt } = useLoaderData();
@@ -12,6 +13,10 @@ export function Goal() {
   const dayGoals = goals.filter((goal) => goal.goalName === 'dayGoal');
   const weekGoals = goals.filter((goal) => goal.goalName === 'weekGoal');
   const monthGoals = goals.filter((goal) => goal.goalName === 'monthGoal');
+
+  if (goals.length === 0) {
+    return <NoData />;
+  }
 
   return (
     <div className={styles.pageWrapper}>

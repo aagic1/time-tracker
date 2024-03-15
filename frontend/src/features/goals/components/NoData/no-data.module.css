@@ -1,0 +1,6 @@
+.noData {
+    display: flex;
+    justify-content: center;
+    font-weight: bold;
+    margin-top: 20px;
+}
