@@ -3,22 +3,29 @@ export function activeRecordsReducer(draft, action) {
     case 'createFake':
       draft.push(action.fakeRecord);
       break;
+
     case 'deleteFake': {
       return draft.filter(
         (record) => !record.recordId.includes('fake') && record.activityId !== action.activityId
       );
     }
+
     case 'swapFakeWithReal': {
-      const fake = draft.find(
-        (record) => record.recordId.includes('fake') && record.activityId === action.activityId
+      const fakeIndex = draft.findIndex(
+        (record) =>
+          record.fake && record.recordId.includes('fake') && record.activityId === action.activityId
       );
-      fake.recordId = action.recordId;
-      delete fake.fake;
+      if (fakeIndex === -1) {
+        break;
+      }
+      draft[fakeIndex] = { ...draft[fakeIndex], fake: undefined, recordId: action.recordId };
       break;
     }
+
     case 'stopRecord': {
       return draft.filter((record) => record.recordId !== action.recordId);
     }
+
     case 'restoreStoppedRecord':
       draft.push(action.stoppedRecord);
       break;
