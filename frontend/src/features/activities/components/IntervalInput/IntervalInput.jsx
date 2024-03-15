@@ -7,7 +7,6 @@ export function IntervalInput({ type, value, onChange }) {
     <div className={styles.container}>
       <div className={styles.inputContainer}>
         <input
-          dir="rtl"
           className={`${styles.numberInput} ${styles.numberInputHours}`}
           type="number"
           name={`hours-${type}`}
@@ -22,7 +21,6 @@ export function IntervalInput({ type, value, onChange }) {
       </div>
       <div className={styles.inputContainer}>
         <input
-          dir="rtl"
           className={styles.numberInput}
           type="number"
           name={`minutes-${type}`}
@@ -38,7 +36,6 @@ export function IntervalInput({ type, value, onChange }) {
       </div>
       <div className={styles.inputContainer}>
         <input
-          dir="rtl"
           className={styles.numberInput}
           type="number"
           name={`seconds-${type}`}
