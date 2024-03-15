@@ -4,7 +4,8 @@ import {
   Activities,
   activitiesLoader,
   ActivityEditor,
-  activityEditorLoader,
+  activityEditorCreateLoader,
+  activityEditorUpdateLoader,
 } from '../features/activities/routes';
 import { Goal, goalLoader } from '../features/goals/routes';
 import {
@@ -32,12 +33,12 @@ export const protectedRoutes = [
       {
         path: 'activities/:activityName',
         element: <ActivityEditor type="edit" />,
-        loader: activityEditorLoader,
+        loader: activityEditorUpdateLoader,
       },
       {
         path: 'activities/create',
         element: <ActivityEditor />,
-        loader: activityEditorLoader,
+        loader: activityEditorCreateLoader,
       },
       {
         path: 'goals',

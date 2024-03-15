@@ -73,7 +73,44 @@ async function getActiveRecords() {
   return { response, data };
 }
 
+async function createActivity(activityData) {
+  const response = await fetch(BASE_URL + '/activities', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(activityData),
+  });
+  const data = await response.json();
+  return { response, data };
+}
+
+async function updateActivity(activityName, activityData) {
+  const response = await fetch(BASE_URL + `/activities/${activityName}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(activityData),
+  });
+  const data = await response.json();
+  return { response, data };
+}
+
+async function getactivity(activityName) {
+  const response = await fetch(BASE_URL + `/activities/${activityName}`, {
+    credentials: 'include',
+  });
+  const data = await response.json();
+  return { response, data };
+}
+
 export {
+  getactivity,
+  createActivity,
+  updateActivity,
   deleteActivity,
   restoreActivity,
   createRecord,

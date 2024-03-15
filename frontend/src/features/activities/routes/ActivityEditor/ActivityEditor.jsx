@@ -1,123 +1,31 @@
 import { useLoaderData, useNavigate } from 'react-router-dom';
-import styles from './activity-editor.module.css';
 import { useState } from 'react';
 import { useImmer } from 'use-immer';
+import toast from 'react-hot-toast';
+
+import styles from './activity-editor.module.css';
 import ActivityPreview from '../../components/ActivityPreview/ActivityPreview.jsx';
 import GoalInput from '../../components/GoalInput/GoalInput.jsx';
-
-export async function activityEditorLoader({ params, request }) {
-  const url = new URL(request.url);
-  const pathname = url.pathname;
-  const lastSegment = pathname.split('/').slice(-1)[0];
-  if (lastSegment === 'create') {
-    return { type: 'create', activity: null };
-  } else {
-    const activityName = params.activityName;
-    const res = await fetch(`http://localhost:8000/api/v1/activities/${activityName}`, {
-      credentials: 'include',
-    });
-    if (!res.ok) {
-      throw new Error('Activity editor: Failed to fetch activity with id ' + activityName);
-    }
-    const { activity } = await res.json();
-    return { type: 'edit', activity };
-  }
-}
+import { createActivity, getactivity, updateActivity } from '../../api';
 
 export function ActivityEditor() {
   const { type, activity } = useLoaderData();
   const navigate = useNavigate();
-  4;
 
   const [name, setName] = useState(type === 'create' ? '' : activity.name);
   const [color, setColor] = useState(type === 'create' ? '#888888' : activity.color);
   const [goalData, updateGoalData] = useImmer({
-    sessionGoal: type === 'create' ? null : activity.sessionGoal,
-    dayGoal: type === 'create' ? null : activity.dayGoal,
-    weekGoal: type === 'create' ? null : activity.weekGoal,
-    monthGoal: type === 'create' ? null : activity.monthGoal,
+    sessionGoal: activity?.sessionGoal,
+    dayGoal: activity?.dayGoal,
+    weekGoal: activity?.weekGoal,
+    monthGoal: activity?.monthGoal,
   });
   const [checkedGoals, updateCheckedGoals] = useImmer({
-    sessionGoal: type === 'create' ? false : activity.sessionGoal != null,
-    dayGoal: type === 'create' ? false : activity.dayGoal != null,
-    weekGoal: type === 'create' ? false : activity.weekGoal != null,
-    monthGoal: type === 'create' ? false : activity.monthGoal != null,
+    sessionGoal: activity?.sessionGoal != null,
+    dayGoal: activity?.dayGoal != null,
+    weekGoal: activity?.weekGoal != null,
+    monthGoal: activity?.monthGoal != null,
   });
-
-  function handleCheck(event) {
-    const name = event.target.name;
-    const isChecked = event.target.checked;
-    updateGoalData((draft) => {
-      draft[name] = isChecked ? { hours: 0, minutes: 0, seconds: 0 } : null;
-    });
-    updateCheckedGoals((draft) => {
-      draft[name] = isChecked;
-    });
-  }
-
-  function handleChange(event, goalType) {
-    const timeUnit = event.target.name;
-    const timeValue = event.target.value;
-    updateGoalData((draft) => {
-      draft[goalType][timeUnit] = Number(timeValue);
-    });
-  }
-
-  async function handleSubmit(event) {
-    event.preventDefault();
-    const body = {
-      name: name,
-      color: color,
-      sessionGoal: goalData.sessionGoal,
-      dayGoal: goalData.dayGoal,
-      weekGoal: goalData.weekGoal,
-      monthGoal: goalData.monthGoal,
-    };
-    let res;
-    if (type === 'create') {
-      res = await fetch('http://localhost:8000/api/v1/activities', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(body),
-      });
-    } else {
-      res = await fetch(`http://localhost:8000/api/v1/activities/${activity.name}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(body),
-      });
-    }
-    if (!res.ok) {
-      throw new Error(`Failed to ${type === 'create' ? 'create' : 'update'} activity`);
-    }
-    // const data = await res.json();
-    navigate('..');
-  }
-
-  async function handleArchive() {
-    const body = {
-      archived: !activity.archived,
-    };
-    const res = await fetch(`http://localhost:8000/api/v1/activities/${activity.name}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify(body),
-    });
-
-    if (!res.ok) {
-      throw new Error(`Failed to archive activity`);
-    }
-    navigate('..');
-  }
 
   return (
     <div className={styles.pageWrapper}>
@@ -129,7 +37,9 @@ export function ActivityEditor() {
           onSubmit={handleSubmit}
         >
           <div className={styles.inputContainer}>
-            <label htmlFor="name">Name:</label>
+            <label className={styles.label} htmlFor="name">
+              Name:
+            </label>
             <input
               type="text"
               name="name"
@@ -139,7 +49,9 @@ export function ActivityEditor() {
             />
           </div>
           <div className={styles.inputContainer}>
-            <label htmlFor="name">Color:</label>
+            <label className={styles.label} htmlFor="name">
+              Color:
+            </label>
             <input
               type="color"
               name="name"
@@ -192,12 +104,20 @@ export function ActivityEditor() {
             />
           </div>
           <div className={styles.buttonContainer}>
-            <button>Save</button>
-            <button type="button" onClick={() => navigate('..')}>
+            <button className={styles.formButton}>Save</button>
+            <button
+              className={styles.formButton}
+              type="button"
+              onClick={() => navigate('..', { relative: 'path' })}
+            >
               Cancel
             </button>
             {type !== 'create' && (
-              <button type="button" onClick={handleArchive} className={styles.archiveButton}>
+              <button
+                type="button"
+                onClick={handleArchive}
+                className={`${styles.archiveButton} ${styles.formButton}`}
+              >
                 Archive
               </button>
             )}
@@ -206,4 +126,73 @@ export function ActivityEditor() {
       </div>
     </div>
   );
+
+  function handleCheck(event) {
+    const name = event.target.name;
+    const isChecked = event.target.checked;
+    updateGoalData((draft) => {
+      draft[name] = isChecked ? { hours: 0, minutes: 0, seconds: 0 } : null;
+    });
+    updateCheckedGoals((draft) => {
+      draft[name] = isChecked;
+    });
+  }
+
+  function handleChange(event, goalType) {
+    const timeUnit = event.target.name;
+    const timeValue = event.target.value;
+    updateGoalData((draft) => {
+      draft[goalType][timeUnit] = Number(timeValue);
+    });
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    const body = {
+      name: name,
+      color: color,
+      sessionGoal: goalData.sessionGoal,
+      dayGoal: goalData.dayGoal,
+      weekGoal: goalData.weekGoal,
+      monthGoal: goalData.monthGoal,
+    };
+    if (type === 'create') {
+      const { response } = await createActivity(body);
+      if (!response.ok) {
+        return toast.error('Failed to create activity', { id: 'create-activity-error' });
+      }
+    } else {
+      const { response } = await updateActivity(activity.name, body);
+      if (!response.ok) {
+        return toast.error('Failed to update activity', { id: 'update-activity-error' });
+      }
+    }
+
+    navigate('..', { relative: 'path' });
+  }
+
+  async function handleArchive() {
+    const body = {
+      archived: !activity.archived,
+    };
+    const { response } = await updateActivity(activity.name, body);
+
+    if (!response.ok) {
+      return toast.error('Failed to update activity', { id: 'update-activity-archived-error' });
+    }
+    navigate('..', { relative: 'path' });
+  }
+}
+
+export async function activityEditorCreateLoader() {
+  return { type: 'create', activity: null };
+}
+
+export async function activityEditorUpdateLoader({ params }) {
+  const activityName = params.activityName;
+  const { response, data: activity } = await getactivity(activityName);
+  if (!response.ok) {
+    return toast.error(`Activity with name ${activityName} not found.`);
+  }
+  return { type: 'edit', activity };
 }
