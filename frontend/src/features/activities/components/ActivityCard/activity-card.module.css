@@ -32,17 +32,19 @@
     font-size: 14px;
     display: flex;
     border-radius: 6px;
-    padding: 4px;
+    padding: 8px;
 }
+
 
 .editContainer:hover {
     background-color: #4445;
 }
 
 .editLink {
-    padding: 5px;
     text-decoration: none;
     color: #222;
+    padding: 8px;
+    margin: -8px;
 }
 
 .loading {
@@ -61,6 +63,12 @@
 
     .editContainer {
         font-size: 13px;
-        padding: 3px;
+        padding: 6px;
     }
+    
+    .editLink {
+        padding: 6px;
+        margin: -6px;
+    }
+    
 }
