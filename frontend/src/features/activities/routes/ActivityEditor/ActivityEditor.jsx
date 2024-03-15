@@ -8,11 +8,14 @@ import { ActivityPreview } from '../../components/ActivityPreview';
 import { GoalInput } from '../../components/GoalInput';
 import { createActivity, getactivity, updateActivity } from '../../api';
 import { randomLightColor } from '../../utils/randomLightColor.js';
+import { activitySchema, validate } from '../../utils/validation.js';
 
 export function ActivityEditor() {
   const { type, activity } = useLoaderData();
   const navigate = useNavigate();
 
+  const [submitting, setSubmitting] = useState(false);
+  const [nameError, setNameError] = useState(null);
   const [name, setName] = useState(type === 'create' ? '' : activity.name);
   const [color, setColor] = useState(type === 'create' ? randomLightColor() : activity.color);
   const [goalData, updateGoalData] = useImmer({
@@ -37,17 +40,26 @@ export function ActivityEditor() {
           className={styles.activityForm}
           onSubmit={handleSubmit}
         >
-          <div className={styles.inputContainer}>
-            <label className={styles.label} htmlFor="name">
-              Name:
-            </label>
-            <input
-              type="text"
-              name="name"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
+          <div className={styles.inputAndErrorContainer}>
+            <div className={styles.inputContainer}>
+              <label className={styles.label} htmlFor="name">
+                Name:
+              </label>
+              <input
+                type="text"
+                name="name"
+                id="name"
+                value={name}
+                onChange={(e) => {
+                  const newName = e.target.value;
+                  setName(newName);
+                  validateName(newName);
+                }}
+                onBlur={() => validateName(name)}
+                className={styles.nameInput}
+              />
+            </div>
+            {nameError && <div className={styles.errorMessage}>{nameError}</div>}
           </div>
           <div className={styles.inputContainer}>
             <label className={styles.label} htmlFor="color">
@@ -104,7 +116,7 @@ export function ActivityEditor() {
               }}
             />
           </div>
-          <div className={styles.buttonContainer}>
+          <div className={`${styles.buttonContainer} ${submitting ? styles.submitting : ''}`}>
             <button className={styles.formButton}>Save</button>
             <button
               className={styles.formButton}
@@ -127,6 +139,13 @@ export function ActivityEditor() {
       </div>
     </div>
   );
+
+  function validateName(name) {
+    if (name.length === 0) {
+      return setNameError('Name must contain at least 1 character');
+    }
+    setNameError(null);
+  }
 
   function handleCheck(event) {
     const name = event.target.name.split('-')[1];
@@ -173,14 +192,28 @@ export function ActivityEditor() {
       weekGoal: goalData.weekGoal,
       monthGoal: goalData.monthGoal,
     };
+
+    // validation
+    const validationResult = validate(body, activitySchema);
+    if (!validationResult.success) {
+      const errors = validationResult.errors;
+      if (errors.name) {
+        setNameError(errors.name);
+      }
+      return;
+    }
+
+    setSubmitting(true);
     if (type === 'create') {
-      const { response } = await createActivity(body);
+      const { response } = await createActivity(validationResult.data);
       if (!response.ok) {
+        setSubmitting(false);
         return toast.error('Failed to create activity', { id: 'create-activity-error' });
       }
     } else {
-      const { response } = await updateActivity(activity.name, body);
+      const { response } = await updateActivity(activity.name, validationResult.data);
       if (!response.ok) {
+        setSubmitting(false);
         return toast.error('Failed to update activity', { id: 'update-activity-error' });
       }
     }
@@ -192,9 +225,11 @@ export function ActivityEditor() {
     const body = {
       archived: !activity.archived,
     };
+    setSubmitting(true);
     const { response } = await updateActivity(activity.name, body);
 
     if (!response.ok) {
+      setSubmitting(false);
       return toast.error('Failed to update activity', { id: 'update-activity-archived-error' });
     }
     navigate('..', { relative: 'path' });

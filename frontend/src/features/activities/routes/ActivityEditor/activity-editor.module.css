@@ -27,14 +27,27 @@
     gap: 10px;
 }
 
+.inputAndErrorContainer {
+    display: flex;
+    flex-direction: column;
+}
+
 .inputContainer {
     display: flex;
-    justify-content: stretch;
     gap: 3px;
+}
+
+.nameInput {
+    flex: 1;
 }
 
 .label {
     width: 50px;
+}
+
+.errorMessage {
+    color: crimson;
+    font-size: 15px;
 }
 
 .goalsContainer {
@@ -63,6 +76,10 @@
     visibility: hidden;
 }
 
+.submitting > .formButton {
+    pointer-events: none;
+    opacity: 0.5;
+}
 
 
 @media only screen and (max-width: 450px)  {
