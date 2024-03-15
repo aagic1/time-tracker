@@ -7,13 +7,14 @@ import styles from './activity-editor.module.css';
 import ActivityPreview from '../../components/ActivityPreview/ActivityPreview.jsx';
 import GoalInput from '../../components/GoalInput/GoalInput.jsx';
 import { createActivity, getactivity, updateActivity } from '../../api';
+import { randomLightColor } from '../../utils/randomLightColor.js';
 
 export function ActivityEditor() {
   const { type, activity } = useLoaderData();
   const navigate = useNavigate();
 
   const [name, setName] = useState(type === 'create' ? '' : activity.name);
-  const [color, setColor] = useState(type === 'create' ? '#888888' : activity.color);
+  const [color, setColor] = useState(type === 'create' ? randomLightColor() : activity.color);
   const [goalData, updateGoalData] = useImmer({
     sessionGoal: activity?.sessionGoal,
     dayGoal: activity?.dayGoal,
