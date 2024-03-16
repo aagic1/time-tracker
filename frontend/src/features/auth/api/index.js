@@ -99,6 +99,16 @@ async function resetPassword(newPassword, email, code) {
   return { response, data };
 }
 
+async function logout() {
+  const response = await fetch(BASE_URL + '/auth/logout', {
+    method: 'POST',
+    credentials: 'include',
+  });
+
+  const data = await response.json();
+  return { response, data };
+}
+
 async function whoami() {
   const response = await fetch('http://localhost:8000/api/v1/auth/whoami', {
     credentials: 'include',
@@ -116,5 +126,6 @@ export {
   verifyPasswordRecoveryCode,
   resendPasswordRecoveryCode,
   resetPassword,
+  logout,
   whoami,
 };

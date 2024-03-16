@@ -1,28 +1,26 @@
+import toast from 'react-hot-toast';
+
 import styles from './app-header.module.css';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../../features/auth/context/AuthProvider';
-import { FaRegClock, FaTasks, FaChartBar, FaSignOutAlt } from 'react-icons/fa';
+import { FaRegClock, FaTasks, /*FaChartBar,*/ FaSignOutAlt } from 'react-icons/fa';
 import { FaBullseye as Fa6Bullseye } from 'react-icons/fa6';
+import { logout as serverLogout } from '../../../features/auth/api';
 
 const headerNavigationLinks = [
   { id: 1, name: 'Activities', to: '/activities', Icon: FaRegClock },
   { id: 2, name: 'Records', to: '/records', Icon: FaTasks },
   { id: 3, name: 'Goals', to: '/goals', Icon: Fa6Bullseye },
-  { id: 4, name: 'Statistics', to: '/statistics', Icon: FaChartBar },
+  // { id: 4, name: 'Statistics', to: '/statistics', Icon: FaChartBar },
 ];
 
 export function AppHeader() {
   const { logout } = useAuth();
 
   async function handleLogout() {
-    const res = await fetch('http://localhost:8000/api/v1/auth/logout', {
-      method: 'POST',
-      credentials: 'include',
-    });
-
-    if (!res.ok) {
-      console.log(res);
-      return await res.json();
+    const { response } = await serverLogout();
+    if (!response.ok) {
+      return toast.error('Failed to logout', { id: 'logout-error' });
     }
 
     logout();
