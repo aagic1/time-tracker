@@ -2,7 +2,7 @@ import styles from './active-record.module.css';
 import { FaEdit, FaCheckCircle, FaStopwatch } from 'react-icons/fa';
 import useStopwatch from '../../../../hooks/useStopwatch';
 import { useNavigate } from 'react-router-dom';
-import { formatStartTime } from '../../../../utils/formatDate';
+import { formatTime } from '../../../../utils/formatDate';
 import {
   getRemainingGoalTime,
   formatInterval,
@@ -19,7 +19,7 @@ export default function ActiveRecord({
   const navigate = useNavigate();
   const elapsedTime = useStopwatch(new Date(record.startedAt));
 
-  const startTimeFormated = formatStartTime(new Date(record.startedAt));
+  const startTimeFormated = formatTime(new Date(record.startedAt));
 
   let remainingGoalTime = 0;
   if (record.sessionGoal) {
