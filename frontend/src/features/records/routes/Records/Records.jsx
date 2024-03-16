@@ -47,7 +47,7 @@ export function Records() {
   const location = useLocation();
   const navigate = useNavigate();
   const navigationLoading = useNavigationLoading();
-  const { records } = useLoaderData();
+  const records = useLoaderData();
   const [searchParams] = useSearchParams();
   const submit = useSubmit();
   const [date, setDate] = useState(
