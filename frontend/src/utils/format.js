@@ -3,10 +3,20 @@ import { milisecondsToInterval } from './interval';
 // PUBLIC API
 // __________
 
-function formatDate(date) {
-  const monthFormated = String(date.getMonth() + 1).padStart(2, '0');
-  const dayFormated = String(date.getDate()).padStart(2, '0');
-  return `${dayFormated}.${monthFormated}.${date.getFullYear()}`;
+function formatDate(date, { format = 'yyyy-mm-dd' } = {}) {
+  switch (format.toLocaleLowerCase()) {
+    case 'yyyy-mm-dd': {
+      return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    }
+    case 'dd.mm.yyyy': {
+      const monthFormated = String(date.getMonth() + 1).padStart(2, '0');
+      const dayFormated = String(date.getDate()).padStart(2, '0');
+      return `${dayFormated}.${monthFormated}.${date.getFullYear()}`;
+    }
+    default: {
+      throw new Error('Invalid date formatting option');
+    }
+  }
 }
 
 function formatTime(date) {
@@ -33,13 +43,9 @@ function formatElapsedTime(miliseconds, length = 'medium') {
   return formatInterval(milisecondsToInterval(miliseconds), length);
 }
 
-function dateToISOStringWithoutTime(date) {
-  return date.toISOString().split('T')[0];
-}
-
 // PUBLIC API EXPORT
 // _________________
-export { formatDate, formatTime, formatInterval, formatElapsedTime, dateToISOStringWithoutTime };
+export { formatDate, formatTime, formatInterval, formatElapsedTime };
 
 // Private functions
 // _________________

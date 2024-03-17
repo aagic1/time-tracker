@@ -16,9 +16,9 @@ import { ActiveRecordCard } from '../../components/ActiveRecordCard';
 import { RecordCard } from '../../components/RecordCard';
 import { useDelayedLoadingIndicator } from '../../hooks/useDelayedLoading';
 import { getRecords } from '../../api';
-import { dateToISOStringWithoutTime } from '../../../../utils/format';
 import { LoadingSpinner } from '../../../../components/LoadingSpinner';
 import { NoData } from '../../../../components/NoData';
+import { formatDate } from '../../../../utils/format';
 
 export function Records() {
   const location = useLocation();
@@ -63,7 +63,7 @@ export function Records() {
   );
 
   function handleNewRecord() {
-    navigate(`create?date=${dateToISOStringWithoutTime(currentDate)}`, {
+    navigate(`create?date=${formatDate(currentDate)}`, {
       state: {
         from: location.pathname + location.search,
       },
@@ -75,7 +75,7 @@ export function Records() {
       const formData = new FormData();
       const nextDate = new Date(d);
       nextDate.setDate(d.getDate() + 1);
-      formData.set('date', dateToISOStringWithoutTime(nextDate));
+      formData.set('date', formatDate(nextDate));
       submit(formData);
       return nextDate;
     });
@@ -86,7 +86,7 @@ export function Records() {
       const formData = new FormData();
       const previousDate = new Date(d);
       previousDate.setDate(d.getDate() - 1);
-      formData.set('date', dateToISOStringWithoutTime(previousDate));
+      formData.set('date', formatDate(previousDate));
       submit(formData);
       return previousDate;
     });
@@ -94,7 +94,7 @@ export function Records() {
 
   function handleChangeDate(date) {
     const formData = new FormData();
-    formData.append('date', dateToISOStringWithoutTime(date));
+    formData.append('date', formatDate(date));
     submit(formData);
     setDate(date);
   }
@@ -109,10 +109,14 @@ export function Records() {
 export async function recordsLoader({ request }) {
   const search = new URL(request.url).searchParams;
   if (!search.has('date')) {
-    search.set('date', dateToISOStringWithoutTime(new Date()));
+    console.log('hi');
+    console.log(formatDate(new Date()));
+    search.set('date', formatDate(new Date()));
   }
 
-  const date = search.get('date');
+  const date = search.get('date') + 'Z';
+  console.log('date');
+  console.log(date);
 
   const startOfDay = new Date(date);
   startOfDay.setHours(0, 0, 0, 0);
