@@ -5,7 +5,7 @@ import { HorizontalSeparator } from '../../../../components/HorizontalSeparator'
 import { getGoalData } from '../../api';
 import { GoalCard } from '../../components/GoalCard';
 import { ActiveGoalCard } from '../../components/ActiveGoalCard';
-import { NoData } from '../../components/NoData';
+import { NoData } from '../../../../components/NoData';
 
 export function Goal() {
   const { goals, measuredAt } = useLoaderData();

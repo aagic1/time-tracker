@@ -18,6 +18,7 @@ import { useDelayedLoadingIndicator } from '../../hooks/useDelayedLoading';
 import { getRecords } from '../../api';
 import { dateToISOStringWithoutTime } from '../../../../utils/format';
 import { LoadingSpinner } from '../../../../components/LoadingSpinner';
+import { NoData } from '../../../../components/NoData';
 
 export function Records() {
   const location = useLocation();
@@ -42,7 +43,7 @@ export function Records() {
       {records.length === 0 ? (
         <div className={styles.noDataContainer}>
           <div className={styles.noData}>
-            {navigation.state === 'loading' && delayedLoading ? <LoadingSpinner /> : 'No data'}
+            {navigation.state === 'loading' && delayedLoading ? <LoadingSpinner /> : <NoData />}
           </div>
         </div>
       ) : (

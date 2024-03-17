@@ -149,12 +149,6 @@
     align-items: start;
 }
 
-
-.noData {
-    margin-top: 40px;
-    font-size: 18px;
-}
-
 @media only screen and (max-width: 950px)  { 
     .dateContainer {
         top: 107px;
