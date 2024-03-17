@@ -1,21 +1,12 @@
-import styles from './active-record.module.css';
 import { FaEdit, FaCheckCircle, FaStopwatch } from 'react-icons/fa';
-import useStopwatch from '../../../../hooks/useStopwatch';
 import { useNavigate } from 'react-router-dom';
-import { formatTime } from '../../../../utils/formatDate';
-import {
-  getRemainingGoalTime,
-  formatInterval,
-  formatElapsedTime,
-} from '../../../../utils/interval';
 
-export default function ActiveRecord({
-  record,
-  showStopwatch,
-  showEdit,
-  onClick,
-  showSessionDetails,
-}) {
+import styles from './active-record-card.module.css';
+import useStopwatch from '../../../../hooks/useStopwatch';
+import { formatTime, formatInterval, formatElapsedTime } from '../../../../utils/format';
+import { getRemainingGoalTime } from '../../../goals/utils/';
+
+export function ActiveRecordCard({ record, showStopwatch, showEdit, onClick, showSessionDetails }) {
   const navigate = useNavigate();
   const elapsedTime = useStopwatch(new Date(record.startedAt));
 

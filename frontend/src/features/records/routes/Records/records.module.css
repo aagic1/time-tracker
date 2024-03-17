@@ -77,12 +77,6 @@
     cursor: pointer;
 }
 
-.noData {
-    margin-top: 40px;
-    align-self: center;
-    font-size: 18px;
-}
-
 .recordsContainer {
     flex: 1;
     display: flex;
@@ -131,22 +125,7 @@
 .timesContainer {
     display: flex;
     gap: 10px
-    /* flex-direction: column;
-    align-items: flex-end; */
 }
-/* 
-.sessionGoalContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    font-size: 14px;
-}
-
-.sessionRemaining {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-} */
 
 .elapsedTime {
     font-weight: 600;
@@ -161,6 +140,19 @@
 
 .editIcon:hover {
     background-color: #3336;
+}
+
+.noDataContainer {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+}
+
+
+.noData {
+    margin-top: 40px;
+    font-size: 18px;
 }
 
 @media only screen and (max-width: 950px)  { 

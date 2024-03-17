@@ -156,11 +156,7 @@ export async function recordEditorAction({ request, params }) {
 export function RecordEditor() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const {
-    record,
-    activitiesData: { activities },
-    editorType,
-  } = useLoaderData();
+  const { record, activitiesData: activities, editorType } = useLoaderData();
 
   const [startDate, setStartDate] = useState(new Date(record.startedAt));
   const [stopDate, setStopDate] = useState(record.stoppedAt ? new Date(record.stoppedAt) : null);

@@ -7,7 +7,7 @@ import styles from './activities.module.css';
 import { ActivityCard } from '../../components/ActivityCard';
 import { CreateActivityCard } from '../../components/CreateActivityCard';
 import { ArchivedActivityCard } from '../../components/ArchivedActivityCard';
-import ActiveRecord from '../../../records/components/ActiveRecord/ActiveRecord';
+import { ActiveRecordCard } from '../../../records/components/ActiveRecordCard';
 import { HorizontalSeparator } from '../../../../components/HorizontalSeparator';
 import { activitiesReducer } from '../../hooks/activitiesReducer';
 import { activeRecordsReducer } from '../../hooks/activeRecordsReducer';
@@ -207,7 +207,7 @@ function ActiveRecordsList({ activeRecords, handleRecordClick, className }) {
           return new Date(b.startedAt) - new Date(a.startedAt);
         })
         .map((record) => (
-          <ActiveRecord
+          <ActiveRecordCard
             key={record.recordId}
             record={record}
             showEdit

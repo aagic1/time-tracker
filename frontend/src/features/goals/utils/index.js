@@ -32,4 +32,14 @@ function secondsToInterval(totalSeconds) {
   return { hours, minutes, seconds };
 }
 
-export { intervalToString, intervalToSeconds, intervalToMiliseconds, secondsToInterval };
+function getRemainingGoalTime(goal, elapsedTime) {
+  return intervalToMiliseconds(goal) - elapsedTime;
+}
+
+export {
+  intervalToString,
+  intervalToSeconds,
+  intervalToMiliseconds,
+  secondsToInterval,
+  getRemainingGoalTime,
+};

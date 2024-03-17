@@ -1,7 +1,5 @@
 export class DateWithTimezone {
-  private static daysPerMonth = [
-    31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31,
-  ];
+  private static daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
   private _year: number;
   private _month: number;
   private _dayOfMonth: number;
@@ -98,24 +96,24 @@ export class DateWithTimezone {
   //   this._timezoneOffset = timezoneOffset;
   // }
 
-  public getStartOf(type: 'day' | 'week' | 'month') {
-    if (type === 'day') {
+  public getStartOf(timespan: 'day' | 'week' | 'month') {
+    if (timespan === 'day') {
       return this.getStartOfDay();
-    } else if (type === 'week') {
+    } else if (timespan === 'week') {
       return this.getStartOfWeek();
-    } else if (type === 'month') {
+    } else if (timespan === 'month') {
       return this.getStartOfMonth();
     } else {
       return this.getStartOfYear();
     }
   }
 
-  public getEndOf(type: 'day' | 'week' | 'month') {
-    if (type === 'day') {
+  public getEndOf(timespan: 'day' | 'week' | 'month') {
+    if (timespan === 'day') {
       return this.getEndOfDay();
-    } else if (type === 'week') {
+    } else if (timespan === 'week') {
       return this.getEndOfWeek();
-    } else if (type === 'month') {
+    } else if (timespan === 'month') {
       return this.getEndOfMonth();
     } else {
       return this.getEndOfYear();
@@ -160,11 +158,7 @@ export class DateWithTimezone {
   }
 
   public getEndOfMonth() {
-    const dateString = DateWithTimezone.getDateString(
-      this.year,
-      this.month,
-      this.getDaysInMonth()
-    );
+    const dateString = DateWithTimezone.getDateString(this.year, this.month, this.getDaysInMonth());
     return new Date(`${dateString}T23:59:59.999${this.getTimezoneString()}`);
   }
 
@@ -250,25 +244,11 @@ export class DateWithTimezone {
       throw 'Please enter a year greater than or equal to 100';
     }
     const maxDaysInMonth = DateWithTimezone.getDaysInMonth(month, year);
-    return (
-      dayOfMonth >= 1 &&
-      dayOfMonth <= maxDaysInMonth &&
-      month >= 1 &&
-      month <= 12
-    );
+    return dayOfMonth >= 1 && dayOfMonth <= maxDaysInMonth && month >= 1 && month <= 12;
   }
 
   private isValidTime(h: number, m: number, s: number, ms: number) {
-    return (
-      h >= 0 &&
-      h < 24 &&
-      m >= 0 &&
-      m < 60 &&
-      s >= 0 &&
-      s < 60 &&
-      ms >= 0 &&
-      ms < 1000
-    );
+    return h >= 0 && h < 24 && m >= 0 && m < 60 && s >= 0 && s < 60 && ms >= 0 && ms < 1000;
   }
 
   private getTimezoneString() {
@@ -280,9 +260,7 @@ export class DateWithTimezone {
     const timezoneHoursPadded = Math.abs(Math.floor(this._timezoneOffset / 60))
       .toString()
       .padStart(2, '0');
-    const timezoneMinutesPadded = Math.abs(
-      Math.floor(this._timezoneOffset % 60)
-    )
+    const timezoneMinutesPadded = Math.abs(Math.floor(this._timezoneOffset % 60))
       .toString()
       .padStart(2, '0');
     return `${timezoneSign}${timezoneHoursPadded}:${timezoneMinutesPadded}`;
@@ -295,11 +273,7 @@ export class DateWithTimezone {
     return `${yearPadded}-${monthPadded}-${datePadded}`;
   }
 
-  private static getDateString(
-    year: number,
-    month: number,
-    dayOfMonth: number
-  ) {
+  private static getDateString(year: number, month: number, dayOfMonth: number) {
     const yearPadded = year.toString().padStart(4, '0');
     const monthPadded = month.toString().padStart(2, '0');
     const datePadded = dayOfMonth.toString().padStart(2, '0');
