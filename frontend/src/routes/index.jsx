@@ -3,7 +3,7 @@ import { useAuth } from '../features/auth/context/AuthProvider';
 import { protectedRoutes } from './protected';
 import { publicRoutes } from './public';
 import { MainLayout } from '../components/Layout';
-import { LoadingSpinner } from '../components/LoadingSpinner';
+import { LoadingPage } from '../components/LoadingPage';
 
 export function AppRouterProvider() {
   const { isLoggedIn } = useAuth();
@@ -17,5 +17,5 @@ export function AppRouterProvider() {
 
   const router = createBrowserRouter(routes);
 
-  return <RouterProvider router={router} fallbackElement={<LoadingSpinner />} />;
+  return <RouterProvider router={router} fallbackElement={<LoadingPage />} />;
 }
