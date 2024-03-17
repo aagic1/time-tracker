@@ -8,6 +8,10 @@
     font-size: 15px;
 }
 
+.card:hover {
+    cursor: pointer;
+}
+
 .left {
     display: flex;
     flex-direction: column;
