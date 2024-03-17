@@ -14,7 +14,7 @@ export function MainLayout() {
           <Outlet />
         </div>
       </main>
-      <footer className={styles.footer}>© 2024 Ahmed Agić</footer>
+      <footer className={styles.footer}>© 2024 Time Tracker</footer>
     </div>
   );
 }
