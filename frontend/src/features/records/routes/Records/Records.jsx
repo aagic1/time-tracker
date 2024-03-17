@@ -8,9 +8,9 @@ import {
   useNavigation,
 } from 'react-router-dom';
 import { FaPlusCircle, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
+import { DatePicker } from '../../../../components/DatePicker';
 import styles from './records.module.css';
 import { ActiveRecordCard } from '../../components/ActiveRecordCard';
 import { RecordCard } from '../../components/RecordCard';
@@ -36,19 +36,7 @@ export function Records() {
     <div className={styles.pageWrapper}>
       <div className={styles.dateContainer}>
         <FaChevronLeft className={styles.arrow} onClick={handlePreviousDay} />
-        <DatePicker
-          className={styles.datePicker}
-          dateFormat="dd.MM.yyyy"
-          calendarStartDay={1}
-          showIcon
-          selected={date}
-          onChange={handleChangeDate}
-          yearDropdownItemNumber={50}
-          showYearDropdown
-          scrollableYearDropdown={true}
-          showMonthDropdown
-          todayButton="Today"
-        />
+        <DatePicker selected={date} onChange={handleChangeDate} />
         <FaChevronRight className={styles.arrow} onClick={handleNextDay} />
       </div>
       {records.length === 0 ? (
