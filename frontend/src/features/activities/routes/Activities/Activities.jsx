@@ -11,14 +11,8 @@ import { ActiveRecordCard } from '../../../records/components/ActiveRecordCard';
 import { HorizontalSeparator } from '../../../../components/HorizontalSeparator';
 import { activitiesReducer } from '../../hooks/activitiesReducer';
 import { activeRecordsReducer } from '../../hooks/activeRecordsReducer';
-import {
-  restoreActivity,
-  deleteActivity,
-  createRecord,
-  stopRecord,
-  getActivities,
-  getActiveRecords,
-} from '../../api';
+import { restoreActivity, deleteActivity, getActivities } from '../../api';
+import { createRecord, stopRecord, getActiveRecords } from '../../../records/api';
 import { FakeRecord } from '../../utils/FakeRecord';
 
 export function Activities() {
