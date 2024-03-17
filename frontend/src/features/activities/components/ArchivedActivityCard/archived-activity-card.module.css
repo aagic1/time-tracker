@@ -4,6 +4,7 @@
     transition: transform  0.3s;
     box-shadow: 1px 2px 5px 0px #888;
     border-radius: 5px;
+    will-change: transform;
 }
 
 .outerContainer:hover {
