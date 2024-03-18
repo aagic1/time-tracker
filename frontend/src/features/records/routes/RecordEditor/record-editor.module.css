@@ -105,3 +105,9 @@
     }
 }
 
+@media only screen and (max-height: 690px) {
+    .pageWrapper {
+        align-items: flex-start;
+    }
+}
+

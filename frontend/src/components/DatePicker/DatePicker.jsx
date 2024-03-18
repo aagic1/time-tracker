@@ -1,5 +1,6 @@
 import DatePicker3rdParty from 'react-datepicker';
 
+import 'react-datepicker/dist/react-datepicker.css';
 import styles from './date-picker.module.css';
 
 export function DatePicker({
@@ -31,6 +32,8 @@ export function DatePicker({
       maxDate={maxDate}
       minTime={minTime}
       maxTime={maxTime}
+      popperClassName={styles.datePopper}
+      popperPlacement="bottom-start"
     />
   );
 }
