@@ -64,6 +64,6 @@ export function ActiveRecordCard({ record, showStopwatch, showEdit, onClick, sho
 
   function handleEdit(event, record) {
     event.stopPropagation();
-    navigate(`..${record.recordId}`, { state: { from: '/activities' } });
+    navigate(`/records/${record.recordId}`, { state: { from: '/activities' } });
   }
 }
