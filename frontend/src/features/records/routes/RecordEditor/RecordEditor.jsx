@@ -15,6 +15,7 @@ import { DatePicker } from '../../../../components/DatePicker';
 import { getActivities } from '../../../activities/api/index.js';
 import { createRecord, deleteRecord, getRecord, updateRecord } from '../../api/index.js';
 import { RecordPreview } from '../../components/RecordPreview';
+import { ActivityPicker } from '../../../../components/ActivityPicker/ActivityPicker.jsx';
 
 export function RecordEditor() {
   const navigate = useNavigate();
@@ -92,7 +93,6 @@ export function RecordEditor() {
           </div>
 
           <div className={styles.activityContainer}>
-            <label htmlFor="activity">Activity</label>
             <ActivityPicker
               activities={activities}
               selectedActivity={selectedActivity}
@@ -234,31 +234,4 @@ export async function recordEditorAction({ request, params }) {
   }
 
   return redirect(redirectPath);
-}
-
-function ActivityPicker({ activities, selectedActivity, onChange, id }) {
-  return (
-    <div className={styles.activityContainer}>
-      <label htmlFor="activity">Activity</label>
-      <select
-        value={selectedActivity?.id}
-        className={styles.dropdown}
-        name="activityId"
-        id={id}
-        onChange={onChange}
-        defaultValue={selectedActivity ? selectedActivity.id : 'placeholder'}
-      >
-        <option disabled value="placeholder">
-          Choose activity
-        </option>
-        {activities
-          .toSorted((a, b) => a.name.localeCompare(b.name))
-          .map((activity) => (
-            <option key={activity.id} value={activity.id}>
-              {activity.name}
-            </option>
-          ))}
-      </select>
-    </div>
-  );
 }
