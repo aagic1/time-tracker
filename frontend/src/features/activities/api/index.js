@@ -23,8 +23,16 @@ async function restoreActivity(activityName) {
   return { response, data };
 }
 
-async function getActivities() {
-  const response = await fetch(BASE_URL + '/activities', {
+async function getActivities(query) {
+  let queryString = '';
+  if (query != null) {
+    queryString += '?';
+    Object.keys(query).forEach((name) => (queryString += `${name}=${query[name]}&`));
+
+    // remove "&" symbol from end
+    queryString = queryString.slice(0, -1);
+  }
+  const response = await fetch(BASE_URL + '/activities' + queryString, {
     method: 'GET',
     credentials: 'include',
   });
