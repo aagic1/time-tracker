@@ -44,7 +44,7 @@ async function updateRecord(recordId, body) {
     },
     body: JSON.stringify(body),
   });
-  const data = response.json();
+  const data = await response.json();
   return { response, data };
 }
 
