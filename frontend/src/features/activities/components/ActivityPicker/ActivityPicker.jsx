@@ -1,6 +1,6 @@
 import styles from './activity-picker.module.css';
 
-export function ActivityPicker({ activities, selectedActivity, onChange, id }) {
+export function ActivityPicker({ activities, selectedActivity, onChange, onBlur, id }) {
   return (
     <div className={styles.activityContainer}>
       <label htmlFor="activity">Activity</label>
@@ -10,6 +10,7 @@ export function ActivityPicker({ activities, selectedActivity, onChange, id }) {
         name="activityId"
         id={id}
         onChange={onChange}
+        onBlur={onBlur}
       >
         <option disabled value="placeholder">
           Choose activity

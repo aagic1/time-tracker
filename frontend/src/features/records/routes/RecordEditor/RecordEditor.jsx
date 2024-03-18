@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Form,
   Link,
   redirect,
+  useActionData,
   useLoaderData,
   useLocation,
   useNavigate,
@@ -16,8 +17,11 @@ import { getActivities } from '../../../activities/api/index.js';
 import { createRecord, deleteRecord, getRecord, updateRecord } from '../../api/index.js';
 import { RecordPreview } from '../../components/RecordPreview';
 import { ActivityPicker } from '../../../activities/components/ActivityPicker';
+import { RecordSchema, validate } from '../../utils/validation.js';
 
 export function RecordEditor() {
+  const actionData = useActionData();
+  const [activityError, setActivityError] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -41,6 +45,12 @@ export function RecordEditor() {
       allRecordsRedirectPath = previousPath;
     }
   }
+
+  useEffect(() => {
+    if (actionData?.success === false && actionData.errors.activityId) {
+      setActivityError('Select activity');
+    }
+  }, [actionData]);
 
   return (
     <div className={styles.pageWrapper}>
@@ -96,9 +106,11 @@ export function RecordEditor() {
             <ActivityPicker
               activities={activities}
               selectedActivity={selectedActivity}
-              onChange={(e) => setActivityId(e.target.value)}
+              onChange={handleChangeActivity}
+              onBlur={() => validateActivity(selectedActivity)}
               id="activity"
             />
+            {activityError && <div className={styles.errorMessage}>{activityError}</div>}
           </div>
 
           <div className={styles.buttonContainer}>
@@ -113,6 +125,20 @@ export function RecordEditor() {
       </div>
     </div>
   );
+
+  function validateActivity(activity) {
+    if (!activity) {
+      return setActivityError('Select activity');
+    }
+    setActivityError(null);
+  }
+
+  function handleChangeActivity(event) {
+    setActivityId(event.target.value);
+    if (activityError) {
+      setActivityError(null);
+    }
+  }
 
   function handleCancel() {
     navigate(cancelRedirectPath);
@@ -152,13 +178,10 @@ export async function recordEditorUpdateLoader({ params }) {
   ] = await Promise.all([recordPromise, activitiesPromise]);
 
   if (!recordResponse.ok && !activitiesResponse.ok) {
-    console.log('failed to fetch record and activities for record editor (update)');
     throw new Error('failed to fetch record and activities for record editor (update)');
   } else if (!recordResponse.ok) {
-    console.log('failed to fetch record for record editor (update)');
     throw new Error('failed to fetch record for record editor (update)');
   } else if (!activitiesResponse.ok) {
-    console.log('failed to fetch activities for record editor (update)');
     throw new Error('failed to fetch activities for record editor (update)');
   }
 
@@ -173,7 +196,6 @@ export async function recordEditorCreateLoader({ request }) {
   const { response, data } = await getActivities({ archived: false });
 
   if (!response.ok) {
-    console.log('failed to fetch activities for record editor (create)');
     throw new Error('failed to fetch activities for record editor (create)');
   }
 
@@ -213,6 +235,11 @@ export async function recordEditorAction({ request, params }) {
     activityId,
   };
 
+  const validationResult = validate(body, RecordSchema);
+  if (!validationResult.success) {
+    return { success: false, errors: validationResult.errors };
+  }
+
   let response, data;
   switch (intent.toLowerCase()) {
     case 'delete': {
@@ -233,7 +260,7 @@ export async function recordEditorAction({ request, params }) {
   }
 
   if (!response.ok) {
-    return data.error;
+    return { success: false, error: data.error };
   }
 
   return redirect(redirectPath);
