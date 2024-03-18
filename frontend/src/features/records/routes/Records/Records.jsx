@@ -8,7 +8,6 @@ import {
   useNavigation,
 } from 'react-router-dom';
 import { FaPlusCircle, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import 'react-datepicker/dist/react-datepicker.css';
 
 import { DatePicker } from '../../../../components/DatePicker';
 import styles from './records.module.css';
