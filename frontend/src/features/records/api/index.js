@@ -76,8 +76,7 @@ async function deleteRecord(recordId) {
     method: 'DELETE',
     credentials: 'include',
   });
-  const data = await response.json();
-  return { response, data };
+  return { response, data: null };
 }
 
 export {
