@@ -5,12 +5,11 @@ export function ActivityPicker({ activities, selectedActivity, onChange, id }) {
     <div className={styles.activityContainer}>
       <label htmlFor="activity">Activity</label>
       <select
-        value={selectedActivity?.id}
+        value={selectedActivity?.id || 'placeholder'}
         className={styles.dropdown}
         name="activityId"
         id={id}
         onChange={onChange}
-        defaultValue={selectedActivity ? selectedActivity.id : 'placeholder'}
       >
         <option disabled value="placeholder">
           Choose activity

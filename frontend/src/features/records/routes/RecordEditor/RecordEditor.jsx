@@ -15,7 +15,7 @@ import { DatePicker } from '../../../../components/DatePicker';
 import { getActivities } from '../../../activities/api/index.js';
 import { createRecord, deleteRecord, getRecord, updateRecord } from '../../api/index.js';
 import { RecordPreview } from '../../components/RecordPreview';
-import { ActivityPicker } from '../../../../components/ActivityPicker/ActivityPicker.jsx';
+import { ActivityPicker } from '../../../activities/components/ActivityPicker';
 
 export function RecordEditor() {
   const navigate = useNavigate();
