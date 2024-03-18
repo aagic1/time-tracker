@@ -2,7 +2,16 @@ import DatePicker3rdParty from 'react-datepicker';
 
 import styles from './date-picker.module.css';
 
-export function DatePicker({ selected, onChange, className = '' }) {
+export function DatePicker({
+  selected,
+  onChange,
+  className = '',
+  showTimeInput,
+  wrapperClassName,
+  maxDate,
+  minTime,
+  maxTime,
+}) {
   return (
     <DatePicker3rdParty
       className={`${styles.datePicker} ${className}`}
@@ -16,6 +25,12 @@ export function DatePicker({ selected, onChange, className = '' }) {
       scrollableYearDropdown={true}
       showMonthDropdown
       todayButton="Today"
+      showTimeInput={showTimeInput}
+      wrapperClassName={wrapperClassName}
+      timeFormat="HH:mm"
+      maxDate={maxDate}
+      minTime={minTime}
+      maxTime={maxTime}
     />
   );
 }
