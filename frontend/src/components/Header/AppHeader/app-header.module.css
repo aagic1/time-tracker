@@ -70,11 +70,15 @@
 }
 
 
-@media only screen and (max-width: 950px)  {
-    
+@media only screen and (max-width: 850px)  {
+    .header .logo {
+        font-size: 26px;
+    }
+}
+
+@media only screen and (max-width: 700px)  {
     .header {
         gap: 40px;
-        justify-content: space-between;
     }
     
     .logo {
@@ -82,28 +86,19 @@
     }
 
     .navigation {
-        flex: 4;
-        gap: 10px;
+        flex: 3 1 0;
         justify-content: space-between;
     }
 
     .signOutContainer {
         flex: 1;
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-end;
     }
 }
 
-@media only screen and (max-width: 550px) {
+@media only screen and (max-width: 450px) {
     .header {
-        padding: 15px;
-        gap: 0px;
-    }
-
-    .navigation {
-        flex: 4;
-        justify-content: space-between;
+        padding: 15px 15px 15px 20px;
+        gap: 0;
     }
 
     .navText {
@@ -115,11 +110,6 @@
         justify-content: center;
         align-items: center;
         padding: 4px;
-        
-    }
-
-    .signOutContainer {
-        justify-content: space-between;
     }
 
     .verticalSeparatorContainer {
@@ -127,7 +117,6 @@
         display: flex;
         flex-direction: row;
         justify-content: center;
-
     }
     
     .verticalSeparator {
