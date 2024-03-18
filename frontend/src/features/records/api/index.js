@@ -9,6 +9,14 @@ async function getRecords(queryString) {
   return { response, data };
 }
 
+async function getRecord(recordId) {
+  const response = await fetch(`http://localhost:8000/api/v1/records/${recordId}`, {
+    credentials: 'include',
+  });
+  const data = await response.json();
+  return { response, data };
+}
+
 async function createRecord({ activityId, startedAt, stoppedAt }) {
   const response = await fetch(BASE_URL + '/records', {
     method: 'POST',
@@ -24,6 +32,19 @@ async function createRecord({ activityId, startedAt, stoppedAt }) {
   });
 
   const data = await response.json();
+  return { response, data };
+}
+
+async function updateRecord(recordId, body) {
+  const response = await fetch(`http://localhost:8000/api/v1/records/${recordId}`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+  const data = response.json();
   return { response, data };
 }
 
@@ -50,4 +71,21 @@ async function getActiveRecords() {
   return { response, data };
 }
 
-export { getRecords, createRecord, getActiveRecords, stopRecord };
+async function deleteRecord(recordId) {
+  const response = await fetch(BASE_URL + `/records/${recordId}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  const data = await response.json();
+  return { response, data };
+}
+
+export {
+  getRecords,
+  getRecord,
+  getActiveRecords,
+  createRecord,
+  updateRecord,
+  stopRecord,
+  deleteRecord,
+};
