@@ -9,7 +9,7 @@ async function getRecords(queryString) {
   return { response, data };
 }
 
-async function createRecord(activityId, startedAt) {
+async function createRecord({ activityId, startedAt, stoppedAt }) {
   const response = await fetch(BASE_URL + '/records', {
     method: 'POST',
     credentials: 'include',
@@ -17,8 +17,9 @@ async function createRecord(activityId, startedAt) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      activityId: activityId,
-      startedAt: startedAt,
+      activityId,
+      startedAt,
+      stoppedAt,
     }),
   });
 

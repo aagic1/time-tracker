@@ -124,7 +124,10 @@ export function Activities() {
     dispatchActivities({ type: 'setLoading', activityId: activity.id });
     dispatchRecords({ type: 'createFake', fakeRecord });
 
-    const { response, data: newRecord } = await createRecord(activity.id, fakeRecord.startedAt);
+    const { response, data: newRecord } = await createRecord({
+      activityId: activity.id,
+      startedAt: fakeRecord.startedAt,
+    });
     if (!response.ok) {
       dispatchActivities({ type: 'setNotLoading', activityId: activity.id });
       dispatchRecords({ type: 'deleteFake', activityId: activity.id });
