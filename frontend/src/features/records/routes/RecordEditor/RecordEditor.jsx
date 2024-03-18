@@ -121,7 +121,8 @@ export function RecordEditor() {
   function handleChangeStartDate(newDate) {
     setStartDate(newDate);
     if (stopDate && newDate > stopDate) {
-      return setStopDate(newDate);
+      const ONE_SECOND_AS_MILISECONDS = 1000;
+      return setStopDate(new Date(newDate.valueOf() + ONE_SECOND_AS_MILISECONDS));
     }
 
     const dateNow = new Date();
@@ -133,7 +134,8 @@ export function RecordEditor() {
   function handleChangeStopDate(newDate) {
     setStopDate(newDate);
     if (newDate < startDate) {
-      setStartDate(newDate);
+      const ONE_SECOND_AS_MILISECONDS = 1000;
+      setStartDate(new Date(newDate.valueOf() - ONE_SECOND_AS_MILISECONDS));
     }
   }
 }
@@ -179,19 +181,13 @@ export async function recordEditorCreateLoader({ request }) {
   const searchParams = new URL(request.url).searchParams;
   if (searchParams.has('date')) {
     let paramDate = new Date(searchParams.get('date') + 'Z');
-    paramDate.setHours(
-      date.getHours(),
-      date.getMinutes(),
-      date.getSeconds(),
-      date.getMilliseconds()
-    );
-    date = paramDate;
+    date.setFullYear(paramDate.getFullYear(), paramDate.getMonth(), paramDate.getDate());
   }
 
   const placeholderRecord = {
     recordId: null,
     startedAt: date,
-    stoppedAt: date,
+    stoppedAt: new Date(date.valueOf() + 1000),
     activityId: null,
   };
 
