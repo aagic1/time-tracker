@@ -73,7 +73,7 @@ export function RecordEditor() {
                 wrapperClassName={styles.datePickerWrapper}
                 showTimeInput
                 selected={startDate}
-                onChange={handleChangeDate}
+                onChange={handleChangeStartDate}
                 maxDate={!stopDate ? new Date() : null}
                 minTime={null}
                 maxTime={!stopDate ? new Date() : null}
@@ -86,7 +86,7 @@ export function RecordEditor() {
                   wrapperClassName={styles.datePickerWrapper}
                   showTimeInput
                   selected={stopDate}
-                  onChange={(date) => setStopDate(date)}
+                  onChange={handleChangeStopDate}
                 />
               </div>
             )}
@@ -118,7 +118,7 @@ export function RecordEditor() {
     navigate(cancelRedirectPath);
   }
 
-  function handleChangeDate(newDate) {
+  function handleChangeStartDate(newDate) {
     setStartDate(newDate);
     if (stopDate && newDate > stopDate) {
       return setStopDate(newDate);
@@ -127,6 +127,13 @@ export function RecordEditor() {
     const dateNow = new Date();
     if (!stopDate && newDate > dateNow) {
       setStartDate(dateNow);
+    }
+  }
+
+  function handleChangeStopDate(newDate) {
+    setStopDate(newDate);
+    if (newDate < startDate) {
+      setStartDate(newDate);
     }
   }
 }
