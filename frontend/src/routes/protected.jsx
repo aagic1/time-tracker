@@ -16,10 +16,12 @@ import {
   recordEditorCreateLoader,
   recordEditorAction,
 } from '../features/records/routes';
+import { ErrorElement } from '../components/ErrorElement';
 
 export const protectedRoutes = [
   {
     path: '/',
+    errorElement: <ErrorElement />,
     children: [
       {
         index: true,
@@ -29,6 +31,7 @@ export const protectedRoutes = [
         path: 'activities',
         element: <Activities />,
         loader: activitiesLoader,
+        errorElement: <ErrorElement />,
       },
       {
         path: 'activities/:activityName',

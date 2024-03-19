@@ -18,11 +18,13 @@ import {
   resetPasswordAction,
 } from '../features/auth/routes';
 import { AuthLayout } from '../components/Layout';
+import { ErrorElement } from '../components/ErrorElement';
 
 export const publicRoutes = [
   {
     path: '/',
     element: <AuthLayout />,
+    errorElement: <ErrorElement />,
     children: [
       {
         index: true,

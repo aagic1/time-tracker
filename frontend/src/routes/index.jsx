@@ -4,6 +4,7 @@ import { protectedRoutes } from './protected';
 import { publicRoutes } from './public';
 import { MainLayout } from '../components/Layout';
 import { LoadingPage } from '../components/LoadingPage';
+import { ErrorElement } from '../components/ErrorElement';
 
 export function AppRouterProvider() {
   const { isLoggedIn } = useAuth();
@@ -11,6 +12,7 @@ export function AppRouterProvider() {
   const routes = [
     {
       element: <MainLayout />,
+      errorElement: <ErrorElement />,
       children: isLoggedIn ? protectedRoutes : publicRoutes,
     },
   ];
