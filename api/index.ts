@@ -17,10 +17,14 @@ app.use(express.json());
 app.use(session);
 app.use(helmet());
 
+let origin = process.env.CORS_ORIGIN!;
+if (origin.slice(-1) === '/') {
+  origin = origin.slice(0, -1);
+}
 app.use(
   cors({
     credentials: true,
-    origin: process.env.CORS_ORIGIN!,
+    origin: origin,
   })
 );
 
