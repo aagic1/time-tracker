@@ -68,5 +68,3 @@ Visit [Time tracker](https://google.com) and try it out now!
 **Ahmed Agić**
 
 <!-- - [LinkedIn](https://www.linkedin.com/in/ahmed-agi%C4%87-a1203b298/)-->
-
-- [Github](https://github.com/ahmedagi?tab=repositories)
