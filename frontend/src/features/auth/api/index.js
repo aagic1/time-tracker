@@ -63,7 +63,7 @@ async function forgotPassword(email) {
 }
 
 async function verifyPasswordRecoveryCode(email, code) {
-  const response = await fetch('http://localhost:8000/api/v1/auth/forgot-password/code', {
+  const response = await fetch(BASE_URL + '/auth/forgot-password/code', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -75,7 +75,7 @@ async function verifyPasswordRecoveryCode(email, code) {
 }
 
 async function resendPasswordRecoveryCode(email) {
-  const response = await fetch('http://localhost:8000/api/v1/auth/forgot-password/initiate', {
+  const response = await fetch(BASE_URL + '/auth/forgot-password/initiate', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ async function resendPasswordRecoveryCode(email) {
 }
 
 async function resetPassword(newPassword, email, code) {
-  const response = await fetch('http://localhost:8000/api/v1/auth/forgot-password/password', {
+  const response = await fetch(BASE_URL + '/auth/forgot-password/password', {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ async function logout() {
 }
 
 async function whoami() {
-  const response = await fetch('http://localhost:8000/api/v1/auth/whoami', {
+  const response = await fetch(BASE_URL + '/auth/whoami', {
     credentials: 'include',
   });
   const data = await response.json();

@@ -1,6 +1,8 @@
+const BASE_URL = import.meta.env.VITE_API_URL;
+
 async function getGoalData() {
   const response = await fetch(
-    `http://localhost:8000/api/v1/records/goals?timezoneOffset=${new Date().getTimezoneOffset()}`,
+    BASE_URL + `/records/goals?timezoneOffset=${new Date().getTimezoneOffset()}`,
     {
       credentials: 'include',
     }

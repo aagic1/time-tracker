@@ -10,7 +10,7 @@ async function getRecords(queryString) {
 }
 
 async function getRecord(recordId) {
-  const response = await fetch(`http://localhost:8000/api/v1/records/${recordId}`, {
+  const response = await fetch(BASE_URL + `/records/${recordId}`, {
     credentials: 'include',
   });
   const data = await response.json();
@@ -36,7 +36,7 @@ async function createRecord({ activityId, startedAt, stoppedAt }) {
 }
 
 async function updateRecord(recordId, body) {
-  const response = await fetch(`http://localhost:8000/api/v1/records/${recordId}`, {
+  const response = await fetch(BASE_URL + `/records/${recordId}`, {
     method: 'PATCH',
     credentials: 'include',
     headers: {
