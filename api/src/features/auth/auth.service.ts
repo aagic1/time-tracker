@@ -10,9 +10,6 @@ import { UnauthenticatedError } from '../../errors/not-authenticated-error';
 import { UpdateError } from '../../errors/update-error';
 import { CreationError } from '../../errors/creation-error';
 
-// extract on .env
-const verifyEmailURL = 'http://localhost:5173/verify-email';
-
 async function login(email: string, password: string) {
   const user = await userDAO.findOneByEmail(email);
   if (!user) {

@@ -20,7 +20,7 @@ app.use(helmet());
 app.use(
   cors({
     credentials: true,
-    origin: ['http://localhost:5173'],
+    origin: [process.env.CORS_ORIGIN!],
   })
 );
 
@@ -32,5 +32,5 @@ app.use(errorHandler);
 
 const port = process.env.PORT || 8000;
 app.listen(port, () => {
-  console.log(`Server is listening on http://localhost:${port}`);
+  console.log(`Server is listening on port ${port}`);
 });
