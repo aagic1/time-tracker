@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "npx nodemon ./index.ts",
-    "generate": "kysely-codegen"
+    "generate": "kysely-codegen",
+    "build": "npx tsc",
+    "start": "node dist/index.js"
   },
   "keywords": [],
   "author": "",
