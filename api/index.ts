@@ -12,7 +12,6 @@ import { errorHandler } from './src/middleware/errorHandler';
 
 const app: Application = express();
 
-app.set('trust proxy', 1);
 let origin = process.env.CORS_ORIGIN!;
 if (origin.slice(-1) === '/') {
   origin = origin.slice(0, -1);
@@ -27,6 +26,7 @@ app.use(
 );
 app.use(express.json());
 app.use(helmet());
+app.set('trust proxy', 1);
 
 app.use(session);
 

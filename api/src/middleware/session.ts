@@ -36,6 +36,6 @@ export default session({
     secure: env === 'production' ? true : false,
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24 * 7,
-    sameSite: 'none',
+    sameSite: false,
   },
 });
