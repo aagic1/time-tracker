@@ -23,6 +23,7 @@ let redisStore = new RedisStore({
 });
 
 const env = process.env.NODE_ENV || 'development';
+console.log(env);
 
 // Define session
 export default session({
