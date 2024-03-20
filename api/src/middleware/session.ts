@@ -10,7 +10,7 @@ declare module 'express-session' {
 }
 
 // Initialize client
-let redisClient = createClient({ url: 'redis://127.0.0.1:6379' });
+let redisClient = createClient({ url: process.env.REDIS_URL });
 redisClient
   .on('connect', () => console.log('redis connected'))
   .on('error', (error) => console.log('redis error', error));
@@ -22,6 +22,8 @@ let redisStore = new RedisStore({
   client: redisClient,
 });
 
+const env = process.env.NODE_ENV || 'development';
+
 // Define session
 export default session({
   store: redisStore,
@@ -30,7 +32,7 @@ export default session({
   resave: false,
   name: 'sessionId',
   cookie: {
-    secure: false,
+    secure: env === 'production' ? true : false,
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24 * 7,
   },
