@@ -9,5 +9,4 @@ export default cors({
   credentials: true,
   origin: [origin],
   optionsSuccessStatus: 200,
-  allowedHeaders: ['Content-Type', 'Authorization'],
 });
