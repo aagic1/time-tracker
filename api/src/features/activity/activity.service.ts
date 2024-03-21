@@ -1,8 +1,10 @@
 import { objectToSnake } from 'ts-case-convert';
 import { NotFoundError } from '../../errors/not-found-error';
 import activityDAO from './activity.dao';
+import recordDAO from '../record/record.dao';
 import { ActivityCreate, FiltersActivities, ActivityUpdate } from './activity.validator';
 import { CreationError } from '../../errors/creation-error';
+import { UpdateError } from '../../errors/update-error';
 
 async function getAllActivities(userId: bigint, filters: FiltersActivities) {
   const activities = await activityDAO.findAll(userId, filters);
@@ -26,15 +28,26 @@ async function createActivity(userId: bigint, activity: ActivityCreate) {
 }
 
 async function updateActivity(userId: bigint, activityName: string, activityData: ActivityUpdate) {
+  const { dateArchived, ...cleanActivityData } = activityData;
   const updatedActivity = await activityDAO.update(
     userId,
     activityName,
-    objectToSnake(activityData)
+    objectToSnake(cleanActivityData)
   );
   if (!updatedActivity) {
     throw new NotFoundError(
       `Failed to update activity. Activity with name ${activityName} not found.`
     );
+  }
+  if (activityData.archived) {
+    const updatedRecord = await recordDAO.stopActiveRecord(
+      userId,
+      updatedActivity.id,
+      new Date(dateArchived!)
+    );
+    if (updatedRecord.numUpdatedRows === 0n) {
+      throw new UpdateError('Failed to stop record while archiving activity');
+    }
   }
   return updatedActivity;
 }

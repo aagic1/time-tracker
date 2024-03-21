@@ -224,6 +224,7 @@ export function ActivityEditor() {
   async function handleArchive() {
     const body = {
       archived: !activity.archived,
+      dateArchived: new Date(),
     };
     setSubmitting(true);
     const { response } = await updateActivity(activity.name, body);

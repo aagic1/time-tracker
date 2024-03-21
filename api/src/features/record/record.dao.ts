@@ -139,6 +139,26 @@ async function findCurrentGoalsByType(
     .execute();
 }
 
+async function stopActiveRecord(userId: bigint, activityId: bigint, date: Date) {
+  return db
+    .updateTable('record')
+    .set({ stopped_at: date })
+    .where('activity_id', '=', activityId)
+    .where('stopped_at', 'is', null)
+    .where(
+      (qb) =>
+        qb
+          .selectFrom('activity')
+          .select('id')
+          .where('account_id', '=', userId)
+          .where('id', '=', activityId)
+          .limit(1),
+      '=',
+      activityId
+    )
+    .executeTakeFirst();
+}
+
 // ________
 // Public API export
 export default {
@@ -148,6 +168,7 @@ export default {
   create,
   update,
   findCurrentGoalsByType,
+  stopActiveRecord,
 };
 
 // ________

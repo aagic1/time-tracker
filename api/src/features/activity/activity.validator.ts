@@ -43,7 +43,16 @@ const createRequestSchema = z.object(createRequestObject);
 type ActivityCreate = z.infer<typeof createRequestObject.body>;
 
 const updateRequestObject = {
-  body: createRequestObject.body.partial().merge(z.object({ archived: z.boolean().optional() })),
+  body: createRequestObject.body
+    .partial()
+    .merge(
+      z.object({ archived: z.boolean().optional(), dateArchived: z.string().datetime().optional() })
+    )
+    .refine(
+      ({ archived, dateArchived }) =>
+        archived == null || (archived != null && dateArchived != null),
+      { message: 'Specify date when activity was archived', path: ['dateArchived'] }
+    ),
   params: z.object({
     activityName: stringNonEmptySchema,
   }),
