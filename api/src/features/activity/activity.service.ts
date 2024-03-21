@@ -45,9 +45,6 @@ async function updateActivity(userId: bigint, activityName: string, activityData
       updatedActivity.id,
       new Date(dateArchived!)
     );
-    if (updatedRecord.numUpdatedRows === 0n) {
-      throw new UpdateError('Failed to stop record while archiving activity');
-    }
   }
   return updatedActivity;
 }
