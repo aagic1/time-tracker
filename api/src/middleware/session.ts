@@ -33,7 +33,7 @@ export default session({
   resave: false,
   name: 'sessionId',
   cookie: {
-    secure: true,
+    secure: env === 'production',
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24 * 7,
     sameSite: 'none',
