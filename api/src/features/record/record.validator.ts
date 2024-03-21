@@ -60,18 +60,6 @@ const createRequestObject = {
         message: `Stop time has to be after start time`,
         path: ['stoppedAt'],
       })
-    )
-    .refine(
-      ({ stoppedAt, startedAt }) => {
-        if (!stoppedAt) {
-          return new Date(startedAt) < new Date();
-        }
-        return true;
-      },
-      () => ({
-        message: 'Start time of active record can not be in the future',
-        path: ['startTime'],
-      })
     ),
 };
 const createRequestSchema = z.object(createRequestObject);
@@ -92,18 +80,6 @@ const updateRequestObject = {
       () => ({
         message: `Stop time has to be after start time`,
         path: ['stoppedAt'],
-      })
-    )
-    .refine(
-      ({ stoppedAt, startedAt }) => {
-        if (stoppedAt === null && startedAt) {
-          return new Date(startedAt) < new Date();
-        }
-        return true;
-      },
-      () => ({
-        message: 'Start time of active record can not be in the future',
-        path: ['startTime'],
       })
     ),
   params: z.object({
