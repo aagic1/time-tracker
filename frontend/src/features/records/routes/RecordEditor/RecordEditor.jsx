@@ -58,7 +58,7 @@ export function RecordEditor() {
         <Form className={styles.form} method="POST">
           <input type="hidden" name="redirectPath" value={cancelRedirectPath} />
           <input type="hidden" name="startedAt" value={startDate} />
-          <input type="hidden" name="stoppedAt" value={stopDate || undefined} />
+          {stopDate && <input type="hidden" name="stoppedAt" value={stopDate} />}
 
           <div className={styles.header}>
             <Link className={styles.allRecordsLink} to={allRecordsRedirectPath}>

@@ -3,7 +3,7 @@ import { ZodError, z } from 'zod';
 const RecordSchema = z.object({
   activityId: z.string(),
   startedAt: z.date(),
-  stoppedAt: z.date().optional(),
+  stoppedAt: z.date().nullish(),
 });
 
 function validate(values, schema) {
