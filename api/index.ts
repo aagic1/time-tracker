@@ -21,7 +21,7 @@ app.set('trust proxy', 1);
 app.use(session);
 
 // routes
-app.use('/api/v1', apiRouter);
+app.use(apiRouter);
 
 // error handling
 app.use(errorHandler);
