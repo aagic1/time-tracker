@@ -48,11 +48,10 @@ const updateRequestObject = {
     .merge(
       z.object({ archived: z.boolean().optional(), dateArchived: z.string().datetime().optional() })
     )
-    .refine(
-      ({ archived, dateArchived }) =>
-        archived == null || (archived != null && dateArchived != null),
-      { message: 'Specify date when activity was archived', path: ['dateArchived'] }
-    ),
+    .refine(({ archived, dateArchived }) => !archived || (archived && dateArchived != null), {
+      message: 'Specify date when activity was archived',
+      path: ['dateArchived'],
+    }),
   params: z.object({
     activityName: stringNonEmptySchema,
   }),
