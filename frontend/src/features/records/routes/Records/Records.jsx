@@ -39,6 +39,7 @@ export function Records() {
         <DatePicker selected={date} onChange={handleChangeDate} />
         <FaChevronRight className={styles.arrow} onClick={handleNextDay} />
       </div>
+      <div className={styles.info}>Click on record to edit</div>
       {records.length === 0 ? (
         <div className={styles.noDataContainer}>
           <div className={styles.noData}>

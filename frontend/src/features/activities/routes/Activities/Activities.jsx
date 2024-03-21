@@ -31,6 +31,7 @@ export function Activities() {
       {activeRecords.length > 0 && (
         <>
           <HorizontalSeparator text="Tracking" className={styles.separator} />
+          <div className={styles.info}>Click on card to stop tracking</div>
           <ActiveRecordsList
             activeRecords={activeRecords}
             handleRecordClick={handleRecordClick}
@@ -39,6 +40,7 @@ export function Activities() {
         </>
       )}
       <HorizontalSeparator text="Activities" className={styles.separator} />
+      <div className={styles.info}>Click on activity to start tracking</div>
       <ActivitiesList
         activities={currentActivities}
         activeRecords={activeRecords}

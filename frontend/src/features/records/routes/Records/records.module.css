@@ -149,6 +149,15 @@
     align-items: start;
 }
 
+.info {
+    display: flex;
+    justify-content: center;
+    color: #666;
+    font-weight: 600;
+    font-size: 0.8em;
+    cursor: default;
+}
+
 @media only screen and (max-width: 950px)  { 
     .dateContainer {
         top: 107px;
