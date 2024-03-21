@@ -4,7 +4,7 @@ dotenv.config();
 import express, { Application } from 'express';
 import 'express-async-errors';
 import helmet from 'helmet';
-import cors from 'cors';
+import cors from './src/middleware/cors';
 
 import session from './src/middleware/session';
 import apiRouter from './src/routes';
@@ -12,18 +12,8 @@ import { errorHandler } from './src/middleware/errorHandler';
 
 const app: Application = express();
 
-let origin = process.env.CORS_ORIGIN!;
-if (origin.slice(-1) === '/') {
-  origin = origin.slice(0, -1);
-}
 // middleware
-app.use(
-  cors({
-    credentials: true,
-    origin: origin,
-    optionsSuccessStatus: 200,
-  })
-);
+app.use(cors);
 app.use(express.json());
 app.use(helmet());
 app.set('trust proxy', 1);
