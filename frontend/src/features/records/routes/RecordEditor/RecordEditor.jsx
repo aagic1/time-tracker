@@ -30,8 +30,12 @@ export function RecordEditor() {
   const [startDate, setStartDate] = useState(new Date(record.startedAt));
   const [stopDate, setStopDate] = useState(record.stoppedAt ? new Date(record.stoppedAt) : null);
 
-  const [activityId, setActivityId] = useState(record.activityId);
-  const selectedActivity = activities.find((activity) => activity.id === activityId);
+  const [selectedActivityId, setSelectedActivityId] = useState(record.activityId);
+
+  const activityArchived = !activities.some((activity) => activity.id === selectedActivityId);
+  const selectedActivity = activityArchived
+    ? { color: '#' + record.color, id: record.activityId, name: record.activityName }
+    : activities.find((activity) => activity.id === selectedActivityId);
 
   const previousPath = location.state?.from;
   let allRecordsRedirectPath = '/records';
@@ -134,7 +138,7 @@ export function RecordEditor() {
   }
 
   function handleChangeActivity(event) {
-    setActivityId(event.target.value);
+    setSelectedActivityId(event.target.value);
     if (activityError) {
       setActivityError(null);
     }
