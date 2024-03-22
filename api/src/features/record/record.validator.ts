@@ -10,6 +10,15 @@ const getRequestObject = {
 const getRequestSchema = z.object(getRequestObject);
 
 const getAllRequestObject = {
+  body: z.object({
+    timezoneOffset: stringNonEmptySchema
+      .regex(
+        /^(0|(\+|-)\d{1,3}$)/,
+        'Must be valid timezone offset number (whole number number postivie or negative or 0'
+      )
+      .max(4)
+      .pipe(z.coerce.number().int()),
+  }),
   query: z
     .object({
       active: booleanStringSchema,

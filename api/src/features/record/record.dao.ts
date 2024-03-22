@@ -32,13 +32,13 @@ async function findOne(accountId: bigint, recordId: bigint) {
     .executeTakeFirst();
 }
 
-async function findAll(accountId: bigint, queryParams?: QueryParams) {
+async function findAll(accountId: bigint, currentDate: Date, queryParams?: QueryParams) {
   return db
     .selectFrom('record')
     .innerJoin('activity', 'activity.id', 'record.activity_id')
     .select(COLUMNS_TO_SELECT)
     .where('activity.account_id', '=', accountId)
-    .where(getFilters(queryParams))
+    .where(getFilters(queryParams, currentDate))
     .execute();
 }
 
@@ -174,7 +174,7 @@ export default {
 // ________
 // Private helper functions
 
-function getFilters(queryParams: QueryParams | undefined) {
+function getFilters(queryParams: QueryParams | undefined, currentDate: Date) {
   const eb = expressionBuilder<DB, 'record' | 'activity'>();
 
   if (!queryParams) {
@@ -208,9 +208,9 @@ function getFilters(queryParams: QueryParams | undefined) {
   }
 
   if (dateFrom && dateTo && dateFrom < dateTo) {
-    filters.push(filterRecordsBetweenDates(dateFrom, dateTo));
+    filters.push(filterRecordsBetweenDates(dateFrom, dateTo, currentDate));
   } else if (dateFrom && !dateTo) {
-    filters.push(filterRecordsFrom(dateFrom));
+    filters.push(filterRecordsFrom(dateFrom, currentDate));
   } else if (!dateFrom && dateTo) {
     filters.push(filterRecordsTo(dateTo));
   }
@@ -234,32 +234,31 @@ function selectRecordsBetween(startDate: Date, endDate: Date) {
     );
 }
 
-function filterRecordsBetweenDates(startDate: Date, stopDate: Date) {
+function filterRecordsBetweenDates(startDate: Date, stopDate: Date, currentDate: Date) {
   const eb = expressionBuilder<DB, 'record'>();
-  const dateNow = new Date();
 
   return eb.or([
     eb.and([
       eb('started_at', '<=', startDate),
       eb('stopped_at', '>=', startDate).or(
-        eb('stopped_at', 'is', null).and(sql.val(startDate), '<', dateNow)
+        eb('stopped_at', 'is', null).and(sql.val(startDate), '<', currentDate)
       ),
     ]),
     eb.and([
       eb('started_at', '>=', startDate),
       eb('started_at', '<=', stopDate),
       eb('stopped_at', 'is not', null).or(
-        eb('stopped_at', 'is', null).and(sql.val(startDate), '<', dateNow)
+        eb('stopped_at', 'is', null).and(sql.val(startDate), '<', currentDate)
       ),
     ]),
   ]);
 }
 
-function filterRecordsFrom(dateFrom: Date): Expression<SqlBool> {
+function filterRecordsFrom(dateFrom: Date, currentDate: Date): Expression<SqlBool> {
   const eb = expressionBuilder<DB, 'record'>();
   return eb.or([
     eb('stopped_at', '>=', dateFrom),
-    eb('stopped_at', 'is', null).and(sql.val(dateFrom), '<=', new Date()),
+    eb('stopped_at', 'is', null).and(sql.val(dateFrom), '<=', currentDate),
   ]);
 }
 

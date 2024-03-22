@@ -22,12 +22,11 @@ export async function getRecord(req: Request, res: Response) {
 }
 
 export async function getAllRecords(req: Request, res: Response) {
-  const { query } = await validateRequest(
-    getAllRequestSchema,
-    req,
-    'Invalid request data: GET /records'
-  );
-  const records = await recordService.getAllRecords(req.session.user!.id, query);
+  const {
+    query,
+    body: { timezoneOffset },
+  } = await validateRequest(getAllRequestSchema, req, 'Invalid request data: GET /records');
+  const records = await recordService.getAllRecords(req.session.user!.id, query, timezoneOffset);
   res.status(200).json(records);
 }
 

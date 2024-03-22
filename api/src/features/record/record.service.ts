@@ -18,8 +18,12 @@ async function getRecord(userId: bigint, recordId: bigint) {
   return record;
 }
 
-async function getAllRecords(userId: bigint, filters: QueryParams) {
-  const records = await recordDAO.findAll(userId, filters);
+async function getAllRecords(userId: bigint, filters: QueryParams, timezoneOffset: number) {
+  const records = await recordDAO.findAll(
+    userId,
+    new DateWithTimezone(timezoneOffset).toDate(),
+    filters
+  );
   return records;
 }
 
@@ -58,8 +62,9 @@ async function deleteRecord(userId: bigint, recordId: bigint) {
 
 async function getStatistics(accountId: bigint, filters: StatisticsQuery, timezoneOffset: number) {
   const { from, to, activityId } = filters;
+  const currentDate = new DateWithTimezone(timezoneOffset).toDate();
 
-  const records = await recordDAO.findAll(accountId, {
+  const records = await recordDAO.findAll(accountId, currentDate, {
     activityId,
     dateFrom: from,
     dateTo: to,
