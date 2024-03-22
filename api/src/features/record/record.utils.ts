@@ -1,12 +1,15 @@
+import { DateWithTimezone } from './record.helpers';
 import { ActivityRecord } from './record.types';
 
 export function calculateElapsedTime(
   record: ActivityRecord,
   dateFrom: Date | undefined,
-  dateTo: Date | undefined
+  dateTo: Date | undefined,
+  timezoneOffset: number
 ) {
+  const currentDate = new DateWithTimezone(timezoneOffset).toDate();
   const startDate = getStartDate(dateFrom, record.startedAt);
-  const endDate = getEndDate(dateTo, record.stoppedAt);
+  const endDate = getEndDate(dateTo, record.stoppedAt, currentDate);
 
   if (startDate > endDate) {
     return 0; // or throw exception
@@ -54,8 +57,7 @@ function getStartDate(dateFrom: Date | undefined, startedAt: Date) {
   }
 }
 
-function getEndDate(dateTo: Date | undefined, stoppedAt: Date | null) {
-  const dateNow = new Date();
+function getEndDate(dateTo: Date | undefined, stoppedAt: Date | null, currentDate: Date) {
   // DETERMINE STOP DATE
   // 1st scenario
   // TIMELINE:
@@ -97,10 +99,10 @@ function getEndDate(dateTo: Date | undefined, stoppedAt: Date | null) {
 
   if (dateTo) {
     // scenario 1, 2, and 3
-    return stoppedAt ? minDate(stoppedAt, dateTo) : minDate(dateNow, dateTo);
+    return stoppedAt ? minDate(stoppedAt, dateTo) : minDate(currentDate, dateTo);
   } else {
     // scenario 4
-    return stoppedAt ? stoppedAt : dateNow;
+    return stoppedAt ? stoppedAt : currentDate;
   }
 }
 

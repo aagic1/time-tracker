@@ -56,7 +56,7 @@ async function deleteRecord(userId: bigint, recordId: bigint) {
   return true;
 }
 
-async function getStatistics(accountId: bigint, filters: StatisticsQuery) {
+async function getStatistics(accountId: bigint, filters: StatisticsQuery, timezoneOffset: number) {
   const { from, to, activityId } = filters;
 
   const records = await recordDAO.findAll(accountId, {
@@ -67,7 +67,7 @@ async function getStatistics(accountId: bigint, filters: StatisticsQuery) {
 
   const activityStats = new Map<string, Statistics>();
   records.forEach((record) => {
-    let elapsedTime = calculateElapsedTime(record, from, to);
+    let elapsedTime = calculateElapsedTime(record, from, to, timezoneOffset);
     let activityId = record.activityId.toString();
     if (!activityStats.get(activityId)) {
       activityStats.set(activityId, { totalTime: 0, hasActive: false, records: [] });

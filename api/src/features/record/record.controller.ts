@@ -81,12 +81,15 @@ export async function getCurrentGoals(req: Request, res: Response) {
 }
 
 export async function getStatistics(req: Request, res: Response) {
-  const { query } = await validateRequest(
+  const {
+    query,
+    body: { timezoneOffset },
+  } = await validateRequest(
     getStatisticsRequestSchema,
     req,
     'Invalid request data: GET /records/statistics'
   );
 
-  const data = await recordService.getStatistics(req.session.user!.id, query);
+  const data = await recordService.getStatistics(req.session.user!.id, query, timezoneOffset);
   res.json(Object.fromEntries(data));
 }
