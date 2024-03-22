@@ -10,15 +10,6 @@ const getRequestObject = {
 const getRequestSchema = z.object(getRequestObject);
 
 const getAllRequestObject = {
-  body: z.object({
-    timezoneOffset: stringNonEmptySchema
-      .regex(
-        /^(0|(\+|-)\d{1,3}$)/,
-        'Must be valid timezone offset number (whole number number postivie or negative or 0'
-      )
-      .max(4)
-      .pipe(z.coerce.number().int()),
-  }),
   query: z
     .object({
       active: booleanStringSchema,
@@ -38,8 +29,22 @@ const getAllRequestObject = {
         .datetime()
         .transform((date) => new Date(date)),
       archived: z.boolean(),
+      timezoneOffset: stringNonEmptySchema
+        .regex(
+          /^(0|(\+|-)\d{1,3}$)/,
+          'Must be valid timezone offset number (whole number number postivie or negative or 0'
+        )
+        .max(4)
+        .pipe(z.coerce.number().int()),
     })
-    .partial()
+    .partial({
+      active: true,
+      comment: true,
+      activityId: true,
+      dateFrom: true,
+      dateTo: true,
+      archived: true,
+    })
     .refine(
       ({ dateFrom, dateTo }) => {
         if (dateFrom && dateTo && dateTo < dateFrom) {
@@ -51,7 +56,7 @@ const getAllRequestObject = {
     ),
 };
 const getAllRequestSchema = z.object(getAllRequestObject);
-type QueryParams = z.infer<typeof getAllRequestObject.query>;
+type QueryParams = Omit<z.infer<typeof getAllRequestObject.query>, 'timezoneOffset'>;
 
 const createRequestObject = {
   body: z
@@ -116,15 +121,6 @@ const getCurrentGoalsRequestObject = {
 const getCurrentGoalsRequestSchema = z.object(getCurrentGoalsRequestObject);
 
 const getStatisticsRequestObject = {
-  body: z.object({
-    timezoneOffset: stringNonEmptySchema
-      .regex(
-        /^(0|(\+|-)\d{1,3}$)/,
-        'Must be valid timezone offset number (whole number number postivie or negative or 0'
-      )
-      .max(4)
-      .pipe(z.coerce.number().int()),
-  }),
   query: z
     .object({
       from: z
@@ -141,6 +137,13 @@ const getStatisticsRequestObject = {
         }
         return val;
       }),
+      timezoneOffset: stringNonEmptySchema
+        .regex(
+          /^(0|(\+|-)\d{1,3}$)/,
+          'Must be valid timezone offset number (whole number number postivie or negative or 0'
+        )
+        .max(4)
+        .pipe(z.coerce.number().int()),
     })
     .partial({ from: true, to: true, activityId: true })
     .refine(
@@ -154,7 +157,7 @@ const getStatisticsRequestObject = {
     ),
 };
 const getStatisticsRequestSchema = z.object(getStatisticsRequestObject);
-type StatisticsQuery = z.infer<typeof getStatisticsRequestObject.query>;
+type StatisticsQuery = Omit<z.infer<typeof getStatisticsRequestObject.query>, 'timezoneOffset'>;
 
 export {
   // schemas

@@ -12,7 +12,7 @@ import { HorizontalSeparator } from '../../../../components/HorizontalSeparator'
 import { activitiesReducer } from '../../hooks/activitiesReducer';
 import { activeRecordsReducer } from '../../hooks/activeRecordsReducer';
 import { restoreActivity, deleteActivity, getActivities } from '../../api';
-import { createRecord, stopRecord, getActiveRecords } from '../../../records/api';
+import { createRecord, stopRecord, getRecords } from '../../../records/api';
 import { FakeRecord } from '../../utils/FakeRecord';
 
 export function Activities() {
@@ -151,7 +151,7 @@ export async function activitiesLoader() {
   const [
     { response: responseActivities, data: dataActivities },
     { response: responseActiveRecords, data: dataActiveRecords },
-  ] = await Promise.all([getActivities(), getActiveRecords()]);
+  ] = await Promise.all([getActivities(), getRecords('active=true')]);
 
   // moze se desiti da su oba errora - treba bolje obraditi
   if (!responseActivities.ok) {

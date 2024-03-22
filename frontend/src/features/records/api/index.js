@@ -1,7 +1,11 @@
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 async function getRecords(queryString) {
-  const response = await fetch(BASE_URL + `/records?${queryString}`, {
+  let timezoneOffsetQuery = `timezoneOffset=${new Date().getTimezoneOffset()}`;
+  if (queryString.length > 0) {
+    timezoneOffsetQuery += '&';
+  }
+  const response = await fetch(BASE_URL + `/records?${timezoneOffsetQuery}${queryString}`, {
     method: 'GET',
     credentials: 'include',
   });

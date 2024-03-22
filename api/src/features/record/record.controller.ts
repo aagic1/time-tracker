@@ -23,10 +23,9 @@ export async function getRecord(req: Request, res: Response) {
 
 export async function getAllRecords(req: Request, res: Response) {
   const {
-    query,
-    body: { timezoneOffset },
+    query: { timezoneOffset, ...filters },
   } = await validateRequest(getAllRequestSchema, req, 'Invalid request data: GET /records');
-  const records = await recordService.getAllRecords(req.session.user!.id, query, timezoneOffset);
+  const records = await recordService.getAllRecords(req.session.user!.id, filters, timezoneOffset);
   res.status(200).json(records);
 }
 
@@ -81,14 +80,13 @@ export async function getCurrentGoals(req: Request, res: Response) {
 
 export async function getStatistics(req: Request, res: Response) {
   const {
-    query,
-    body: { timezoneOffset },
+    query: { timezoneOffset, ...filters },
   } = await validateRequest(
     getStatisticsRequestSchema,
     req,
     'Invalid request data: GET /records/statistics'
   );
 
-  const data = await recordService.getStatistics(req.session.user!.id, query, timezoneOffset);
+  const data = await recordService.getStatistics(req.session.user!.id, filters, timezoneOffset);
   res.json(Object.fromEntries(data));
 }
