@@ -28,74 +28,6 @@ export class DateWithTimezone {
     this._timezoneOffset = timezoneOffset;
   }
 
-  //   constructor(timezoneOffset: number);
-  //   constructor(
-  //     year: number,
-  //     month: number,
-  //     dayOfMonth: number,
-  //     timezoneOffset: number,
-  //     hours?: number,
-  //     minutes?: number,
-  //     seconds?: number,
-  //     miliseconds?: number
-  //   );
-  //   constructor(
-  //     yearOrTimezoneOffset: number,
-  //     month?: number,
-  //     dayOfMonth?: number,
-  //     timezoneOffset?: number,
-  //     hours?: number,
-  //     minutes?: number,
-  //     seconds?: number,
-  //     miliseconds?: number
-  //   ) {
-  //     // if (!this.isValidDate(year, month, dayOfMonth)) {
-  //     //   throw 'Invalid d with timezone';
-  //     // }
-  //     // if (
-  //     //   !this.isValidTime(
-  //     //     hours || 0,
-  //     //     minutes || 0,
-  //     //     seconds || 0,
-  //     //     miliseconds || 0
-  //     //   )
-  //     // ) {
-  //     //   throw 'Invalid time';
-  //     // }
-
-  //     this._year = yearOrTimezoneOffset;
-  //     this._month = month;
-  //     this._dayOfMonth = dayOfMonth;
-  //     this._dayOfWeek = new Date(year, month - 1, dayOfMonth).getDay();
-  //     if (this._dayOfWeek === 0) {
-  //       this._dayOfWeek = 7;
-  //     }
-  //     this._hours = hours || 0;
-  //     this._minutes = minutes || 0;
-  //     this._seconds = seconds || 0;
-  //     this._miliseconds = miliseconds || 0;
-  //     this._timezoneOffset = timezoneOffset || 0;
-  //   }
-
-  // constructor(dateString: string, timezoneOffset: number) {
-  //   const [year, month, dayOfMonth] = dateString
-  //     .split('-')
-  //     .map((val) => Number.parseInt(val));
-
-  //   if (!this.isValidDate(year, month, dayOfMonth)) {
-  //     throw 'Invalid d with timezone';
-  //   }
-
-  //   this._year = year;
-  //   this._month = month;
-  //   this._dayOfMonth = dayOfMonth;
-  //   this._dayOfWeek = new Date(year, month - 1, dayOfMonth).getDay();
-  //   if (this._dayOfWeek === 0) {
-  //     this._dayOfWeek = 7;
-  //   }
-  //   this._timezoneOffset = timezoneOffset;
-  // }
-
   public getStartOf(timespan: 'day' | 'week' | 'month') {
     if (timespan === 'day') {
       return this.getStartOfDay();
@@ -209,23 +141,11 @@ export class DateWithTimezone {
   }
 
   public toUTCString() {
-    let s = `${this.getDateString()}T${this.getTimeString()}${this.getTimezoneString()}`;
     return `${this.getDateString()}T${this.getTimeString()}${this.getTimezoneString()}`;
   }
 
   public toDate() {
     return new Date(this.toUTCString());
-  }
-
-  private static isLeapYear(year: number) {
-    return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
-  }
-
-  private static getDaysInMonth(month: number, year: number) {
-    if (DateWithTimezone.isLeapYear(year) && month === 2) {
-      return 29;
-    }
-    return DateWithTimezone.daysPerMonth[month - 1];
   }
 
   private isLeapYear() {
@@ -273,17 +193,28 @@ export class DateWithTimezone {
     return `${yearPadded}-${monthPadded}-${datePadded}`;
   }
 
-  private static getDateString(year: number, month: number, dayOfMonth: number) {
-    const yearPadded = year.toString().padStart(4, '0');
-    const monthPadded = month.toString().padStart(2, '0');
-    const datePadded = dayOfMonth.toString().padStart(2, '0');
-    return `${yearPadded}-${monthPadded}-${datePadded}`;
-  }
-
   private getTimeString() {
     const hoursPadded = this._hours.toString().padStart(2, '0');
     const minutesPadded = this._minutes.toString().padStart(2, '0');
     const secondsPadded = this._seconds.toString().padStart(2, '0');
     return `${hoursPadded}:${minutesPadded}:${secondsPadded}.${this._miliseconds}`;
+  }
+
+  // STATIC METHODS
+  private static isLeapYear(year: number) {
+    return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+  }
+
+  private static getDaysInMonth(month: number, year: number) {
+    if (DateWithTimezone.isLeapYear(year) && month === 2) {
+      return 29;
+    }
+    return DateWithTimezone.daysPerMonth[month - 1];
+  }
+  private static getDateString(year: number, month: number, dayOfMonth: number) {
+    const yearPadded = year.toString().padStart(4, '0');
+    const monthPadded = month.toString().padStart(2, '0');
+    const datePadded = dayOfMonth.toString().padStart(2, '0');
+    return `${yearPadded}-${monthPadded}-${datePadded}`;
   }
 }
