@@ -24,7 +24,7 @@ export function VerifyEmail() {
   }
 
   // redirect after successful verification or if already verified
-  if (actionData?.success || actionData?.status === 409) {
+  if ((actionData?.success && actionData?.intent === 'verify') || actionData?.status === 409) {
     return <Navigate to="/login" replace={true} />;
   }
 
@@ -71,9 +71,10 @@ export function VerifyEmail() {
 
 export async function verifyEmailAction({ request }) {
   const email = new URL(request.url).searchParams.get('email');
+  const formData = await request.formData();
+  const intent = formData.get('intent');
 
-  if (request.method === 'PATCH') {
-    const formData = await request.formData();
+  if (request.method.toUpperCase() === 'PATCH') {
     const code = formData.get('code');
     const { response, data } = await verifyEmail(email, code);
     if (!response.ok) {
@@ -81,7 +82,7 @@ export async function verifyEmailAction({ request }) {
       return { success: false, status: response.status };
     }
     toast.success('Account verified successfully', { id: 'verify-success' });
-    return { success: true, data };
+    return { success: true, data, intent };
   } else {
     const { response, data } = await resendVerificationCode(email);
     if (!response.ok) {
@@ -91,6 +92,6 @@ export async function verifyEmailAction({ request }) {
     toast.success('Verification code sent successfully', {
       id: 'resend-verification-success',
     });
-    return { success: true, data };
+    return { success: true, data, intent };
   }
 }
