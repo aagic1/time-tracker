@@ -112,14 +112,10 @@ export function Records() {
 export async function recordsLoader({ request }) {
   const search = new URL(request.url).searchParams;
   if (!search.has('date')) {
-    console.log('hi');
-    console.log(formatDate(new Date()));
     search.set('date', formatDate(new Date()));
   }
 
   const date = search.get('date') + 'Z';
-  console.log('date');
-  console.log(date);
 
   const startOfDay = new Date(date);
   startOfDay.setHours(0, 0, 0, 0);
@@ -130,7 +126,6 @@ export async function recordsLoader({ request }) {
   const { response, data } = await getRecords(searchString);
 
   if (!response.ok) {
-    console.log('error while loading records');
     throw new Error('Failed to load records');
   }
   return await data;

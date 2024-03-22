@@ -12,10 +12,3 @@ export default function App() {
     </AuthProvider>
   );
 }
-
-// function ErrorElement() {
-//   const error = useRouteError();
-//   console.log('error element');
-//   console.log(error);
-//   return <div>{error.message}</div>;
-// }
