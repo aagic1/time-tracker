@@ -42,7 +42,7 @@ Visit [Time tracker](https://time-tracker-webapp.netlify.app) and try it out now
 
 ### Track activities
 
-<img src="https://github.com/aagic1/time-tracker/assets/73404104/39a16391-8376-476f-abd6-893e4cfc39d0" alt="Activities page" width="50%" >
+<img src="https://github.com/aagic1/time-tracker/assets/73404104/39a16391-8376-476f-abd6-893e4cfc39d0" alt="Activities page" width="60%" >
 
 ### Create and edit activities
 
