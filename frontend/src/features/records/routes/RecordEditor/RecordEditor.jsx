@@ -32,10 +32,15 @@ export function RecordEditor() {
 
   const [selectedActivityId, setSelectedActivityId] = useState(record.activityId);
 
-  const activityArchived = !activities.some((activity) => activity.id === selectedActivityId);
-  const selectedActivity = activityArchived
-    ? { color: '#' + record.color, id: record.activityId, name: record.activityName }
-    : activities.find((activity) => activity.id === selectedActivityId);
+  let selectedActivity;
+  if (editorType === 'create') {
+    selectedActivity = activities.find((activity) => activity.id === selectedActivityId);
+  } else if (editorType === 'update') {
+    const activityArchived = !activities.some((activity) => activity.id === selectedActivityId);
+    selectedActivity = activityArchived
+      ? { color: '#' + record.color, id: record.activityId, name: record.activityName }
+      : activities.find((activity) => activity.id === selectedActivityId);
+  }
 
   const previousPath = location.state?.from;
   let allRecordsRedirectPath = '/records';

@@ -1,11 +1,17 @@
 import styles from './activity-picker.module.css';
 
 export function ActivityPicker({ activities, selectedActivity, onChange, onBlur, id }) {
+  let showPlaceholder = false;
+  if (!activities.some((activity) => activity.id === selectedActivity?.id)) {
+    showPlaceholder = true;
+  }
+  const selectedValue = showPlaceholder ? 'placeholder' : selectedActivity.id;
+
   return (
     <div className={styles.activityContainer}>
       <label htmlFor="activity">Activity</label>
       <select
-        value={selectedActivity?.id || 'placeholder'}
+        value={selectedValue}
         className={styles.dropdown}
         name="activityId"
         id={id}
