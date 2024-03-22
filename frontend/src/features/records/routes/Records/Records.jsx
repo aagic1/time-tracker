@@ -39,7 +39,7 @@ export function Records() {
         <DatePicker selected={date} onChange={handleChangeDate} />
         <FaChevronRight className={styles.arrow} onClick={handleNextDay} />
       </div>
-      <div className={styles.info}>Click on record to edit</div>
+
       {records.length === 0 ? (
         <div className={styles.noDataContainer}>
           <div className={styles.noData}>
@@ -47,12 +47,15 @@ export function Records() {
           </div>
         </div>
       ) : (
-        <RecordsList
-          records={records}
-          currentDate={currentDate}
-          handleClick={handleRecordClick}
-          className={navigation.state === 'loading' && delayedLoading ? styles.loading : ''}
-        />
+        <>
+          <div className={styles.info}>Click on record to edit</div>
+          <RecordsList
+            records={records}
+            currentDate={currentDate}
+            handleClick={handleRecordClick}
+            className={navigation.state === 'loading' && delayedLoading ? styles.loading : ''}
+          />
+        </>
       )}
       <div className={styles.addContainer}>
         <div className={styles.addButton} onClick={handleNewRecord}>
