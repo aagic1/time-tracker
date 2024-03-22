@@ -14,7 +14,6 @@ Simple time tracker to improve your time management skills and give insight on t
 - [Screenshots](#screenshots)
 - [Roadmap](#roadmap)
 - [Technologies](#technologies)
-- [Author](#author)
 
 ## About
 
@@ -83,7 +82,3 @@ Visit [Time tracker](https://time-tracker-webapp.netlify.app) and try it out now
 - [Node.js](https://nodejs.org/docs/latest/api/) & [Express.js](https://expressjs.com/en/4x/api.html) - Backend (TypeScript)
 - [React](https://react.dev/reference/react) - Frontend (Javascript)
 - [PostgreSQL](https://www.postgresql.org/docs/) & [Redis](https://redis.io/docs/) - Database
-
-## Author
-
-**Ahmed Agić**
