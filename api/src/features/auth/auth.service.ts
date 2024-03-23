@@ -146,7 +146,11 @@ async function sendPasswordRecoveryCode(email: string) {
   }
 
   try {
-    await sendEmail(email, 'Reset password', resetCode);
+    await sendEmail(
+      email,
+      'Reset password',
+      generateMessageWithCode('Email verification', resetCode)
+    );
   } catch (error) {
     throw new EmailError('Failed to send email');
   }
