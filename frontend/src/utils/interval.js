@@ -18,7 +18,7 @@ function secondsToInterval(totalSeconds) {
 function milisecondsToInterval(miliseconds) {
   const hours = Math.trunc(miliseconds / (1000 * 60 * 60));
   const minutes = Math.trunc((miliseconds % (1000 * 60 * 60)) / (60 * 1000));
-  const seconds = Math.round((miliseconds % (1000 * 60)) / 1000);
+  const seconds = Math.trunc((miliseconds % (1000 * 60)) / 1000);
   const remainingMiliseconds = miliseconds % 1000;
   return { hours, minutes, seconds, miliseconds: remainingMiliseconds };
 }
