@@ -1,5 +1,6 @@
 import { FaCheckCircle, FaStopwatch } from 'react-icons/fa';
-import { intervalToSeconds, intervalToString } from '../../utils';
+import { intervalToSeconds } from '../../../../utils/interval';
+import { formatInterval } from '../../../../utils/format';
 import styles from './goal-card.module.css';
 
 export function GoalCard({ data }) {
@@ -7,8 +8,8 @@ export function GoalCard({ data }) {
   const goalTime = intervalToSeconds(data.goalTime);
   const percentage = Math.trunc((elapsedTime / goalTime) * 100);
 
-  const totalTimeString = intervalToString(data.totalTime);
-  const goalTimeString = intervalToString(data.goalTime);
+  const totalTimeString = formatInterval(data.totalTime, 'short');
+  const goalTimeString = formatInterval(data.goalTime, 'short');
 
   return (
     <div className={styles.goalCardContainer} style={{ backgroundColor: '#' + data.color }}>

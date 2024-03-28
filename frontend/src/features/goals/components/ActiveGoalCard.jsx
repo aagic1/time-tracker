@@ -1,5 +1,5 @@
 import useStopwatch from '../../../hooks/useStopwatch';
-import { intervalToMiliseconds, secondsToInterval } from '../utils';
+import { intervalToMiliseconds, secondsToInterval } from '../../../utils/interval';
 import { GoalCard } from './GoalCard';
 
 export function ActiveGoalCard({ data, measuredAt }) {
