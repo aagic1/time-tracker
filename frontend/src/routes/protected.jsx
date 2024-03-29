@@ -16,6 +16,7 @@ import {
   recordEditorCreateLoader,
   recordEditorAction,
 } from '../features/records/routes';
+import { Statistics } from '../features/statistics/routes';
 import { ErrorElement } from '../components/ErrorElement';
 
 export const protectedRoutes = [
@@ -67,7 +68,7 @@ export const protectedRoutes = [
       },
       {
         path: 'statistics',
-        element: <div>Statistics page</div>,
+        element: <Statistics />,
       },
       {
         path: '*',
