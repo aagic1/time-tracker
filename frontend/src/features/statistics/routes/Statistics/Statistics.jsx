@@ -1,7 +1,8 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 import styles from './statistics.module.css';
-import { formatElapsedTime } from '../../../../utils/format';
+import { StatisticsCard } from '../../components/StatisticsCard';
+import { roundPercentagesToAddUpTo100 } from '../../utils';
 
 const data = [
   { activityName: 'Activity 1', elapsedTime: 1000 * 60 * 10, color: '#0088FE' },
@@ -46,63 +47,4 @@ export function Statistics() {
       </div>
     </div>
   );
-}
-
-function StatisticsCard({ data, percentage }) {
-  return (
-    <div className={styles.statisticCard} style={{ backgroundColor: data.color }}>
-      <div className={styles.left}>
-        <div className={styles.nameContainer}>{data.activityName}</div>
-      </div>
-      <div className={styles.right}>
-        <div className={styles.elapsedTimeContainer}>
-          {formatElapsedTime(data.elapsedTime, 'short')}
-        </div>
-        <div className={styles.verticalLine}></div>
-        <div className={styles.percentageContainer}>
-          <div>{percentage + '%'}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// round percentages so that their sum equals exactly 100
-function roundPercentagesToAddUpTo100(percentages) {
-  // calulate total while ignoring decimal parts of percentages
-  const total = percentages.reduce(
-    (accumulutar, currentValue) => accumulutar + Math.trunc(currentValue),
-    0
-  );
-  // this will indicate how many percentages will have to be rounded up
-  const remainder = 100 - total;
-
-  // sort by decimal part descending
-  const sortedByDecimalPart = percentages.toSorted((a, b) => getDecimalPart(b) - getDecimalPart(a));
-
-  // truncate decimal parts of percentages
-  const truncatedPercentages = sortedByDecimalPart.map((v) => Math.trunc(v));
-
-  // increase truncated percentages that had the largest decimal part
-  for (let i = 0; i < remainder; i++) {
-    truncatedPercentages[i] = truncatedPercentages[i] + 1;
-  }
-
-  // return percentages sorted by value descending
-  return truncatedPercentages.toSorted((a, b) => b - a);
-}
-
-function getDecimalPart(number) {
-  let numberString = number.toString();
-  let decimalSeparator;
-  if (numberString.indexOf('.') !== -1) {
-    decimalSeparator = '.';
-  } else if (numberString.indexOf(',') !== -1) {
-    decimalSeparator = ',';
-  }
-
-  if (!decimalSeparator) {
-    return 0;
-  }
-  return Number('0.' + numberString.split(decimalSeparator)[1]);
 }
