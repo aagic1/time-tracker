@@ -88,5 +88,5 @@ export async function getStatistics(req: Request, res: Response) {
   );
 
   const data = await recordService.getStatistics(req.session.user!.id, filters, timezoneOffset);
-  res.json(Object.fromEntries(data));
+  res.json(data);
 }

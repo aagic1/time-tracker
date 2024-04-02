@@ -72,19 +72,24 @@ async function getStatistics(accountId: bigint, filters: StatisticsQuery, timezo
 
   const activityStats = new Map<string, Statistics>();
   records.forEach((record) => {
-    let elapsedTime = calculateElapsedTime(record, from, to, timezoneOffset);
+    let elapsedTime = calculateElapsedTime(record, from, to, currentDate);
     let activityId = record.activityId.toString();
     if (!activityStats.get(activityId)) {
-      activityStats.set(activityId, { totalTime: 0, hasActive: false, records: [] });
+      activityStats.set(activityId, {
+        totalTime: 0,
+        hasActive: false,
+        activityId: record.activityId,
+        activityName: record.activityName,
+        color: '#' + record.color,
+      });
     }
 
     const stats = activityStats.get(activityId)!;
     stats.totalTime += elapsedTime;
-    stats.hasActive = stats.hasActive || record.stoppedAt != null;
-    stats.records.push(record);
+    stats.hasActive = stats.hasActive || record.stoppedAt == null;
   });
 
-  return activityStats;
+  return { measuredAt: currentDate.toISOString(), stats: Array.from(activityStats.values()) };
 }
 
 async function getCurrentGoals(accountId: bigint, timezoneOffset: number) {
