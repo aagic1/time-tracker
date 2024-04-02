@@ -37,18 +37,20 @@ export function Statistics() {
           </Pie>
         </PieChart>
       </ResponsiveContainer>
-      {data
-        .toSorted((a, b) => b.elapsedTime - a.elapsedTime)
-        .map((entry, index) => (
-          <StatisticsCard key={entry.name} data={entry} percentage={percentagesRounded[index]} />
-        ))}
+      <div className={styles.statisticCardsContainer}>
+        {data
+          .toSorted((a, b) => b.elapsedTime - a.elapsedTime)
+          .map((entry, index) => (
+            <StatisticsCard key={entry.name} data={entry} percentage={percentagesRounded[index]} />
+          ))}
+      </div>
     </div>
   );
 }
 
 function StatisticsCard({ data, percentage }) {
   return (
-    <div className={styles.statsCard} style={{ backgroundColor: data.color }}>
+    <div className={styles.statisticCard} style={{ backgroundColor: data.color }}>
       <div className={styles.left}>
         <div className={styles.nameContainer}>{data.activityName}</div>
       </div>
@@ -58,7 +60,7 @@ function StatisticsCard({ data, percentage }) {
         </div>
         <div className={styles.verticalLine}></div>
         <div className={styles.percentageContainer}>
-          <div className={styles.result}>{percentage + '%'}</div>
+          <div>{percentage + '%'}</div>
         </div>
       </div>
     </div>
@@ -81,11 +83,12 @@ function roundPercentagesToAddUpTo100(percentages) {
   // truncate decimal parts of percentages
   const truncatedPercentages = sortedByDecimalPart.map((v) => Math.trunc(v));
 
-  // increase truncated percentages that had the larges decimal part
+  // increase truncated percentages that had the largest decimal part
   for (let i = 0; i < remainder; i++) {
     truncatedPercentages[i] = truncatedPercentages[i] + 1;
   }
 
+  // return percentages sorted by value descending
   return truncatedPercentages.toSorted((a, b) => b - a);
 }
 

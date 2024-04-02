@@ -6,17 +6,16 @@
     padding-top: 5px;
 }
 
-
-.statsCard {
-    padding: 15px;
-    border-radius: 5px;
+.statisticCardsContainer {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 8px;
 }
 
-.goalCardContainer {
+
+.statisticCard {
     box-shadow: 1px 2px 5px 0 #aaa;
-    padding: 8px 16px ;
+    padding: 12px 16px ;
     border-radius: 5px;
     font-size: 14px;
     display: flex;
@@ -47,9 +46,10 @@
     background-color: #3332;
 }
 
-.result {
+.percentageContainer {
     display: flex;
     justify-content: center;
+    align-items: center;
+    width: 28px;
     font-weight: 600;
-    width: 25px;
 }
