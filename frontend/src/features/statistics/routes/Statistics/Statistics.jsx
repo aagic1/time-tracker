@@ -3,7 +3,7 @@ import { useLoaderData } from 'react-router-dom';
 
 import styles from './statistics.module.css';
 import { StatisticsCard } from '../../components/StatisticsCard';
-import { roundPercentagesToAddUpTo100 } from '../../utils';
+import { roundPercentagesToAddUpTo100, compareStats } from '../../utils';
 import { getStatistics } from '../../api';
 
 export function Statistics() {
@@ -20,7 +20,7 @@ export function Statistics() {
     ...entry,
     percent: (entry.totalTime / sumOfTotalTimes) * 100,
   }));
-  stats = roundPercentagesToAddUpTo100(stats).toSorted((a, b) => a.totalTime - b.totalTime);
+  stats = roundPercentagesToAddUpTo100(stats).toSorted(compareStats);
 
   return (
     <div className={styles.pageWrapper}>

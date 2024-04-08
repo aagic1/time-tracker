@@ -31,6 +31,14 @@ function roundPercentagesToAddUpTo100(stats) {
   return truncatedPercentages;
 }
 
+function compareStats(a, b) {
+  if (a.totalTime - b.totalTime !== 0) {
+    return a.totalTime - b.totalTime;
+  }
+
+  return a.percent - b.percent;
+}
+
 // PRIVATE FUNCTIONS
 // _________________
 function getDecimalPart(number) {
@@ -48,4 +56,4 @@ function getDecimalPart(number) {
   return Number('0.' + numberString.split(decimalSeparator)[1]);
 }
 
-export { roundPercentagesToAddUpTo100 };
+export { roundPercentagesToAddUpTo100, compareStats };
