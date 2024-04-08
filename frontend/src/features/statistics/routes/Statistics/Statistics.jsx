@@ -10,6 +10,7 @@ import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useState } from 'react';
 import { NoData } from '../../../../components/NoData';
 import { formatDate } from '../../../../utils/format';
+import useStopwatch from '../../../../hooks/useStopwatch';
 
 const periodOptions = [
   { id: 1, value: 'day', name: 'Day' },
@@ -30,8 +31,14 @@ export function Statistics() {
   const submit = useSubmit();
   const [date, setDate] = useState(new Date());
   const loaderData = useLoaderData();
+  const stopWatch = useStopwatch(new Date(loaderData.measuredAt));
 
-  let stats = loaderData.stats;
+  let stats = loaderData.stats.map((entry) => {
+    if (entry.hasActive) {
+      return { ...entry, totalTime: entry.totalTime + stopWatch };
+    }
+    return entry;
+  });
   if (stats.length === 0) {
     return (
       <>
