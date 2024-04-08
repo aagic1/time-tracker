@@ -13,6 +13,10 @@ export function DatePicker({
   minTime,
   maxTime,
   format = 'dd.MM.yyyy',
+
+  showWeekPicker,
+  showMonthPicker,
+  showYearPicker,
 }) {
   return (
     <DatePicker3rdParty
@@ -35,6 +39,10 @@ export function DatePicker({
       maxTime={maxTime}
       popperClassName={styles.datePopper}
       popperPlacement="bottom-start"
+      showWeekNumbers={showWeekPicker}
+      showWeekPicker={showWeekPicker}
+      showMonthYearPicker={showMonthPicker}
+      showYearPicker={showYearPicker}
     />
   );
 }
