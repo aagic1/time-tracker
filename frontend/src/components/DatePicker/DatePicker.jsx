@@ -12,11 +12,12 @@ export function DatePicker({
   maxDate,
   minTime,
   maxTime,
+  format = 'dd.MM.yyyy',
 }) {
   return (
     <DatePicker3rdParty
       className={`${styles.datePicker} ${className}`}
-      dateFormat="dd.MM.yyyy"
+      dateFormat={format}
       calendarStartDay={1}
       showIcon
       selected={selected}

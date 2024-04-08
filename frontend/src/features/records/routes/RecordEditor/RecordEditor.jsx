@@ -96,6 +96,7 @@ export function RecordEditor() {
                 maxDate={!stopDate ? new Date() : null}
                 minTime={null}
                 maxTime={!stopDate ? new Date() : null}
+                format="dd.MM hh:mm aa"
               />
             </div>
             {stopDate && (
@@ -106,6 +107,7 @@ export function RecordEditor() {
                   showTimeInput
                   selected={stopDate}
                   onChange={handleChangeStopDate}
+                  format="dd.MM hh:mm aa"
                 />
               </div>
             )}
