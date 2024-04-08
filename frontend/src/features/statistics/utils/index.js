@@ -2,28 +2,33 @@
 // __________
 
 // round percentages so that their sum equals exactly 100%
-function roundPercentagesToAddUpTo100(percentages) {
+function roundPercentagesToAddUpTo100(stats) {
   // calulate total while ignoring decimal parts of percentages
-  const total = percentages.reduce(
-    (accumulutar, currentValue) => accumulutar + Math.trunc(currentValue),
+  const totalOfTruncatedPercentages = stats.reduce(
+    (accumulutar, currentEntry) => accumulutar + Math.trunc(currentEntry.percent),
     0
   );
   // this will indicate how many percentages will have to be rounded up
-  const remainder = 100 - total;
+  const remainder = 100 - totalOfTruncatedPercentages;
 
   // sort by decimal part descending
-  const sortedByDecimalPart = percentages.toSorted((a, b) => getDecimalPart(b) - getDecimalPart(a));
+  const sortedByDecimalPart = stats.toSorted(
+    (a, b) => getDecimalPart(b.percent) - getDecimalPart(a.percent)
+  );
 
   // truncate decimal parts of percentages
-  const truncatedPercentages = sortedByDecimalPart.map((v) => Math.trunc(v));
+  const truncatedPercentages = sortedByDecimalPart.map((v) => ({
+    ...v,
+    percent: (v.percent = Math.trunc(v.percent)),
+  }));
 
-  // increase truncated percentages that had the largest decimal part
+  // increment truncated percentages that had the largest decimal part
   for (let i = 0; i < remainder; i++) {
-    truncatedPercentages[i] = truncatedPercentages[i] + 1;
+    truncatedPercentages[i].percent++;
   }
 
   // return percentages sorted by value descending
-  return truncatedPercentages.toSorted((a, b) => b - a);
+  return truncatedPercentages;
 }
 
 // PRIVATE FUNCTIONS

@@ -9,11 +9,11 @@ export function StatisticsCard({ data, percentage }) {
       </div>
       <div className={styles.right}>
         <div className={styles.elapsedTimeContainer}>
-          {formatElapsedTime(data.elapsedTime, 'short')}
+          {formatElapsedTime(data.totalTime, 'short')}
         </div>
         <div className={styles.verticalLine}></div>
         <div className={styles.percentageContainer}>
-          <div>{percentage + '%'}</div>
+          <div>{(percentage || '<1') + '%'}</div>
         </div>
       </div>
     </div>
