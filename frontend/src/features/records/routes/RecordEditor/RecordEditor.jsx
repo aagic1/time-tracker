@@ -157,7 +157,7 @@ export function RecordEditor() {
 
   function handleChangeStartDate(newDate) {
     setStartDate(newDate);
-    if (stopDate && newDate > stopDate) {
+    if (stopDate && newDate >= stopDate) {
       const ONE_SECOND_AS_MILISECONDS = 1000;
       return setStopDate(new Date(newDate.valueOf() + ONE_SECOND_AS_MILISECONDS));
     }
