@@ -16,6 +16,12 @@
     width: 440px;
 }
 
+.submitting {
+    pointer-events: none;
+    filter: blur(2px) grayscale(50%);
+    opacity: 0.5;
+}
+
 .form {
     display: flex;
     flex-direction: column;

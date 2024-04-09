@@ -7,6 +7,7 @@ import {
   useLoaderData,
   useLocation,
   useNavigate,
+  useNavigation,
   useSearchParams,
 } from 'react-router-dom';
 import { FaArrowLeft, FaTrash } from 'react-icons/fa';
@@ -24,6 +25,7 @@ export function RecordEditor() {
   const [activityError, setActivityError] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const navigation = useNavigation();
   const [searchParams] = useSearchParams();
   const { record, activities, editorType } = useLoaderData();
 
@@ -63,7 +65,13 @@ export function RecordEditor() {
 
   return (
     <div className={styles.pageWrapper}>
-      <div className={styles.formContainer}>
+      <div
+        className={`${styles.formContainer} ${
+          navigation.state === 'submitting' || navigation.state === 'loading'
+            ? styles.submitting
+            : ''
+        }`}
+      >
         <Form className={styles.form} method="POST">
           <input type="hidden" name="redirectPath" value={cancelRedirectPath} />
           <input type="hidden" name="startedAt" value={startDate} />
