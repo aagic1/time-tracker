@@ -29,36 +29,31 @@ const dateFormat = {
 export function Statistics() {
   const [period, setPeriod] = useState('day');
   const submit = useSubmit();
-  const [date, setDate] = useState(new Date());
+  const [dateStats, setDateStats] = useState(new Date());
   const loaderData = useLoaderData();
   const stopWatch = useStopwatch(new Date(loaderData.measuredAt));
 
   let stats = loaderData.stats.map((entry) => {
-    if (entry.hasActive) {
+    if (entry.hasActive && isInFuture(getEndOf(period, dateStats))) {
       return { ...entry, totalTime: entry.totalTime + stopWatch };
     }
     return entry;
   });
+
   if (stats.length === 0) {
     return (
       <>
-        {' '}
         <NoData />
         <div className={styles.filterContainer}>
-          <div className={styles.dateContainer}>
-            <PeriodSelect selected={period} onChange={(event) => setPeriod(event.target.value)} />
-            <FaChevronLeft className={styles.arrow} onClick={handlePreviousDate} />
-            <DatePicker
-              onChange={handleChangeDate}
-              selected={date}
-              showWeekPicker={period === 'week'}
-              showMonthPicker={period === 'month'}
-              showYearPicker={period === 'year'}
-              format={dateFormat[period]}
-            />
-            <FaChevronRight className={styles.arrow} onClick={handleNextDate} />
-          </div>
-        </div>{' '}
+          <StatisticsDatePicker
+            dateStats={dateStats}
+            period={period}
+            onChangeDate={handleChangeDate}
+            onNextDate={handleNextDate}
+            onPreviousDate={handlePreviousDate}
+            onChangePeriod={handleChangePeriod}
+          />
+        </div>
       </>
     );
   }
@@ -77,7 +72,7 @@ export function Statistics() {
   return (
     <div className={styles.pageWrapper}>
       <ResponsiveContainer width="100%" height={210}>
-        <PieChart>
+        <PieChart className={styles.pieChart}>
           <Pie
             animationDuration={0}
             data={stats}
@@ -97,55 +92,41 @@ export function Statistics() {
           </Pie>
         </PieChart>
       </ResponsiveContainer>
-      <div className={styles.statisticCardsContainer}>
-        {stats.toReversed().map((entry) => (
-          <StatisticsCard key={entry.activityId} data={entry} percentage={entry.percent} />
-        ))}
-        <div className={styles.horizontalLine}></div>
-        <StatisticsCard
-          data={{ totalTime: sumOfTotalTimes, color: '#fff', activityName: 'Total time' }}
-          showPercentage={false}
-        />
-      </div>
+
+      <StatisticsList stats={stats} sumOfTotalTimes={sumOfTotalTimes} />
 
       <div className={styles.filterContainer}>
-        <div className={styles.dateContainer}>
-          <PeriodSelect
-            selected={period}
-            onChange={(event) => {
-              setPeriod(event.target.value);
-              const formData = new FormData();
-              formData.append('date', formatDate(date));
-              formData.append('period', event.target.value);
-              submit(formData);
-              setDate(date);
-            }}
-          />
-          <FaChevronLeft className={styles.arrow} onClick={handlePreviousDate} />
-          <DatePicker
-            onChange={handleChangeDate}
-            selected={date}
-            showWeekPicker={period === 'week'}
-            showMonthPicker={period === 'month'}
-            showYearPicker={period === 'year'}
-            format={dateFormat[period]}
-          />
-          <FaChevronRight className={styles.arrow} onClick={handleNextDate} />
-        </div>
+        <StatisticsDatePicker
+          dateStats={dateStats}
+          period={period}
+          onChangeDate={handleChangeDate}
+          onNextDate={handleNextDate}
+          onPreviousDate={handlePreviousDate}
+          onChangePeriod={handleChangePeriod}
+        />
       </div>
     </div>
   );
+
+  function handleChangePeriod(event) {
+    setPeriod(event.target.value);
+    const formData = new FormData();
+    formData.append('date', formatDate(dateStats));
+    formData.append('period', event.target.value);
+    submit(formData);
+    setDateStats(dateStats);
+  }
 
   function handleChangeDate(date) {
     const formData = new FormData();
     formData.append('date', formatDate(date));
     formData.append('period', period);
     submit(formData);
-    setDate(date);
+    setDateStats(date);
   }
 
   function handlePreviousDate() {
-    const previousDate = new Date(date);
+    const previousDate = new Date(dateStats);
     switch (period) {
       case 'day':
         previousDate.setDate(previousDate.getDate() - 1);
@@ -169,7 +150,7 @@ export function Statistics() {
   }
 
   function handleNextDate() {
-    const nextDate = new Date(date);
+    const nextDate = new Date(dateStats);
     switch (period) {
       case 'day':
         nextDate.setDate(nextDate.getDate() + 1);
@@ -322,4 +303,48 @@ function getDaysInMonth(date) {
 
 function isLeapYear(year) {
   return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+}
+
+function isInFuture(date) {
+  return date > new Date();
+}
+
+function StatisticsList({ stats, sumOfTotalTimes }) {
+  return (
+    <div className={styles.statisticCardsContainer}>
+      {stats.toReversed().map((entry) => (
+        <StatisticsCard key={entry.activityId} data={entry} percentage={entry.percent} />
+      ))}
+      <div className={styles.horizontalLine}></div>
+      <StatisticsCard
+        data={{ totalTime: sumOfTotalTimes, color: '#fff', activityName: 'Total time' }}
+        showPercentage={false}
+      />
+    </div>
+  );
+}
+
+function StatisticsDatePicker({
+  dateStats,
+  period,
+  onPreviousDate,
+  onNextDate,
+  onChangeDate,
+  onChangePeriod,
+}) {
+  return (
+    <div className={styles.dateContainer}>
+      <PeriodSelect selected={period} onChange={onChangePeriod} />
+      <FaChevronLeft className={styles.arrow} onClick={onPreviousDate} />
+      <DatePicker
+        onChange={onChangeDate}
+        selected={dateStats}
+        showWeekPicker={period === 'week'}
+        showMonthPicker={period === 'month'}
+        showYearPicker={period === 'year'}
+        format={dateFormat[period]}
+      />
+      <FaChevronRight className={styles.arrow} onClick={onNextDate} />
+    </div>
+  );
 }
