@@ -1,30 +1,16 @@
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { useState } from 'react';
 import { useLoaderData, useSubmit } from 'react-router-dom';
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 import styles from './statistics.module.css';
-import { StatisticsCard } from '../../components/StatisticsCard';
-import { roundPercentagesToAddUpTo100, compareStats } from '../../utils';
 import { getStatistics } from '../../api';
-import { DatePicker } from '../../../../components/DatePicker';
-import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { useState } from 'react';
 import { NoData } from '../../../../components/NoData';
+import { roundPercentagesToAddUpTo100, compareStats } from '../../utils';
 import { formatDate } from '../../../../utils/format';
 import useStopwatch from '../../../../hooks/useStopwatch';
-
-const periodOptions = [
-  { id: 1, value: 'day', name: 'Day' },
-  { id: 2, value: 'week', name: 'Week' },
-  { id: 3, value: 'month', name: 'Month' },
-  { id: 4, value: 'year', name: 'Year' },
-];
-
-const dateFormat = {
-  day: 'dd.MM.yyyy',
-  week: 'dd.MM.yyyy (w)',
-  month: 'MMMM yyyy',
-  year: 'yyyy',
-};
+import { StatisticsCardList } from '../../components/StatisticsCardList';
+import { StatisticsDatePicker } from '../../components/StatisticsDatePicker';
+import { getStartOf, getEndOf, isInFuture } from '../../utils';
 
 export function Statistics() {
   const [period, setPeriod] = useState('day');
@@ -33,14 +19,7 @@ export function Statistics() {
   const loaderData = useLoaderData();
   const stopWatch = useStopwatch(new Date(loaderData.measuredAt));
 
-  let stats = loaderData.stats.map((entry) => {
-    if (entry.hasActive && isInFuture(getEndOf(period, dateStats))) {
-      return { ...entry, totalTime: entry.totalTime + stopWatch };
-    }
-    return entry;
-  });
-
-  if (stats.length === 0) {
+  if (loaderData.stats.length === 0) {
     return (
       <>
         <NoData />
@@ -57,6 +36,13 @@ export function Statistics() {
       </>
     );
   }
+
+  let stats = loaderData.stats.map((entry) => {
+    if (entry.hasActive && isInFuture(getEndOf(period, dateStats))) {
+      return { ...entry, totalTime: entry.totalTime + stopWatch };
+    }
+    return entry;
+  });
 
   const sumOfTotalTimes = stats.reduce(
     (accumulator, currentData) => accumulator + currentData.totalTime,
@@ -93,7 +79,7 @@ export function Statistics() {
         </PieChart>
       </ResponsiveContainer>
 
-      <StatisticsList stats={stats} sumOfTotalTimes={sumOfTotalTimes} />
+      <StatisticsCardList stats={stats} sumOfTotalTimes={sumOfTotalTimes} />
 
       <div className={styles.filterContainer}>
         <StatisticsDatePicker
@@ -192,159 +178,4 @@ export async function statisticsLoader({ request }) {
   }
 
   return data;
-}
-
-function PeriodSelect({ selected, onChange }) {
-  return (
-    <select
-      name="type"
-      id="type"
-      className={styles.selectInput}
-      value={selected}
-      onChange={onChange}
-    >
-      {periodOptions.map((entry) => (
-        <option key={entry.id} value={entry.value}>
-          {entry.name}
-        </option>
-      ))}
-    </select>
-  );
-}
-
-function getStartOf(period, date) {
-  if (period === 'day') {
-    return getStartOfDay(date);
-  } else if (period === 'week') {
-    return getStartOfWeek(date);
-  } else if (period === 'month') {
-    return getStartOfMonth(date);
-  } else {
-    return getStartOfYear(date);
-  }
-}
-
-function getEndOf(period, date) {
-  if (period === 'day') {
-    return getEndOfDay(date);
-  } else if (period === 'week') {
-    return getEndOfWeek(date);
-  } else if (period === 'month') {
-    return getEndOfMonth(date);
-  } else {
-    return getEndOfYear(date);
-  }
-}
-
-const daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-
-function getStartOfDay(date) {
-  const startOfDay = new Date(date);
-  startOfDay.setHours(0, 0, 0, 0);
-  return startOfDay;
-}
-
-function getEndOfDay(date) {
-  const endOfDay = new Date(date);
-  endOfDay.setHours(23, 59, 59, 59);
-  return endOfDay;
-}
-
-function getStartOfWeek(date) {
-  let dayOfWeek = date.getDay();
-  if (dayOfWeek === 0) {
-    dayOfWeek = 7;
-  }
-  const startOfWeek = new Date(date);
-  startOfWeek.setDate(startOfWeek.getDate() - dayOfWeek + 1);
-  return getStartOfDay(startOfWeek);
-}
-
-function getEndOfWeek(date) {
-  let dayOfWeek = date.getDay();
-  if (dayOfWeek === 0) {
-    dayOfWeek = 7;
-  }
-  const endOfWeek = new Date(date);
-  endOfWeek.setDate(date.getDate() + (7 - dayOfWeek));
-  return getEndOfDay(endOfWeek);
-}
-
-function getStartOfMonth(date) {
-  const startOfMonth = new Date(date);
-  startOfMonth.setDate(1);
-  return getStartOfDay(startOfMonth);
-}
-
-function getEndOfMonth(date) {
-  const endOfMonth = new Date(date);
-  endOfMonth.setDate(getDaysInMonth(date));
-  return getEndOfDay(endOfMonth);
-}
-
-function getStartOfYear(date) {
-  const startOfYear = new Date(date);
-  startOfYear.setMonth(0, 1);
-  return getStartOfDay(startOfYear);
-}
-
-function getEndOfYear(date) {
-  const endOfYear = new Date(date);
-  endOfYear.setMonth(11, 31);
-  return getEndOfDay(endOfYear);
-}
-
-function getDaysInMonth(date) {
-  if (date.getMonth() === 1 && isLeapYear(date.getFullYear())) {
-    return 29;
-  }
-  return daysPerMonth[date.getMonth()];
-}
-
-function isLeapYear(year) {
-  return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
-}
-
-function isInFuture(date) {
-  return date > new Date();
-}
-
-function StatisticsList({ stats, sumOfTotalTimes }) {
-  return (
-    <div className={styles.statisticCardsContainer}>
-      {stats.toReversed().map((entry) => (
-        <StatisticsCard key={entry.activityId} data={entry} percentage={entry.percent} />
-      ))}
-      <div className={styles.horizontalLine}></div>
-      <StatisticsCard
-        data={{ totalTime: sumOfTotalTimes, color: '#fff', activityName: 'Total time' }}
-        showPercentage={false}
-      />
-    </div>
-  );
-}
-
-function StatisticsDatePicker({
-  dateStats,
-  period,
-  onPreviousDate,
-  onNextDate,
-  onChangeDate,
-  onChangePeriod,
-}) {
-  return (
-    <div className={styles.dateContainer}>
-      <PeriodSelect selected={period} onChange={onChangePeriod} />
-      <FaChevronLeft className={styles.arrow} onClick={onPreviousDate} />
-      <DatePicker
-        onChange={onChangeDate}
-        selected={dateStats}
-        showWeekPicker={period === 'week'}
-        showMonthPicker={period === 'month'}
-        showYearPicker={period === 'year'}
-        format={dateFormat[period]}
-      />
-      <FaChevronRight className={styles.arrow} onClick={onNextDate} />
-    </div>
-  );
 }
