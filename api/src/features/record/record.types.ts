@@ -15,5 +15,7 @@ export type ActivityRecord = {
 export type Statistics = {
   totalTime: number;
   hasActive: boolean;
-  records: ActivityRecord[];
+  activityName: string;
+  activityId: bigint;
+  color: string;
 };

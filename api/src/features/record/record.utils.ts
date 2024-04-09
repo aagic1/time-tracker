@@ -5,9 +5,8 @@ export function calculateElapsedTime(
   record: ActivityRecord,
   dateFrom: Date | undefined,
   dateTo: Date | undefined,
-  timezoneOffset: number
+  currentDate: Date
 ) {
-  const currentDate = new DateWithTimezone(timezoneOffset).toDate();
   const startDate = getStartDate(dateFrom, record.startedAt);
   const endDate = getEndDate(dateTo, record.stoppedAt, currentDate);
 
@@ -49,7 +48,7 @@ function getStartDate(dateFrom: Date | undefined, startedAt: Date) {
   // => take record.startedAt as the start time
 
   if (dateFrom) {
-    // scenario 1 and 2
+    // scenarios 1 and 2
     return maxDate(dateFrom, startedAt);
   } else {
     // scenario 3
@@ -98,7 +97,7 @@ function getEndDate(dateTo: Date | undefined, stoppedAt: Date | null, currentDat
   // => take record.stoppedAt as the stop time or the current date (dateNow) if the record is still active (record.stoppedAt == null)
 
   if (dateTo) {
-    // scenario 1, 2, and 3
+    // scenarios 1, 2, and 3
     return stoppedAt ? minDate(stoppedAt, dateTo) : minDate(currentDate, dateTo);
   } else {
     // scenario 4

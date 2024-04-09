@@ -5,7 +5,6 @@ import {
   useSearchParams,
   useSubmit,
   useLocation,
-  useNavigation,
 } from 'react-router-dom';
 import { FaPlusCircle, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
@@ -25,7 +24,6 @@ export function Records() {
   const [searchParams] = useSearchParams();
   const submit = useSubmit();
   const records = useLoaderData();
-  const navigation = useNavigation();
   const delayedLoading = useDelayedLoadingIndicator();
   const [date, setDate] = useState(
     searchParams.has('date') ? new Date(searchParams.get('date')) : new Date()
@@ -42,9 +40,7 @@ export function Records() {
 
       {records.length === 0 ? (
         <div className={styles.noDataContainer}>
-          <div className={styles.noData}>
-            {navigation.state === 'loading' && delayedLoading ? <LoadingSpinner /> : <NoData />}
-          </div>
+          <div className={styles.noData}>{delayedLoading ? <LoadingSpinner /> : <NoData />}</div>
         </div>
       ) : (
         <>
@@ -53,7 +49,7 @@ export function Records() {
             records={records}
             currentDate={currentDate}
             handleClick={handleRecordClick}
-            className={navigation.state === 'loading' && delayedLoading ? styles.loading : ''}
+            className={delayedLoading ? styles.loading : ''}
           />
         </>
       )}

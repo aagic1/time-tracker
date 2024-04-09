@@ -16,6 +16,7 @@ import {
   recordEditorCreateLoader,
   recordEditorAction,
 } from '../features/records/routes';
+import { Statistics, statisticsLoader } from '../features/statistics/routes';
 import { ErrorElement } from '../components/ErrorElement';
 
 export const protectedRoutes = [
@@ -67,7 +68,13 @@ export const protectedRoutes = [
       },
       {
         path: 'statistics',
-        element: <div>Statistics page</div>,
+        element: <Statistics />,
+        loader: statisticsLoader,
+      },
+      {
+        path: 'auth/logout',
+        element: <Proba />,
+        // element: <SessionExpiredPage />
       },
       {
         path: '*',
@@ -76,3 +83,7 @@ export const protectedRoutes = [
     ],
   },
 ];
+
+function Proba() {
+  return <div>hi</div>;
+}

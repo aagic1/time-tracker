@@ -2,6 +2,14 @@ import { z } from 'zod';
 
 import { stringNonEmptySchema, bigintStringSchema, booleanStringSchema } from '../../utils/schemas';
 
+const timezoneOffsetSchema = stringNonEmptySchema
+  .regex(
+    /^(0|-?\d{1,3}$)/,
+    'Must be valid timezone offset number (whole number postive or negative or 0'
+  )
+  .max(4)
+  .pipe(z.coerce.number().int());
+
 const getRequestObject = {
   params: z.object({
     recordId: bigintStringSchema,
@@ -29,13 +37,7 @@ const getAllRequestObject = {
         .datetime()
         .transform((date) => new Date(date)),
       archived: z.boolean(),
-      timezoneOffset: stringNonEmptySchema
-        .regex(
-          /^(0|(\+|-)\d{1,3}$)/,
-          'Must be valid timezone offset number (whole number number postivie or negative or 0'
-        )
-        .max(4)
-        .pipe(z.coerce.number().int()),
+      timezoneOffset: timezoneOffsetSchema,
     })
     .partial({
       active: true,
@@ -108,14 +110,7 @@ const deleteRequestSchema = z.object(deleteRequestObject);
 
 const getCurrentGoalsRequestObject = {
   query: z.object({
-    timezoneOffset: stringNonEmptySchema
-      .regex(
-        /^(0|(\+|-)\d{1,3}$)/,
-        'Must be valid timezone offset number (whole number number postivie or negative or 0'
-      )
-      .max(4)
-      .pipe(z.coerce.number().int()),
-    // maybe set upper and lower limit for offset?
+    timezoneOffset: timezoneOffsetSchema,
   }),
 };
 const getCurrentGoalsRequestSchema = z.object(getCurrentGoalsRequestObject);
@@ -137,13 +132,7 @@ const getStatisticsRequestObject = {
         }
         return val;
       }),
-      timezoneOffset: stringNonEmptySchema
-        .regex(
-          /^(0|(\+|-)\d{1,3}$)/,
-          'Must be valid timezone offset number (whole number number postivie or negative or 0'
-        )
-        .max(4)
-        .pipe(z.coerce.number().int()),
+      timezoneOffset: timezoneOffsetSchema,
     })
     .partial({ from: true, to: true, activityId: true })
     .refine(
