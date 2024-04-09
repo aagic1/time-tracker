@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLoaderData, useSubmit, useNavigation } from 'react-router-dom';
+import { useLoaderData, useSubmit } from 'react-router-dom';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 import styles from './statistics.module.css';
@@ -17,7 +17,6 @@ import { useDelayedLoadingIndicator } from '../../../records/hooks/useDelayedLoa
 export function Statistics() {
   const [period, setPeriod] = useState('day');
   const submit = useSubmit();
-  const navigation = useNavigation();
   const delayedLoading = useDelayedLoadingIndicator();
   const [dateStats, setDateStats] = useState(new Date());
   const loaderData = useLoaderData();
@@ -26,7 +25,7 @@ export function Statistics() {
   if (loaderData.stats.length === 0) {
     return (
       <>
-        {navigation.state === 'loading' && delayedLoading ? <LoadingSpinner /> : <NoData />}
+        {delayedLoading ? <LoadingSpinner /> : <NoData />}
         <div className={styles.filterContainer}>
           <StatisticsDatePicker
             dateStats={dateStats}
@@ -61,7 +60,7 @@ export function Statistics() {
 
   return (
     <div className={styles.pageWrapper}>
-      <div className={navigation.state === 'loading' && delayedLoading ? styles.loading : ''}>
+      <div className={delayedLoading ? styles.loading : ''}>
         <ResponsiveContainer width="100%" height={210}>
           <PieChart className={styles.pieChart}>
             <Pie
