@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLoaderData, useSubmit } from 'react-router-dom';
+import { useLoaderData, useSearchParams, useSubmit } from 'react-router-dom';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 import styles from './statistics.module.css';
@@ -15,11 +15,14 @@ import { LoadingSpinner } from '../../../../components/LoadingSpinner';
 import { useDelayedLoadingIndicator } from '../../../records/hooks/useDelayedLoading';
 
 export function Statistics() {
-  const [period, setPeriod] = useState('day');
+  const [searchParams] = useSearchParams();
+  const [period, setPeriod] = useState(searchParams.get('period') || 'day');
+  const [dateStats, setDateStats] = useState(
+    searchParams.get('date') ? new Date(searchParams.get('date')) : new Date()
+  );
   const submit = useSubmit();
-  const delayedLoading = useDelayedLoadingIndicator();
-  const [dateStats, setDateStats] = useState(new Date());
   const loaderData = useLoaderData();
+  const delayedLoading = useDelayedLoadingIndicator();
   const stopWatch = useStopwatch(new Date(loaderData.measuredAt));
 
   if (loaderData.stats.length === 0) {
