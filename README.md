@@ -59,6 +59,10 @@ Visit [Time tracker](https://time-tracker-webapp.netlify.app) and try it out now
 
 <img src="https://github.com/aagic1/time-tracker/assets/73404104/657320ff-5245-4f59-b02e-2b811845588a" alt="Goals page" width="60%" >
 
+### View statistics
+
+<img src="https://github.com/aagic1/time-tracker/assets/73404104/d518e2be-e135-4774-ab1c-2ee758c382f0" alt="Statistics page" width="60%" >
+
 ### Authentication
 
 <img src="https://github.com/aagic1/time-tracker/assets/73404104/b970a00d-ca14-4a2b-91a9-0ee65495afad" alt="Login page" width="49%" > <img src="https://github.com/aagic1/time-tracker/assets/73404104/e851bc75-0a52-404b-b7a5-69f0c857d776" alt="Register page" width="49%" >
