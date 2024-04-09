@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLoaderData, useSubmit } from 'react-router-dom';
+import { useLoaderData, useSubmit, useNavigation } from 'react-router-dom';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 import styles from './statistics.module.css';
@@ -11,10 +11,14 @@ import useStopwatch from '../../../../hooks/useStopwatch';
 import { StatisticsCardList } from '../../components/StatisticsCardList';
 import { StatisticsDatePicker } from '../../components/StatisticsDatePicker';
 import { getStartOf, getEndOf, isInFuture } from '../../utils';
+import { LoadingSpinner } from '../../../../components/LoadingSpinner';
+import { useDelayedLoadingIndicator } from '../../../records/hooks/useDelayedLoading';
 
 export function Statistics() {
   const [period, setPeriod] = useState('day');
   const submit = useSubmit();
+  const navigation = useNavigation();
+  const delayedLoading = useDelayedLoadingIndicator();
   const [dateStats, setDateStats] = useState(new Date());
   const loaderData = useLoaderData();
   const stopWatch = useStopwatch(new Date(loaderData.measuredAt));
@@ -22,7 +26,7 @@ export function Statistics() {
   if (loaderData.stats.length === 0) {
     return (
       <>
-        <NoData />
+        {navigation.state === 'loading' && delayedLoading ? <LoadingSpinner /> : <NoData />}
         <div className={styles.filterContainer}>
           <StatisticsDatePicker
             dateStats={dateStats}
@@ -57,29 +61,31 @@ export function Statistics() {
 
   return (
     <div className={styles.pageWrapper}>
-      <ResponsiveContainer width="100%" height={210}>
-        <PieChart className={styles.pieChart}>
-          <Pie
-            animationDuration={0}
-            data={stats}
-            dataKey="totalTime"
-            innerRadius={55}
-            outerRadius={85}
-            fill="#8884d8"
-            paddingAngle={stats.length > 1 ? 1 : 0}
-            cx="50%"
-            cy="50%"
-            startAngle={90}
-            endAngle={450}
-          >
-            {stats.map((entry) => (
-              <Cell key={`cell-${entry.activityId}`} fill={entry.color} className={styles.cell} />
-            ))}
-          </Pie>
-        </PieChart>
-      </ResponsiveContainer>
+      <div className={navigation.state === 'loading' && delayedLoading ? styles.loading : ''}>
+        <ResponsiveContainer width="100%" height={210}>
+          <PieChart className={styles.pieChart}>
+            <Pie
+              animationDuration={0}
+              data={stats}
+              dataKey="totalTime"
+              innerRadius={55}
+              outerRadius={85}
+              fill="#8884d8"
+              paddingAngle={stats.length > 1 ? 1 : 0}
+              cx="50%"
+              cy="50%"
+              startAngle={90}
+              endAngle={450}
+            >
+              {stats.map((entry) => (
+                <Cell key={`cell-${entry.activityId}`} fill={entry.color} className={styles.cell} />
+              ))}
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
 
-      <StatisticsCardList stats={stats} sumOfTotalTimes={sumOfTotalTimes} />
+        <StatisticsCardList stats={stats} sumOfTotalTimes={sumOfTotalTimes} />
+      </div>
 
       <div className={styles.filterContainer}>
         <StatisticsDatePicker

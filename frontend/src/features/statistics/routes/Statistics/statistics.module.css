@@ -72,6 +72,13 @@
     margin: 0 10px 0 5px;
 }
 
+
+.loading {
+    pointer-events: none;
+    filter: blur(2px) grayscale(50%);
+    opacity: 0.5
+}
+
 @media only screen and (max-width: 950px)  { 
     .dateContainer {
         top: 107px;
