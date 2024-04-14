@@ -17,6 +17,7 @@ import { getRecords } from '../../api';
 import { LoadingSpinner } from '../../../../components/LoadingSpinner';
 import { NoData } from '../../../../components/NoData';
 import { formatDate } from '../../../../utils/format';
+import { getEndOf, getStartOf } from '../../../statistics/utils';
 
 export function Records() {
   const location = useLocation();
@@ -113,10 +114,8 @@ export async function recordsLoader({ request }) {
 
   const date = search.get('date') + 'Z';
 
-  const startOfDay = new Date(date);
-  startOfDay.setHours(0, 0, 0, 0);
-  const endOfDay = new Date(date);
-  endOfDay.setHours(23, 59, 59, 999);
+  const startOfDay = getStartOf('day', date);
+  const endOfDay = getEndOf('day', date);
 
   const searchString = `dateFrom=${startOfDay.toISOString()}&dateTo=${endOfDay.toISOString()}`;
   const { response, data } = await getRecords(searchString);

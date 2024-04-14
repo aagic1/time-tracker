@@ -1,4 +1,5 @@
 import { formatElapsedTime } from '../../../utils/format';
+import { getEndOf, getStartOf } from '../../statistics/utils';
 
 // PUBLIC API
 // __________
@@ -14,17 +15,13 @@ function hasRecordStoppedOnDate(record, date) {
 }
 
 function formatRecordDuration(startedAt, stoppedAt, forDate) {
-  const startOfDay = getStartOfDay(forDate);
-  const endOfDay = getEndOfDay(forDate);
+  const startOfDay = getStartOf('day', forDate);
+  const endOfDay = getEndOf('day', forDate);
 
   const upperBound = stoppedAt < endOfDay ? stoppedAt : endOfDay;
   const lowerBound = startedAt > startOfDay ? startedAt : startOfDay;
   const elapsedTime = upperBound - lowerBound;
 
-  const MILISECONDS_PER_DAY = 86_400_000;
-  if (elapsedTime >= MILISECONDS_PER_DAY - 1) {
-    return '24h 0m';
-  }
   return formatElapsedTime(elapsedTime, 'short');
 }
 
@@ -41,17 +38,4 @@ function isSameDate(date1, date2) {
     date1.getMonth() == date2.getMonth() &&
     date1.getDate() == date2.getDate()
   );
-}
-
-function getStartOfDay(date) {
-  const startOfDay = new Date(date);
-  startOfDay.setHours(0, 0, 0, 0);
-  return startOfDay;
-}
-
-function getEndOfDay(date) {
-  const endOfDay = new Date(date);
-  endOfDay.setHours(23, 59, 59, 999);
-  endOfDay.setMilliseconds(endOfDay.getMilliseconds() + 1);
-  return endOfDay;
 }
