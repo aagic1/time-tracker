@@ -17,7 +17,7 @@ Simple time tracker to improve your time management skills and give insight on t
 
 ## About
 
-This is a simple time tracking web application that allows users to create activities and define goals for each activity.
+This is a simple time tracking web application that allows users to create activities, define goals for each activity and view statistics data for a given time period.
 Users can view and retroactively modify their record history and explore their progress for each defined goal.
 
 ### Motivation
@@ -69,7 +69,7 @@ Visit [Time tracker](https://time-tracker-webapp.netlify.app) and try it out now
 
 ## Roadmap
 
-- [ ] Add Statistics page
+- [x] Add Statistics page
 - [ ] Add OAuth
 - [ ] Add i18n
 - [ ] Add application state management and caching
