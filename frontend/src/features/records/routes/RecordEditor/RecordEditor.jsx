@@ -255,7 +255,7 @@ export async function recordEditorAction({ request, params }) {
   };
 
   const validationResult = validate(body, RecordSchema);
-  if (!validationResult.success) {
+  if (!validationResult.success && intent.toLowerCase() !== 'delete') {
     return { success: false, errors: validationResult.errors };
   }
 
