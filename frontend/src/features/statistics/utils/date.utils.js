@@ -32,7 +32,8 @@ function getStartOfDay(date) {
 
 function getEndOfDay(date) {
   const endOfDay = new Date(date);
-  endOfDay.setHours(23, 59, 59, 59);
+  endOfDay.setHours(0, 0, 0, 0);
+  endOfDay.setDate(endOfDay.getDate() + 1);
   return endOfDay;
 }
 
@@ -47,13 +48,9 @@ function getStartOfWeek(date) {
 }
 
 function getEndOfWeek(date) {
-  let dayOfWeek = date.getDay();
-  if (dayOfWeek === 0) {
-    dayOfWeek = 7;
-  }
-  const endOfWeek = new Date(date);
-  endOfWeek.setDate(date.getDate() + (7 - dayOfWeek));
-  return getEndOfDay(endOfWeek);
+  let endOfWeek = getStartOfWeek(date);
+  endOfWeek.setDate(endOfWeek.getDate() + 7);
+  return endOfWeek;
 }
 
 function getStartOfMonth(date) {
