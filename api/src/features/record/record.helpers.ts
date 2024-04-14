@@ -58,8 +58,9 @@ export class DateWithTimezone {
   }
 
   public getEndOfDay() {
-    const endOfDayDateString = `${this.getDateString()}T23:59:59.999${this.getTimezoneString()}`;
-    return new Date(endOfDayDateString);
+    const endOfDay = this.getStartOfDay();
+    endOfDay.setDate(endOfDay.getDate() + 1);
+    return endOfDay;
   }
 
   public getStartOfWeek() {
@@ -74,14 +75,9 @@ export class DateWithTimezone {
   }
 
   public getEndOfWeek() {
-    const d = new Date(this.year, this.month - 1, this.dayOfMonth);
-    d.setDate(d.getDate() + (7 - this.dayOfWeek));
-    const dateString = DateWithTimezone.getDateString(
-      d.getFullYear(),
-      d.getMonth() + 1,
-      d.getDate()
-    );
-    return new Date(`${dateString}T23:59:59.999${this.getTimezoneString()}`);
+    const endOfWeek = this.getStartOfWeek();
+    endOfWeek.setDate(endOfWeek.getDate() + 7);
+    return endOfWeek;
   }
 
   public getStartOfMonth() {
@@ -90,8 +86,9 @@ export class DateWithTimezone {
   }
 
   public getEndOfMonth() {
-    const dateString = DateWithTimezone.getDateString(this.year, this.month, this.getDaysInMonth());
-    return new Date(`${dateString}T23:59:59.999${this.getTimezoneString()}`);
+    const endOfMonth = this.getStartOfMonth();
+    endOfMonth.setDate(endOfMonth.getDate() + this.getDaysInMonth());
+    return endOfMonth;
   }
 
   public getStartOfYear() {
@@ -100,8 +97,8 @@ export class DateWithTimezone {
   }
 
   public getEndOfYear() {
-    const dateString = DateWithTimezone.getDateString(this.year, 12, 31);
-    return new Date(`${dateString}T23:59:59.999${this.getTimezoneString()}`);
+    const dateString = DateWithTimezone.getDateString(this.year + 1, 1, 1);
+    return new Date(`${dateString}T00:00:00.000${this.getTimezoneString()}`);
   }
 
   public get year() {
